@@ -2,9 +2,52 @@
 == QGames-Server
 
 Este es el servidor de QGames, el cual estará disponible para resolver
-partidas.
+las partidas.
 
 == Requisitos
 
 qgames, obviamente
 sudo aptitude install libdb4.6-lib
+
+== Pequeña descripción
+
+El servidor estará compuesto por el módulo de usuarios, resolución de
+partidas, la capa de persistencia de datos y la capa de conectividad o
+interfaz.
+
+El módulo de usuarios permitirá loggearse y controlar las partidas en
+el repositorio.
+Los usuarios serán por el momento de dos tipos, administrador y comun.
+El usuario administrador tendrá privilegios sobre todos los juegos, 
+mientras que el común sólo podrá trabajar con sus propias partidas.
+
+El módulo de resolución de partidas no es otra cosa que las llamadas
+correspondientes al qgames, más la persistencia en memoria de los tipos
+de juego.
+
+En cuanto a la persistencia de datos estará por ahora montada sobre
+la DB-Berkeley y permitirá mantener usuarios, y las partidas que cada
+uno de los usuarios tenga activa.
+
+Finalmente, la interfaz será un servicio de verbos http, que aún no
+está definida, pero tendrá, al menos, el siguiente juego de acciones:
+- loggeo
+- lista de tipos de juegos disponibles
+- detalles del tipo de juego
+- creación de partida
+- registrar / desregistrar una partida
+- mover dentro de una partida
+
+== Herramientas
+
+Es necesario una herramienta para inicializar la capa de persistencia de datos
+
+== Configuración
+
+Preferentemente, toda configuración se hará por línea de comandos. Los parámetros
+establecidos serán ...
+
+- Puerto donde se escucha.
+- Base de datos.
+
+
