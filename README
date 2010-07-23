@@ -1,0 +1,10 @@
+
+== QGames-Server
+
+Este es el servidor de QGames, el cual estará disponible para resolver
+partidas.
+
+== Requisitos
+
+qgames, obviamente
+sudo aptitude install libdb4.6-lib

@@ -12,7 +12,10 @@ AC_CONFIG_SRCDIR([configure.ac])
 # AC_CHECK_LIB(ncurses,initscr,[CURSES_LIBS="-lncurses"])
 # AC_CHECK_LIB(ncursesw,initscr,[CURSES_LIBS="-lncursesw"])
 
+AC_CHECK_HEADERS([gd.h])
 AC_CHECK_LIB(gd,gdImageCreate)
+AC_CHECK_HEADERS([db.h])
+AC_CHECK_LIB(db,db_create)
 
 AC_ARG_WITH([qgames],
     [AC_HELP_STRING([--with-qgames=dir],[Establecer directorio del paquete qgames])],
