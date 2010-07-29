@@ -7,12 +7,14 @@
 
 #include  <stdlib.h>
 #include  <stdio.h>
+#include  <assert.h>
 #include  <qgames.h>
 #include  <qgames_analyzer.h>
 
 int main(int argc, char** argv){
 
-    Tipojuego* tj = tipojuego_new( "Hola" );
+    Tipojuego* tj = qg_tipojuego_new( "Hola" );
+    assert( tj );
 
     exit( EXIT_SUCCESS );
 }

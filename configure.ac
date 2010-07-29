@@ -40,7 +40,7 @@ AC_SUBST(qgamesinc)
 
 
 AC_CHECK_HEADERS([qgames.h])
-AC_CHECK_LIB(qgames,tipojuego_new,[], AC_MSG_ERROR([No esta instalado el core de qgames]))
+AC_CHECK_LIB(qgames,qg_tipojuego_new,[], AC_MSG_ERROR([No esta instalado el core de qgames]))
 # CFLAGS="$saved_CFLAGS" 
 
 AC_CONFIG_HEADER(config.h)
