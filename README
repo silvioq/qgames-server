@@ -50,4 +50,8 @@ establecidos serán ...
 - Puerto donde se escucha.
 - Base de datos.
 
+== Estructura de datos
+
+* Usuarios: codigo, nombre, clave, tipo
+* Partidas: id, usuario, tipo de juego, fecha de ultima actualizacion, data
 
