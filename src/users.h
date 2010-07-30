@@ -33,7 +33,11 @@ typedef  struct  StrUser {
   char[16] password;
 } User
 
-User*   user_load( int id );   
+#define   USERTYPE_ADMIN  1
+#define   USERTYPE_USER   2
+
+
+User*   user_load( int id ); 
 User*   user_find_by_code( char* user );
 void    user_free( User* user );
 int     user_save( User* user );
