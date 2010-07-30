@@ -21,46 +21,28 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#include  <stdio.h>
-#include  <stdlib.h>
-#include  <unistd.h>
+#include  <malloc.h>
+#include  <string.h>
 #include  <config.h>
-
 #include  "users.h"
-#include  "dbmanager.h"
 
-void  usage(char* program){
-    puts( "Uso:" );
-    printf( "  %s [-c \"db to create\"] [-u user -d dbfile]\n" );
-    exit( EXIT_FAILURE );
+User*   user_new( int tipo, char* code, char* nombre, char* password ){
+    User* u = malloc( sizeof( User ) );
+    memset( u, 0, sizeof( User ) );
+    u->tipo = tipo;
+    u->code = code ? strdup( code ) : NULL;
+    u->nombre = nombre ? strdup( nombre ) : NULL;
+    // TODO: Password
+    return u ;
 }
 
 
-int  main( int argc, char** argv ){
+void    user_free( User* user ){
+    if( user->code ) free( user->code );
+    if( user->nombre ) free( user->nombre );
+    free( user );
+}
 
-    char* dbfilec = NULL;
-    char* dbfile  = NULL;
-    char* usercode = NULL;
-
-    int opt = 0;
-    while(( opt = getopt( argc, argv, "hd:c:u:" )) != -1 ){
-        switch(opt){
-            case 'c':
-                dbfilec = optarg;
-                break;
-            case 'u':
-                usercode = optarg;
-                break;
-            case 'd':
-                dbfile  = optarg;
-                break;
-            default:
-                usage(argv[0]);
-        }
-    }
-
-    if( dbfilec && dbfile ) usage(argv[0]);
-    if( usercode && !dbfile ) usage(argv[0]);
-
+int     user_save( User* user ){
     return 0;
 }

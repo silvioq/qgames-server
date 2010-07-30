@@ -23,6 +23,7 @@
 
 #include  <stdio.h>
 #include  <stdlib.h>
+#include  <string.h>
 #include  <config.h>
 #include  <db.h>
 
@@ -38,7 +39,7 @@ static DB*   db_stats = NULL;
 typedef  struct  StrStats {
     int  user_id;
     int  game_id;
-}
+} Stats;
 
 #define   USERROOT "root"
 #define   USERPWD  "root"
@@ -67,7 +68,7 @@ static  int  init_stats( DB* db ){
  * */
 int    init_db( char* filename ){
     DB* db;
-    int ret = db_create( db, NULL, 0 );
+    int ret = db_create( &db, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
@@ -75,25 +76,25 @@ int    init_db( char* filename ){
     }
 
     int flags = DB_CREATE | DB_AUTO_COMMIT | DB_EXCL ;
-    ret = db->open( db, NULL, filename, "users", DB_TREE, flags, 0 );
+    ret = db->open( db, NULL, filename, "users", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s", filename );
         db_error = "Error abriendo archivo";
         return 0;
     }
-    db->close();
+    db->close(db,0);
 
-    int flags = DB_CREATE | DB_AUTO_COMMIT  ;
-    ret = db->open( db, NULL, filename, "games", DB_TREE, flags, 0 );
+    flags = DB_CREATE | DB_AUTO_COMMIT  ;
+    ret = db->open( db, NULL, filename, "games", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (games)", filename );
         db_error = "Error abriendo archivo (games)";
         return 0;
     }
-    db->close();
+    db->close(db,0);
 
-    int flags = DB_CREATE | DB_AUTO_COMMIT  ;
-    ret = db->open( db, NULL, filename, "stats", DB_TREE, flags, 0 );
+    flags = DB_CREATE | DB_AUTO_COMMIT  ;
+    ret = db->open( db, NULL, filename, "stats", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (stats)", filename );
         db_error = "Error abriendo archivo (stats)";
@@ -106,7 +107,7 @@ int    init_db( char* filename ){
         db_error = "Error inicializando stats";
         return 0;
     };
-    db->close();
+    db->close(db,0);
 
     
     /* Listo el pollo, ahora hay que crear un nuevo usuario, el 

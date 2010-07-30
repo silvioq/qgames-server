@@ -47,6 +47,7 @@ AC_CONFIG_HEADER(config.h)
 
 AC_CONFIG_FILES(
   [Makefile
+   src/Makefile
    test/Makefile
   ])
 
