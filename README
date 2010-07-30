@@ -6,8 +6,8 @@ las partidas.
 
 == Requisitos
 
-qgames, obviamente
-sudo aptitude install libdb4.6-lib
+- qgames, obviamente
+- sudo aptitude install libdb4.6-lib
 
 == Pequeña descripción
 
