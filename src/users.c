@@ -27,6 +27,7 @@
 #include  <stdint.h>
 #include  "users.h"
 
+#include  "log.h"
 #include  "md5.h"
 
 static  char*  secret_key = "YrfHs7SNt1rPjX4Vn7jI/XVXqgG/DVcqfooZbefGjTVd/btw3g8pTGWrt3GUeFY/";
@@ -139,11 +140,11 @@ User*  bin_to_user( void* data, int size ){
     int  tipo;
 
     if( point > max ) return NULL;
-    tipo = (int)((uint8_t*)point[0]);
+    tipo = (int)(((uint8_t*)point)[0]);
     point += sizeof( uint8_t );
 
     if( point > max ) return NULL;
-    id = (unsigned int)((uint32_t*)point[0]);
+    id = (unsigned int)(((uint32_t*)point)[0]);
     point += sizeof( uint32_t );
 
     if( point > max ) return NULL;
@@ -163,6 +164,23 @@ User*  bin_to_user( void* data, int size ){
     return u;
 
 }
+
+/*
+ * Esta funcion es especialmente util para obtener el dato
+ * desde el binario 
+ * */
+
+int   userbin_get_code( void* data, char** code, int* size ){
+    char* point = (char*)data  +
+        sizeof( uint32_t ) + // el id
+        sizeof( uint8_t ) ;  // el tipo 
+
+    int len = strlen( point );
+    *code = point;
+    *size = len;
+    return 1;
+}
+
 
 
 
@@ -187,5 +205,19 @@ void    user_free( User* user ){
 }
 
 int     user_save( User* user ){
-    return 0;
+    void* data;
+    int  size;
+    size = user_to_bin( user, &data );
+    if( size == 0 ){
+        LOGPRINT( 1, "Error en dump de usuario %d", user->id );
+        return 0;
+    }
+    int ret = dbput_user( user->id, data, size );
+    if( ret == 0 ){
+        LOGPRINT( 1, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
+        return 0;
+    }
+
+    if( user->id == 0 ) user->id = ret;
+    return ret;
 }

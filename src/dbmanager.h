@@ -31,5 +31,6 @@ int    dbput_game( int id, void* data, int size );
 int    dbget_user( int id, void** data, int* size );
 int    dbget_game( int id, void** data, int* size );
 int    dbget_user_code( char* code, void** data, int* size );
+char*  db_getlasterror( );
 
 #endif

@@ -33,7 +33,9 @@
 static char* db_file = NULL;
 static char* db_error = NULL;
 static DB*   db_users = NULL;
+static DB*   db_users_code = NULL;
 static DB*   db_games = NULL;
+static DB*   db_games_code = NULL;
 static DB*   db_stats = NULL;
 
 typedef  struct  StrStats {
@@ -61,6 +63,137 @@ static  int  init_stats( DB* db ){
 
     return db->put( db, NULL, &key, &val, DB_NOOVERWRITE );
 }
+
+char*  db_getlasterror( ){ return db_error; }
+
+/*
+ *
+ * Esta funcion abre las bases de datos 
+ *
+ * */
+static  int  open_dbs(){
+
+    if( db_users ) return 1;
+    int ret;
+    int flags;
+
+    // creo los espacios de memoria necesarios
+    ret = db_create( &db_users, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    ret = db_create( &db_users_code, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    ret = db_create( &db_games, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    ret = db_create( &db_games_code, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    ret = db_create( &db_stats, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+
+    // Ahora abro las bases de datos
+    flags = DB_AUTO_COMMIT;
+    ret = db_users->open( db_users, NULL, db_file, "users", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s users", db_file );
+        db_error = "Error abriendo users";
+        return 0;
+    }
+    ret = db_games->open( db_games, NULL, db_file, "games", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s games", db_file );
+        db_error = "Error abriendo games";
+        return 0;
+    }
+    ret = db_stats->open( db_games, NULL, db_file, "stats", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s stats", db_file );
+        db_error = "Error abriendo stats";
+        return 0;
+    }
+
+
+    // Y finalmente los indices duplicados
+    //
+    // void
+    // second()
+    // {
+    //   DB *dbp, *sdbp;
+    //   int ret;
+    //   
+    //   /* Open/create primary */
+    //   if ((ret = db_create(&dbp, dbenv, 0)) != 0)
+    //     handle_error(ret);
+    //   if ((ret = dbp->open(dbp, NULL,
+    //       "students.db", NULL, DB_BTREE, DB_CREATE, 0600)) != 0)
+    //     handle_error(ret);
+    //   
+    //   /*
+    //  *   * Open/create secondary.  Note that it supports duplicate data
+    //  *     * items, since last names might not be unique.
+    //  *       */
+    //   if ((ret = db_create(&sdbp, dbenv, 0)) != 0)
+    //     handle_error(ret);
+    //   if ((ret = sdbp->set_flags(sdbp, DB_DUP | DB_DUPSORT)) != 0)
+    //     handle_error(ret);
+    //   if ((ret = sdbp->open(sdbp, NULL,
+    //       "lastname.db", NULL, DB_BTREE, DB_CREATE, 0600)) != 0)
+    //     handle_error(ret);
+    //   
+    //   /* Associate the secondary with the primary. */
+    //   if ((ret = dbp->associate(dbp, NULL, sdbp, getname, 0)) != 0)
+    //     handle_error(ret);
+    // }
+    // 
+    // /*
+    //  *  * getname -- extracts a secondary key (the last name) from a primary
+    //  *   *  key/data pair
+    //  *    */
+    // int
+    // getname(secondary, pkey, pdata, skey)
+    //   DB *secondary;
+    //   const DBT *pkey, *pdata;
+    //   DBT *skey;
+    // {
+    //   /*
+    //  *   * Since the secondary key is a simple structure member of the
+    //  *     * record, we don't have to do anything fancy to return it.  If
+    //  *       * we have composite keys that need to be constructed from the
+    //  *         * record, rather than simply pointing into it, then the user's
+    //  *           * function might need to allocate space and copy data.  In
+    //  *             * this case, the DB_DBT_APPMALLOC flag should be set in the
+    //  *               * secondary key DBT.
+    //  *                 */
+    //   memset(skey, 0, sizeof(DBT));
+    //   skey->data = ((struct student_record *)pdata->data)->last_name;
+    //   skey->size = sizeof((struct student_record *)pdata->data)->last_name;
+    //   return (0);
+    // }
+
+
+    return 1;
+
+
+}
+
 
 
 /*
@@ -122,3 +255,7 @@ int    init_db( char* filename ){
 
     return 1;
 }
+
+
+
+
