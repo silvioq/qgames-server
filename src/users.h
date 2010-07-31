@@ -30,7 +30,7 @@ typedef  struct  StrUser {
   int      tipo;
   char*    code;
   char*    nombre;
-  char     password[16];
+  unsigned char     password[16];
 } User;
 
 #define   USERTYPE_ADMIN  1

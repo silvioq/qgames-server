@@ -26,13 +26,40 @@
 #include  <config.h>
 #include  "users.h"
 
+#include  "md5.h"
+
+static  char*  secret_key = "YrfHs7SNt1rPjX4Vn7jI/XVXqgG/DVcqfooZbefGjTVd/btw3g8pTGWrt3GUeFY/";
+static  int    secret_len = 0;
+static  int    secret_used = 0;
+
+
+/*
+ * Esta funcion toma un char de entrada y devuelve el MD5.
+ * */
+static  void  password_md5( const char* password, unsigned char hash[16] ){
+    md5_state_t  md5;
+    md5_init( &md5 );
+
+    if( !secret_used ){
+        secret_len = strlen( secret_key );
+        secret_used = 1;
+    }
+
+    md5_append( &md5, secret_key, secret_len );
+    md5_append( &md5, password, strlen( password ) );
+    md5_finish( &md5, hash );
+
+
+}
+
+
 User*   user_new( int tipo, char* code, char* nombre, char* password ){
     User* u = malloc( sizeof( User ) );
     memset( u, 0, sizeof( User ) );
     u->tipo = tipo;
     u->code = code ? strdup( code ) : NULL;
     u->nombre = nombre ? strdup( nombre ) : NULL;
-    // TODO: Password
+    password_md5( password, u->password );
     return u ;
 }
 
