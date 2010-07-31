@@ -26,7 +26,7 @@
 
 
 typedef  struct  StrUser {
-  int      id;
+  unsigned int      id;
   int      tipo;
   char*    code;
   char*    nombre;
@@ -37,7 +37,7 @@ typedef  struct  StrUser {
 #define   USERTYPE_USER   2
 
 
-User*   user_load( int id ); 
+User*   user_load( unsigned int id ); 
 User*   user_find_by_code( char* user );
 void    user_free( User* user );
 int     user_save( User* user );

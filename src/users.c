@@ -24,6 +24,7 @@
 #include  <malloc.h>
 #include  <string.h>
 #include  <config.h>
+#include  <stdint.h>
 #include  "users.h"
 
 #include  "md5.h"
@@ -53,13 +54,128 @@ static  void  password_md5( const char* password, unsigned char hash[16] ){
 }
 
 
+/* Sin uso, por el momento */
+#define  ADDDATA( data, len, dato, alloc ){ \
+    if( len + sizeof( dato ) > alloc ){ \
+        alloc = len + sizeof( dato ) + 256; \
+        data = realloc( data, alloc ); \
+    } \
+    typeof(dato)* point = (typeof(dato)*)( ((char*)data) + len );\
+    *point = dato ;\
+    len += sizeof( dato ); \
+  }
+
+
+/*
+ * Esta funcion es fundamental y lo que hace simplemente es pasar la estructura
+ * de usuario a un binario, para ser almacenado en la base de datos
+ * Crea el espacio en memoria (darle free luego) y devuelve la
+ * cantidad de bytes de espacio.
+ * */
+static   int  user_to_bin( User* u, void** data ){
+
+    int csize = ( u->code ? strlen( u->code ) : 0 ) + 1;
+    int nsize = ( u->nombre ? strlen( u->nombre ) : 0 ) + 1;
+
+    int size = sizeof( uint32_t ) // ID
+            +  sizeof( uint8_t ) // tipo
+            +  csize  // codigo
+            +  nsize  // nombre
+            +  sizeof( u->password ) ;
+
+    void*  ret = malloc( size );
+    void*  point = ret;
+    
+    // ID
+    uint32_t  len32 = u->id;
+    *(uint32_t*)point = len32;
+    point = (char*) point + sizeof( len32 );
+
+    // tipo
+    uint8_t   len8 = u->tipo;
+    *(uint8_t*)point = len8;
+    point = (char*)point + sizeof( len8 );
+
+    // codigo
+    if( u->code ){
+        memcpy( point, u->code, csize );
+        point = (char*)point + csize ;
+    } else {
+        ((char*)point)[0] = 0;
+        point = (char*)point + 1;
+    }
+
+    // codigo
+    if( u->nombre ){
+        memcpy( point, u->nombre, nsize );
+        point = (char*)point + nsize ;
+    } else {
+        ((char*)point)[0] = 0;
+        point = (char*)point + 1;
+    }
+
+    // password
+    memcpy( point, u->password, sizeof( u->password ) );
+
+    *data = ret;
+    return size;
+    
+    
+}
+
+/*
+ * Esta funcion hace precisamente lo contrario a la anterior 
+ * Toma un binario y lo convierte en una estructura valida 
+ * de usuario
+ * */
+User*  bin_to_user( void* data, int size ){
+
+    char* max = (char*)data + size;
+    char* point = data;
+
+
+    char* code; char* nombre;
+    unsigned int  id;
+    int  tipo;
+
+    if( point > max ) return NULL;
+    tipo = (int)((uint8_t*)point[0]);
+    point += sizeof( uint8_t );
+
+    if( point > max ) return NULL;
+    id = (unsigned int)((uint32_t*)point[0]);
+    point += sizeof( uint32_t );
+
+    if( point > max ) return NULL;
+    code = point;
+    point += strlen(code) + 1;
+
+    if( point > max ) return NULL;
+    nombre = point;
+    point += strlen(nombre) + 1;
+
+    if( point + 16 > max ) return NULL;
+
+    User* u = user_new( tipo, code, nombre, NULL );
+    u->id = id;
+    memcpy( u->password, point, 16 );
+
+    return u;
+
+}
+
+
+
+
+
+
 User*   user_new( int tipo, char* code, char* nombre, char* password ){
     User* u = malloc( sizeof( User ) );
     memset( u, 0, sizeof( User ) );
     u->tipo = tipo;
     u->code = code ? strdup( code ) : NULL;
     u->nombre = nombre ? strdup( nombre ) : NULL;
-    password_md5( password, u->password );
+    if( password ) password_md5( password, u->password );
     return u ;
 }
 
