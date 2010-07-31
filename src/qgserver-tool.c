@@ -57,6 +57,8 @@ int  main( int argc, char** argv ){
                 break;
             case 's':
                 secret  = optarg;
+                printf( "Secret key aun no implementado ... \n" );
+                break;
             default:
                 usage(argv[0]);
         }
