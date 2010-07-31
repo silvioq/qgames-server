@@ -56,7 +56,7 @@ int  main( int argc, char** argv ){
                 dbfile  = optarg;
                 break;
             case 's':
-                secret  = optarg;
+                secret_key  = optarg;
                 printf( "Secret key aun no implementado ... \n" );
                 break;
             default:
