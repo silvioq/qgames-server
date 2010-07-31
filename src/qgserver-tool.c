@@ -31,7 +31,7 @@
 
 void  usage(char* program){
     puts( "Uso:" );
-    printf( "  %s [-c \"db to create\"] [-u user -d dbfile]\n" );
+    printf( "  %s [-c \"db to create\"] [-u user -d dbfile] -s secret_key\n" );
     exit( EXIT_FAILURE );
 }
 
@@ -41,9 +41,10 @@ int  main( int argc, char** argv ){
     char* dbfilec = NULL;
     char* dbfile  = NULL;
     char* usercode = NULL;
+    char* secret_key = NULL;
 
     int opt = 0;
-    while(( opt = getopt( argc, argv, "hd:c:u:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hd:c:u:s:" )) != -1 ){
         switch(opt){
             case 'c':
                 dbfilec = optarg;
@@ -54,6 +55,8 @@ int  main( int argc, char** argv ){
             case 'd':
                 dbfile  = optarg;
                 break;
+            case 's':
+                secret  = optarg;
             default:
                 usage(argv[0]);
         }
