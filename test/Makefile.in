@@ -29,7 +29,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = test-main$(EXEEXT)
+check_PROGRAMS = test-main$(EXEEXT) test-db-create-file$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -39,6 +39,12 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
+am__objects_1 = dbmanager.$(OBJEXT) users.$(OBJEXT) log.$(OBJEXT) \
+	md5.$(OBJEXT)
+am_test_db_create_file_OBJECTS = $(am__objects_1) \
+	test-db-create-file.$(OBJEXT)
+test_db_create_file_OBJECTS = $(am_test_db_create_file_OBJECTS)
+test_db_create_file_LDADD = $(LDADD)
 am_test_main_OBJECTS = test-main.$(OBJEXT)
 test_main_OBJECTS = $(am_test_main_OBJECTS)
 test_main_LDADD = $(LDADD)
@@ -49,8 +55,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(test_main_SOURCES)
-DIST_SOURCES = $(test_main_SOURCES)
+SOURCES = $(test_db_create_file_SOURCES) $(test_main_SOURCES)
+DIST_SOURCES = $(test_db_create_file_SOURCES) $(test_main_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -142,7 +148,16 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 LIB = $(QGAMESLIBS)
+DEPENDENCES = ../src/dbmanager.c  ../src/dbmanager.h \
+		../src/users.h  ../src/users.c \
+		../common/log.h  ../common/log.c \
+		../common/md5.h  ../common/md5.c 
+
 test_main_SOURCES = test-main.c
+test_db_create_file_SOURCES = $(DEPENDENCES) \
+		test-db-create-file.c
+
+AM_CFLAGS = -I ../src -I ../common
 TESTS = $(check_PROGRAMS)
 all: all-am
 
@@ -180,6 +195,9 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+test-db-create-file$(EXEEXT): $(test_db_create_file_OBJECTS) $(test_db_create_file_DEPENDENCIES) 
+	@rm -f test-db-create-file$(EXEEXT)
+	$(LINK) $(test_db_create_file_OBJECTS) $(test_db_create_file_LDADD) $(LIBS)
 test-main$(EXEEXT): $(test_main_OBJECTS) $(test_main_DEPENDENCIES) 
 	@rm -f test-main$(EXEEXT)
 	$(LINK) $(test_main_OBJECTS) $(test_main_LDADD) $(LIBS)
@@ -190,7 +208,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-db-create-file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/users.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -205,6 +228,62 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+
+dbmanager.o: ../src/dbmanager.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dbmanager.o -MD -MP -MF $(DEPDIR)/dbmanager.Tpo -c -o dbmanager.o `test -f '../src/dbmanager.c' || echo '$(srcdir)/'`../src/dbmanager.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dbmanager.Tpo $(DEPDIR)/dbmanager.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/dbmanager.c' object='dbmanager.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dbmanager.o `test -f '../src/dbmanager.c' || echo '$(srcdir)/'`../src/dbmanager.c
+
+dbmanager.obj: ../src/dbmanager.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dbmanager.obj -MD -MP -MF $(DEPDIR)/dbmanager.Tpo -c -o dbmanager.obj `if test -f '../src/dbmanager.c'; then $(CYGPATH_W) '../src/dbmanager.c'; else $(CYGPATH_W) '$(srcdir)/../src/dbmanager.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dbmanager.Tpo $(DEPDIR)/dbmanager.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/dbmanager.c' object='dbmanager.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dbmanager.obj `if test -f '../src/dbmanager.c'; then $(CYGPATH_W) '../src/dbmanager.c'; else $(CYGPATH_W) '$(srcdir)/../src/dbmanager.c'; fi`
+
+users.o: ../src/users.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT users.o -MD -MP -MF $(DEPDIR)/users.Tpo -c -o users.o `test -f '../src/users.c' || echo '$(srcdir)/'`../src/users.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/users.Tpo $(DEPDIR)/users.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/users.c' object='users.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o users.o `test -f '../src/users.c' || echo '$(srcdir)/'`../src/users.c
+
+users.obj: ../src/users.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT users.obj -MD -MP -MF $(DEPDIR)/users.Tpo -c -o users.obj `if test -f '../src/users.c'; then $(CYGPATH_W) '../src/users.c'; else $(CYGPATH_W) '$(srcdir)/../src/users.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/users.Tpo $(DEPDIR)/users.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/users.c' object='users.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o users.obj `if test -f '../src/users.c'; then $(CYGPATH_W) '../src/users.c'; else $(CYGPATH_W) '$(srcdir)/../src/users.c'; fi`
+
+log.o: ../common/log.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT log.o -MD -MP -MF $(DEPDIR)/log.Tpo -c -o log.o `test -f '../common/log.c' || echo '$(srcdir)/'`../common/log.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/log.Tpo $(DEPDIR)/log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/log.c' object='log.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o log.o `test -f '../common/log.c' || echo '$(srcdir)/'`../common/log.c
+
+log.obj: ../common/log.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT log.obj -MD -MP -MF $(DEPDIR)/log.Tpo -c -o log.obj `if test -f '../common/log.c'; then $(CYGPATH_W) '../common/log.c'; else $(CYGPATH_W) '$(srcdir)/../common/log.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/log.Tpo $(DEPDIR)/log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/log.c' object='log.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o log.obj `if test -f '../common/log.c'; then $(CYGPATH_W) '../common/log.c'; else $(CYGPATH_W) '$(srcdir)/../common/log.c'; fi`
+
+md5.o: ../common/md5.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT md5.o -MD -MP -MF $(DEPDIR)/md5.Tpo -c -o md5.o `test -f '../common/md5.c' || echo '$(srcdir)/'`../common/md5.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/md5.Tpo $(DEPDIR)/md5.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/md5.c' object='md5.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o md5.o `test -f '../common/md5.c' || echo '$(srcdir)/'`../common/md5.c
+
+md5.obj: ../common/md5.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT md5.obj -MD -MP -MF $(DEPDIR)/md5.Tpo -c -o md5.obj `if test -f '../common/md5.c'; then $(CYGPATH_W) '../common/md5.c'; else $(CYGPATH_W) '$(srcdir)/../common/md5.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/md5.Tpo $(DEPDIR)/md5.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/md5.c' object='md5.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o md5.obj `if test -f '../common/md5.c'; then $(CYGPATH_W) '../common/md5.c'; else $(CYGPATH_W) '$(srcdir)/../common/md5.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

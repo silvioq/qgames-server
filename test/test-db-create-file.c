@@ -21,17 +21,31 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#ifndef  DBMANAGER_H
-#define  DBMANAGER_H
+#include  <sys/types.h>
+#include  <sys/stat.h>
+#include  <stdio.h>
+#include  <stdlib.h>
+#include  <unistd.h>
+#include  <assert.h>
 
+#include  "dbmanager.h"
+#include  "log.h"
 
-int    init_db( char* filename );
-int    dbset_file( char* filename );
-int    dbput_user( unsigned int id, void* data, int size );
-int    dbput_game( unsigned int id, void* data, int size );
-int    dbget_user( unsigned int id, void** data, int* size );
-int    dbget_game( unsigned int id, void** data, int* size );
-int    dbget_user_code( char* code, void** data, int* size );
-char*  db_getlasterror( );
+#define   FILEDB  "test.db"
 
-#endif
+int  main( int argc, char** argv ){
+
+    struct  stat  sb;
+    loglevel = 5;
+
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+
+    assert( stat( FILEDB, &sb) != -1 );
+    assert( sb.st_size > 1024 );
+    assert( unlink( FILEDB ) != -1 );
+    
+
+    exit( EXIT_SUCCESS );
+}

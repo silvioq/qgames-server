@@ -43,6 +43,7 @@ void    user_free( User* user );
 int     user_save( User* user );
 User*   user_new( int tipo, char* code, char* nombre, char* password );
 int     user_check_password( User* user, char* password );
+int     userbin_get_code( void* data, char** code, int* size );
 
 
 

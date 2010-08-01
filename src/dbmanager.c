@@ -39,16 +39,38 @@ static DB*   db_games_code = NULL;
 static DB*   db_stats = NULL;
 
 typedef  struct  StrStats {
-    int  user_id;
-    int  game_id;
+    unsigned int  user_id;
+    unsigned int  game_id;
 } Stats;
 
 #define   USERROOT "root"
 #define   USERPWD  "root"
 
+static  int  open_dbs();
+
+
+
+
+int   user_getcode( DB* secdb, const DBT* pkey,const  DBT* pdata, DBT* skey ){
+    memset( skey, 0, sizeof( DBT ) );
+    char* code;
+    int  size ;
+    if( userbin_get_code( pdata->data, &code, &size ) ){
+        skey->data = code;
+        skey->size = size;
+        return 0;
+    } else {
+        LOGPRINT( 1, "Fatal error !!! %s", "userbin" );
+        return DB_DONOTINDEX;
+    }
+}
+    
+/*
+ * Inicializa estadisticas
+ * */
 static  int  init_stats( DB* db ){
     DBT  key;
-    int  keyval = 1;
+    uint32_t  keyval = 1;
     struct  StrStats stats;
     DBT  val;
 
@@ -64,6 +86,44 @@ static  int  init_stats( DB* db ){
     return db->put( db, NULL, &key, &val, DB_NOOVERWRITE );
 }
 
+/*
+ * Obtiene el proximo numero de Usuario
+ * */
+static  unsigned int  dbuser_getnextid( ){
+    open_dbs();
+    DBT  key;
+    
+    uint32_t  keyval = 1;
+    struct  StrStats* stats;
+    DBT  val;
+    int  ret;
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+
+    key.data = &keyval;
+    key.size = sizeof( keyval );
+    ret = db_stats->get( db_stats, NULL, &key, &val, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 1, "Error leyendo stats %d", ret );
+        db_error = "Error leyendo stats";
+        return 0;
+    }
+    stats = (struct StrStats*)val.data;
+    stats->user_id ++;
+    ret = db_stats->put( db_stats, NULL, &key, &val, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 1, "Error leyendo stats %d", ret );
+        db_error = "Error leyendo stats";
+        return 0;
+    }
+    return  stats->user_id;
+    
+}
+
+/*
+ * Gran complejidad para esta funcion fundamental
+ * */
 char*  db_getlasterror( ){ return db_error; }
 
 /*
@@ -76,6 +136,8 @@ static  int  open_dbs(){
     if( db_users ) return 1;
     int ret;
     int flags;
+
+    LOGPRINT( 5, "Abriendo bases %s", db_file );
 
     // creo los espacios de memoria necesarios
     ret = db_create( &db_users, NULL, 0 );
@@ -110,7 +172,7 @@ static  int  open_dbs(){
     }
 
     // Ahora abro las bases de datos
-    flags = DB_AUTO_COMMIT;
+    flags = 0;
     ret = db_users->open( db_users, NULL, db_file, "users", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s users", db_file );
@@ -123,75 +185,47 @@ static  int  open_dbs(){
         db_error = "Error abriendo games";
         return 0;
     }
-    ret = db_stats->open( db_games, NULL, db_file, "stats", DB_BTREE, flags, 0 );
+    ret = db_stats->open( db_stats, NULL, db_file, "stats", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s stats", db_file );
         db_error = "Error abriendo stats";
         return 0;
     }
 
-
-    // Y finalmente los indices duplicados
-    //
-    // void
-    // second()
-    // {
-    //   DB *dbp, *sdbp;
-    //   int ret;
-    //   
-    //   /* Open/create primary */
-    //   if ((ret = db_create(&dbp, dbenv, 0)) != 0)
-    //     handle_error(ret);
-    //   if ((ret = dbp->open(dbp, NULL,
-    //       "students.db", NULL, DB_BTREE, DB_CREATE, 0600)) != 0)
-    //     handle_error(ret);
-    //   
-    //   /*
-    //  *   * Open/create secondary.  Note that it supports duplicate data
-    //  *     * items, since last names might not be unique.
-    //  *       */
-    //   if ((ret = db_create(&sdbp, dbenv, 0)) != 0)
-    //     handle_error(ret);
-    //   if ((ret = sdbp->set_flags(sdbp, DB_DUP | DB_DUPSORT)) != 0)
-    //     handle_error(ret);
-    //   if ((ret = sdbp->open(sdbp, NULL,
-    //       "lastname.db", NULL, DB_BTREE, DB_CREATE, 0600)) != 0)
-    //     handle_error(ret);
-    //   
-    //   /* Associate the secondary with the primary. */
-    //   if ((ret = dbp->associate(dbp, NULL, sdbp, getname, 0)) != 0)
-    //     handle_error(ret);
-    // }
-    // 
-    // /*
-    //  *  * getname -- extracts a secondary key (the last name) from a primary
-    //  *   *  key/data pair
-    //  *    */
-    // int
-    // getname(secondary, pkey, pdata, skey)
-    //   DB *secondary;
-    //   const DBT *pkey, *pdata;
-    //   DBT *skey;
-    // {
-    //   /*
-    //  *   * Since the secondary key is a simple structure member of the
-    //  *     * record, we don't have to do anything fancy to return it.  If
-    //  *       * we have composite keys that need to be constructed from the
-    //  *         * record, rather than simply pointing into it, then the user's
-    //  *           * function might need to allocate space and copy data.  In
-    //  *             * this case, the DB_DBT_APPMALLOC flag should be set in the
-    //  *               * secondary key DBT.
-    //  *                 */
-    //   memset(skey, 0, sizeof(DBT));
-    //   skey->data = ((struct student_record *)pdata->data)->last_name;
-    //   skey->size = sizeof((struct student_record *)pdata->data)->last_name;
-    //   return (0);
-    // }
+    // Este es el indice por codigo de usuario
+    ret = db_users_code->open( db_users_code, NULL, db_file, "users_code_idx", 
+                    DB_BTREE, DB_CREATE, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s users_code", db_file );
+        db_error = "Error abriendo stats";
+        return 0;
+    }
+    ret = db_users->associate( db_users, NULL, db_users_code, user_getcode, DB_CREATE );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error estableciendo asociacion users_code (%s)", db_file );
+        db_error = "Error estableciendo asociacion";
+        return 0;
+    }
+    
 
 
     return 1;
 
 
+}
+
+
+/*
+ * Setea el archivo de datos
+ * */
+int    dbset_file( char* filename ){
+    if( db_users ){
+        LOGPRINT( 2, "La base de datos ya esta abierta (actual %s, setting %s)", db_file, filename );
+        return 0;
+    } else {
+        db_file = filename;
+    }
+    return 1;
 }
 
 
@@ -208,7 +242,7 @@ int    init_db( char* filename ){
         return 0;
     }
 
-    int flags = DB_CREATE | DB_AUTO_COMMIT | DB_EXCL ;
+    int flags = DB_CREATE | DB_EXCL ;
     ret = db->open( db, NULL, filename, "users", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s", filename );
@@ -217,7 +251,12 @@ int    init_db( char* filename ){
     }
     db->close(db,0);
 
-    flags = DB_CREATE | DB_AUTO_COMMIT  ;
+    if( db_create( &db, NULL, 0 ) != 0 ){
+        LOGPRINT( 2, "Error alocando %s", filename );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    flags = DB_CREATE  ;
     ret = db->open( db, NULL, filename, "games", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (games)", filename );
@@ -226,7 +265,12 @@ int    init_db( char* filename ){
     }
     db->close(db,0);
 
-    flags = DB_CREATE | DB_AUTO_COMMIT  ;
+    if( db_create( &db, NULL, 0 ) != 0 ){
+        LOGPRINT( 2, "Error alocando %s", filename );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    flags = DB_CREATE  ;
     ret = db->open( db, NULL, filename, "stats", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (stats)", filename );
@@ -256,6 +300,51 @@ int    init_db( char* filename ){
     return 1;
 }
 
+/*
+ * Graba un usuario.
+ * Si esta informado el id, entonces es una actualizacion. 
+ * */
+
+int    dbput_user( unsigned int id, void* data, int size ){
+    int  flags;
+    DBT  key;
+    DBT  val;
+    uint32_t  keyval;
+
+    if( !open_dbs() ) return 0;
+
+    if( !id ){
+        keyval = dbuser_getnextid();
+        flags = DB_NOOVERWRITE;
+    } else {
+        flags = 0;
+        keyval = id;
+    }
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+
+    key.data = &keyval;
+    key.size = sizeof( keyval );
+
+    val.data = data;
+    val.size = size;
+
+
+    int  ret = db_users->put( db_users, NULL, &key, &val, flags );
+    if( ret == DB_KEYEXIST ){
+        LOGPRINT( 2, "Error, clave duplicada %s", "users" );
+        db_error = "Clave duplicada";
+        return 0;
+    } else if ( ret != 0 ){
+        LOGPRINT( 1, "Error %d usuario => %d", ret, keyval );
+        db_error = "Error get / put user";
+        return 0;
+    } else {
+        LOGPRINT( 5, "Usuario %d creado", keyval );
+        return 1;
+    }
+}
 
 
 
