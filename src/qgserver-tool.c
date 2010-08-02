@@ -26,12 +26,13 @@
 #include  <unistd.h>
 #include  <config.h>
 
+#include  "log.h"
 #include  "users.h"
 #include  "dbmanager.h"
 
 void  usage(char* program){
     puts( "Uso:" );
-    printf( "  %s [-c \"db to create\"] [-u user -d dbfile] -s secret_key\n" );
+    printf( "  %s [-c \"db to create\"] [-u user -d dbfile] -s secret_key\n", program );
     exit( EXIT_FAILURE );
 }
 
@@ -42,6 +43,12 @@ int  main( int argc, char** argv ){
     char* dbfile  = NULL;
     char* usercode = NULL;
     char* secret_key = NULL;
+    if( argc == 1 ){
+        usage(argv[0]);
+        exit( EXIT_FAILURE );
+    }
+
+    loglevel = 5;
 
     int opt = 0;
     while(( opt = getopt( argc, argv, "hd:c:u:s:" )) != -1 ){
@@ -69,7 +76,6 @@ int  main( int argc, char** argv ){
 
     if( dbfilec ){
           init_db( dbfilec );
-          dbfile = dbfilec;
     }
 
     if( dbfile ){
@@ -83,12 +89,16 @@ int  main( int argc, char** argv ){
             exit( EXIT_FAILURE );
         }
         char  pwd[256];
-        if( scanf( "Password: %255s", pwd ) ){
+        printf( "Password: " );
+        if( scanf( "%255s", pwd ) ){
             user_set_password( u, pwd );
             user_save( u );
         }
         
     }
+
+
+    dball_close();
 
     
 

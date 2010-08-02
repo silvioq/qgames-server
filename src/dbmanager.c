@@ -236,6 +236,10 @@ int    dbset_file( char* filename ){
  * */
 int    init_db( char* filename ){
     DB* db;
+
+    LOGPRINT( 5, "Inicializando %s", filename );
+    dbset_file( filename );
+
     int ret = db_create( &db, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
@@ -376,6 +380,25 @@ int    dbget_user_code( char* code, void** data, int* size ){
 
     
 }
+
+/*
+ * Esta funcion es muy importante, ya que es la encargada de cerrar todas
+ * las bases. No hay que olvidarse de hacerlo!
+ * */
+void   dball_close(){
+    if( db_users )      db_users->close( db_users, 0 );
+    if( db_users_code ) db_users_code->close( db_users_code, 0 );
+    if( db_games )      db_games->close( db_games, 0 );
+    if( db_games_code ) db_games_code->close( db_games_code, 0 );
+    if( db_stats  )     db_stats->close( db_stats, 0 );
+
+    db_users = NULL;
+    db_users_code = NULL;
+    db_games = NULL;
+    db_games_code = NULL;
+    db_stats = NULL;
+}
+
 
 /*
  * Estadisticas
