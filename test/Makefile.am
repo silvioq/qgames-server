@@ -1,4 +1,4 @@
-check_PROGRAMS = test-main  test-db-create-file
+check_PROGRAMS = test-main  test-db-create-file  test-dup-user
 
 QGAMESLIBS=@QGAMESLIBS@
 LIB=$(QGAMESLIBS)
@@ -9,10 +9,8 @@ DEPENDENCES= ../src/dbmanager.c  ../src/dbmanager.h \
 
 test_main_SOURCES = test-main.c
 
-
-
-test_db_create_file_SOURCES = $(DEPENDENCES) \
-		test-db-create-file.c
+test_db_create_file_SOURCES = $(DEPENDENCES) test-db-create-file.c
+test_dup_user_SOURCES       = $(DEPENDENCES) test-dup-user.c
 
 AM_CFLAGS = -I ../src -I ../common
 

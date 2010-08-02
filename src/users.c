@@ -212,7 +212,11 @@ int     user_save( User* user ){
         LOGPRINT( 1, "Error en dump de usuario %d", user->id );
         return 0;
     }
-    int ret = dbput_user( user->id, data, size );
+    int ret;
+    if( user->id )
+        ret = dbput_user( user->id, data, size, NULL );
+    else
+        ret = dbput_user( 0, data, size, &user->id );
     if( ret == 0 ){
         LOGPRINT( 1, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
         return 0;

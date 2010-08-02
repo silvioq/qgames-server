@@ -305,7 +305,7 @@ int    init_db( char* filename ){
  * Si esta informado el id, entonces es una actualizacion. 
  * */
 
-int    dbput_user( unsigned int id, void* data, int size ){
+int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew ){
     int  flags;
     DBT  key;
     DBT  val;
@@ -341,10 +341,22 @@ int    dbput_user( unsigned int id, void* data, int size ){
         db_error = "Error get / put user";
         return 0;
     } else {
-        LOGPRINT( 5, "Usuario %d creado", keyval );
+        LOGPRINT( 5, "Usuario %d salvado", keyval );
+        if( idnew ) *idnew = keyval;
         return 1;
     }
 }
 
-
+/*
+ * Estadisticas
+ * */
+void   dbget_stat( ){
+    if( db_users ){
+        db_users->stat_print( db_users, DB_FAST_STAT );
+        db_games->stat_print( db_games, DB_FAST_STAT );
+        db_stats->stat_print( db_stats, DB_FAST_STAT );
+    } else {
+        LOGPRINT( 5, "Bases no abiertas ", 0 );
+    }
+}
 
