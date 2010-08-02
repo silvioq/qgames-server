@@ -140,12 +140,12 @@ User*  bin_to_user( void* data, int size ){
     int  tipo;
 
     if( point > max ) return NULL;
-    tipo = (int)(((uint8_t*)point)[0]);
-    point += sizeof( uint8_t );
-
-    if( point > max ) return NULL;
     id = (unsigned int)(((uint32_t*)point)[0]);
     point += sizeof( uint32_t );
+
+    if( point > max ) return NULL;
+    tipo = (int)(((uint8_t*)point)[0]);
+    point += sizeof( uint8_t );
 
     if( point > max ) return NULL;
     code = point;
@@ -207,21 +207,33 @@ void    user_free( User* user ){
 int     user_save( User* user ){
     void* data;
     int  size;
+    if( !user->id ) user->id = dbget_usernextid();
     size = user_to_bin( user, &data );
     if( size == 0 ){
         LOGPRINT( 1, "Error en dump de usuario %d", user->id );
         return 0;
     }
     int ret;
-    if( user->id )
-        ret = dbput_user( user->id, data, size, NULL );
-    else
-        ret = dbput_user( 0, data, size, &user->id );
+
+    ret = dbput_user( user->id, data, size, &user->id );
     if( ret == 0 ){
-        LOGPRINT( 1, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
+        LOGPRINT( 5, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
         return 0;
     }
 
-    if( user->id == 0 ) user->id = ret;
-    return ret;
+    return 1;
+}
+
+/* 
+ * Dado un codigo de usuario, obtiene la informacion
+ * */
+User*   user_find_by_code( char* code ){
+    void* data;
+    int size;
+
+    if( dbget_user_code( code, &data, &size ) ){
+        return  bin_to_user( data, size );
+    } else {
+        return NULL;
+    }
 }

@@ -67,5 +67,16 @@ int  main( int argc, char** argv ){
     if( dbfilec && dbfile ) usage(argv[0]);
     if( usercode && !dbfile ) usage(argv[0]);
 
+    if( dbfilec ){
+          init_db( dbfilec );
+          dbfile = dbfilec;
+    }
+
+    if( dbfile ){
+          dbset_file( dbfile );
+    }
+
+    
+
     return 0;
 }

@@ -27,12 +27,13 @@
 
 int    init_db( char* filename );
 int    dbset_file( char* filename );
-int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew );
+int    dbput_user( unsigned int id, void* data, int size );
 int    dbput_game( unsigned int id, void* data, int size );
 int    dbget_user( unsigned int id, void** data, int* size );
+unsigned int  dbget_usernextid( );
 int    dbget_game( unsigned int id, void** data, int* size );
 int    dbget_user_code( char* code, void** data, int* size );
 void   dbget_stat( );
-char*  db_getlasterror( );
+char*  dbget_lasterror( );
 
 #endif

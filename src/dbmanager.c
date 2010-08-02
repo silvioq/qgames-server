@@ -25,6 +25,7 @@
 #include  <stdlib.h>
 #include  <string.h>
 #include  <config.h>
+#include  <errno.h>
 #include  <db.h>
 
 #include  "log.h"
@@ -89,7 +90,7 @@ static  int  init_stats( DB* db ){
 /*
  * Obtiene el proximo numero de Usuario
  * */
-static  unsigned int  dbuser_getnextid( ){
+unsigned int  dbget_usernextid( ){
     open_dbs();
     DBT  key;
     
@@ -305,7 +306,7 @@ int    init_db( char* filename ){
  * Si esta informado el id, entonces es una actualizacion. 
  * */
 
-int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew ){
+int    dbput_user( unsigned int id, void* data, int size ){
     int  flags;
     DBT  key;
     DBT  val;
@@ -313,13 +314,8 @@ int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew ){
 
     if( !open_dbs() ) return 0;
 
-    if( !id ){
-        keyval = dbuser_getnextid();
-        flags = DB_NOOVERWRITE;
-    } else {
-        flags = 0;
-        keyval = id;
-    }
+    flags = 0;
+    keyval = id;
 
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
@@ -332,7 +328,7 @@ int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew ){
 
 
     int  ret = db_users->put( db_users, NULL, &key, &val, flags );
-    if( ret == DB_KEYEXIST ){
+    if( ret == DB_KEYEXIST || ret == EINVAL ){
         LOGPRINT( 2, "Error, clave duplicada %s", "users" );
         db_error = "Clave duplicada";
         return 0;
@@ -342,9 +338,43 @@ int    dbput_user( unsigned int id, void* data, int size, unsigned int* idnew ){
         return 0;
     } else {
         LOGPRINT( 5, "Usuario %d salvado", keyval );
-        if( idnew ) *idnew = keyval;
         return 1;
     }
+}
+
+/*
+ * Obtiene los datos de un usuario a traves del indice secundario
+ * que no es otra cosa que el codigo
+ * */
+int    dbget_user_code( char* code, void** data, int* size ){
+    int  flags;
+    DBT  key;
+    DBT  val;
+    uint32_t  keyval;
+    
+    if( !open_dbs() ) return 0;
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+
+    key.data = code;
+    key.size = strlen(code);
+    
+    int ret = db_users_code->get( db_users_code, NULL, &key, &val, 0 );
+    if( ret == 0 ){
+        if( data ) *data = val.data;
+        if( size ) *size = val.size;
+        return 1;
+    } else if( ret == DB_NOTFOUND ) {
+        LOGPRINT( 5, "%s no encontrado", code );
+        return 0;
+    } else {
+        LOGPRINT( 1, "Error %d al intentar obtener usuario", ret );
+        db_error = "Error al intentar obtener usuario";
+        return 0;
+    }
+
+    
 }
 
 /*
