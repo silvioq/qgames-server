@@ -224,6 +224,11 @@ int     user_save( User* user ){
     return 1;
 }
 
+
+void    user_set_password( User* user, char* password ){
+    if( password ) password_md5( password, user->password );
+}
+
 /* 
  * Dado un codigo de usuario, obtiene la informacion
  * */

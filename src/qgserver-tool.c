@@ -76,6 +76,20 @@ int  main( int argc, char** argv ){
           dbset_file( dbfile );
     }
 
+    if( usercode ){
+        User* u = user_find_by_code( usercode );
+        if( !u ){
+            printf( "Usuario %s no encontrado \n", usercode );
+            exit( EXIT_FAILURE );
+        }
+        char  pwd[256];
+        if( scanf( "Password: %255s", pwd ) ){
+            user_set_password( u, pwd );
+            user_save( u );
+        }
+        
+    }
+
     
 
     return 0;
