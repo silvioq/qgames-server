@@ -30,7 +30,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 check_PROGRAMS = test-main$(EXEEXT) test-db-create-file$(EXEEXT) \
-	test-dup-user$(EXEEXT)
+	test-dup-user$(EXEEXT) test-create-user$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -42,6 +42,10 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 am__objects_1 = dbmanager.$(OBJEXT) users.$(OBJEXT) log.$(OBJEXT) \
 	md5.$(OBJEXT)
+am_test_create_user_OBJECTS = $(am__objects_1) \
+	test-create-user.$(OBJEXT)
+test_create_user_OBJECTS = $(am_test_create_user_OBJECTS)
+test_create_user_LDADD = $(LDADD)
 am_test_db_create_file_OBJECTS = $(am__objects_1) \
 	test-db-create-file.$(OBJEXT)
 test_db_create_file_OBJECTS = $(am_test_db_create_file_OBJECTS)
@@ -59,9 +63,10 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
-	$(test_main_SOURCES)
-DIST_SOURCES = $(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
+SOURCES = $(test_create_user_SOURCES) $(test_db_create_file_SOURCES) \
+	$(test_dup_user_SOURCES) $(test_main_SOURCES)
+DIST_SOURCES = $(test_create_user_SOURCES) \
+	$(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
 	$(test_main_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -162,6 +167,7 @@ DEPENDENCES = ../src/dbmanager.c  ../src/dbmanager.h \
 test_main_SOURCES = test-main.c
 test_db_create_file_SOURCES = $(DEPENDENCES) test-db-create-file.c
 test_dup_user_SOURCES = $(DEPENDENCES) test-dup-user.c
+test_create_user_SOURCES = $(DEPENDENCES) test-create-user.c
 AM_CFLAGS = -I ../src -I ../common
 TESTS = $(check_PROGRAMS)
 all: all-am
@@ -200,6 +206,9 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+test-create-user$(EXEEXT): $(test_create_user_OBJECTS) $(test_create_user_DEPENDENCIES) 
+	@rm -f test-create-user$(EXEEXT)
+	$(LINK) $(test_create_user_OBJECTS) $(test_create_user_LDADD) $(LIBS)
 test-db-create-file$(EXEEXT): $(test_db_create_file_OBJECTS) $(test_db_create_file_DEPENDENCIES) 
 	@rm -f test-db-create-file$(EXEEXT)
 	$(LINK) $(test_db_create_file_OBJECTS) $(test_db_create_file_LDADD) $(LIBS)
@@ -219,6 +228,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-db-create-file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-dup-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-main.Po@am__quote@

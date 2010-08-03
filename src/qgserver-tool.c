@@ -32,7 +32,7 @@
 
 void  usage(char* program){
     puts( "Uso:" );
-    printf( "  %s [-c \"db to create\"] [-u user -d dbfile] -s secret_key\n", program );
+    printf( "  %s [-c \"db to create\"] [-u user] -p [-n username] [-d dbfile] -s secret_key\n", program );
     exit( EXIT_FAILURE );
 }
 
@@ -42,22 +42,33 @@ int  main( int argc, char** argv ){
     char* dbfilec = NULL;
     char* dbfile  = NULL;
     char* usercode = NULL;
+    char* username = NULL;
     char* secret_key = NULL;
+    int   con_password = 0;
     if( argc == 1 ){
         usage(argv[0]);
         exit( EXIT_FAILURE );
     }
 
-    loglevel = 5;
+    loglevel = 2;
 
     int opt = 0;
-    while(( opt = getopt( argc, argv, "hd:c:u:s:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "vhd:c:u:n:s:p" )) != -1 ){
         switch(opt){
             case 'c':
                 dbfilec = optarg;
                 break;
             case 'u':
                 usercode = optarg;
+                break;
+            case 'n':
+                username = optarg;
+                break;
+            case 'p':
+                con_password = 1;
+                break;
+            case 'v':
+                loglevel = 5;
                 break;
             case 'd':
                 dbfile  = optarg;
@@ -84,9 +95,13 @@ int  main( int argc, char** argv ){
 
     if( usercode ){
         User* u = user_find_by_code( usercode );
-        if( !u ){
-            printf( "Usuario %s no encontrado \n", usercode );
+        if( !u && !username ){
+            printf( "Usuario %s no encontrado ... para crear usuario use opcion -n\n", usercode );
+            dbact_close();
             exit( EXIT_FAILURE );
+        } else if( !u ){
+            LOGPRINT( 5, "Nuevo usuario %s %s", usercode, username );
+            u = user_new( USERTYPE_USER, usercode, username, "" );
         }
         char  pwd[256];
         printf( "Password: " );
@@ -94,7 +109,6 @@ int  main( int argc, char** argv ){
             user_set_password( u, pwd );
             user_save( u );
         }
-        
     }
 
 
