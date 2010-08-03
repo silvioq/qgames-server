@@ -385,7 +385,7 @@ int    dbget_user_code( char* code, void** data, int* size ){
  * Esta funcion es muy importante, ya que es la encargada de cerrar todas
  * las bases. No hay que olvidarse de hacerlo!
  * */
-void   dball_close(){
+void   dbact_close(){
     if( db_users )      db_users->close( db_users, 0 );
     if( db_users_code ) db_users_code->close( db_users_code, 0 );
     if( db_games )      db_games->close( db_games, 0 );
@@ -399,6 +399,16 @@ void   dball_close(){
     db_stats = NULL;
 }
 
+/*
+ * Funcion para hacer un flush de los archivos
+ * */
+void   dbact_sync(){
+    if( db_users )      db_users->sync( db_users, 0 );
+    if( db_users_code ) db_users_code->sync( db_users_code, 0 );
+    if( db_games )      db_games->sync( db_games, 0 );
+    if( db_games_code ) db_games_code->sync( db_games_code, 0 );
+    if( db_stats  )     db_stats->sync( db_stats, 0 );
+}
 
 /*
  * Estadisticas

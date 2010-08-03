@@ -98,7 +98,7 @@ int  main( int argc, char** argv ){
     }
 
 
-    dball_close();
+    dbact_close();
 
     
 

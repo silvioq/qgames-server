@@ -34,7 +34,8 @@ unsigned int  dbget_usernextid( );
 int    dbget_game( unsigned int id, void** data, int* size );
 int    dbget_user_code( char* code, void** data, int* size );
 void   dbget_stat( );
-void   dball_close();
+void   dbact_close();
+void   dbact_sync();
 char*  dbget_lasterror( );
 
 #endif
