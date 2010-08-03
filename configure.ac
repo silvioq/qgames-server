@@ -43,6 +43,11 @@ AC_CHECK_HEADERS([qgames.h])
 AC_CHECK_LIB(qgames,qg_tipojuego_new,[], AC_MSG_ERROR([No esta instalado el core de qgames]))
 # CFLAGS="$saved_CFLAGS" 
 
+AC_CHECK_SIZEOF(uint64_t)
+AC_CHECK_SIZEOF(time_t)
+AS_IF([test $ac_cv_sizeof_uint64_t -lt $ac_cv_sizeof_time_t],
+    AC_MSG_ERROR([Tamaño de uint64_t menor a time_t]))
+
 AC_CONFIG_HEADER(config.h)
 
 AC_CONFIG_FILES(

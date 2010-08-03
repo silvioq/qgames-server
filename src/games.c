@@ -21,45 +21,29 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#ifndef  GAMES_H
-#define  GAMES_H
+#include  <malloc.h>
+#include  <string.h>
+#include  <config.h>
+#include  <stdint.h>
+#include  <sys/time.h>
+#include  <time.h>
 
+#include  "users.h"
+#include  "games.h"
 
-typedef  struct  StrGameType {
-  unsigned  int     id;
-  char*             nombre;
-  time_t            created_at;
+#include  "log.h"
 
-  int               rec_flags;
-} GameType;
-
-
-typedef  struct  StrGame {
-  char*             id;
-  User*             user;
-  GameType*         game_type;
-  unsigned int      data_size;
-  void*             data;
-  time_t            created_at;
-  time_t            modify_at;
-
-  int               rec_flags;
-} Game;
+#define   RECFLAG_NEW   0x01
 
 
 
-
-Game*   game_load( char* id ); 
-void    game_free( Game* game );
-int     game_save( Game* game );
-Game*   game_new( char* id, User* user, GameType* type );
-void    game_set_data( Game*, void* data, unsigned int data_size );
-
-GameType*  game_type_load( char* name );
-GameType*  game_type_new( char* name );
-void       game_type_free( GameType* gt );
-
-
-
-
-#endif
+/*
+ * Crea un nuevo tipo de juego.
+ * */
+GameType*  game_type_new( char* name ){
+    GameType* gt = malloc( sizeof( GameType ) );
+    memset( gt, 0, sizeof( GameType ) );
+    gt->nombre = strdup( name );
+    gt->rec_flags |= RECFLAG_NEW;
+    return gt;
+}

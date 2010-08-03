@@ -44,7 +44,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
-	users.$(OBJEXT) log.$(OBJEXT) md5.$(OBJEXT)
+	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) md5.$(OBJEXT)
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -149,6 +149,7 @@ top_srcdir = @top_srcdir@
 qgserver_tool_SOURCES = qgserver-tool.c \
 		dbmanager.c  dbmanager.h \
 		users.h  users.c \
+		games.h	 games.c \
 		../common/log.h  ../common/log.c \
 		../common/md5.h  ../common/md5.c 
 
@@ -220,6 +221,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qgserver-tool.Po@am__quote@
