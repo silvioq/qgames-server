@@ -166,6 +166,12 @@ static  int  open_dbs(){
         db_error = "Error alocando archivo";
         return 0;
     }
+    ret = db_create( &db_game_types, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
     ret = db_create( &db_stats, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
@@ -184,6 +190,12 @@ static  int  open_dbs(){
     ret = db_games->open( db_games, NULL, db_file, "games", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s games", db_file );
+        db_error = "Error abriendo games";
+        return 0;
+    }
+    ret = db_game_types->open( db_game_types, NULL, db_file, "game_types", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s game_types", db_file );
         db_error = "Error abriendo games";
         return 0;
     }
@@ -271,6 +283,11 @@ int    init_db( char* filename ){
     }
     db->close(db,0);
 
+    if( db_create( &db, NULL, 0 ) != 0 ){
+        LOGPRINT( 2, "Error alocando %s", filename );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
     flags = DB_CREATE  ;
     ret = db->open( db, NULL, filename, "game_types", DB_BTREE, flags, 0 );
     if( ret != 0 ){
@@ -406,6 +423,7 @@ void   dbact_close(){
     db_users = NULL;
     db_users_code = NULL;
     db_games = NULL;
+    db_game_types = NULL;
     db_games_code = NULL;
     db_stats = NULL;
 }
