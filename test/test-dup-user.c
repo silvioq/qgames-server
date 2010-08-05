@@ -56,8 +56,9 @@ int  main( int argc, char** argv ){
     assert( u->id == 4 ) ;
 
     assert( u = user_find_by_code( "silvio" ) );
-    assert( strcmp( u->nombre, "silvio" ) == 0 );
+    assert( u->tipo == USERTYPE_ADMIN );
     assert( u->id == 2 );
+    assert( strcmp( u->nombre, "silvio" ) == 0 );
     
     assert( u = user_find_by_code( "root" ) );
     assert( strcmp( u->nombre, "root" ) == 0 );

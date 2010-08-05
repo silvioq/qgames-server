@@ -80,53 +80,6 @@ static   int  user_to_bin( User* u, void** data ){
         return size;
     }
     return 0;
-/*    int csize = ( u->code ? strlen( u->code ) : 0 ) + 1;
-    int nsize = ( u->nombre ? strlen( u->nombre ) : 0 ) + 1;
-
-    int size = sizeof( uint32_t ) // ID
-            +  sizeof( uint8_t ) // tipo
-            +  csize  // codigo
-            +  nsize  // nombre
-            +  sizeof( u->password ) ;
-
-    void*  ret = malloc( size );
-    void*  point = ret;
-    
-    // ID
-    uint32_t  len32 = u->id;
-    *(uint32_t*)point = len32;
-    point = (char*) point + sizeof( len32 );
-
-    // tipo
-    uint8_t   len8 = u->tipo;
-    *(uint8_t*)point = len8;
-    point = (char*)point + sizeof( len8 );
-
-    // codigo
-    if( u->code ){
-        memcpy( point, u->code, csize );
-        point = (char*)point + csize ;
-    } else {
-        ((char*)point)[0] = 0;
-        point = (char*)point + 1;
-    }
-
-    // codigo
-    if( u->nombre ){
-        memcpy( point, u->nombre, nsize );
-        point = (char*)point + nsize ;
-    } else {
-        ((char*)point)[0] = 0;
-        point = (char*)point + 1;
-    }
-
-    // password
-    memcpy( point, u->password, sizeof( u->password ) );
-
-    *data = ret;
-    return size;
-    */
-    
 }
 
 /*
@@ -150,39 +103,6 @@ User*  bin_to_user( void* data, int size ){
         return NULL;
     }
 
-/*
-    char* max = (char*)data + size;
-    char* point = data;
-
-
-    char* code; char* nombre;
-    int  id;
-    int  tipo;
-
-    if( point > max ) return NULL;
-    id = (unsigned int)(((uint32_t*)point)[0]);
-    point += sizeof( uint32_t );
-
-    if( point > max ) return NULL;
-    tipo = (int)(((uint8_t*)point)[0]);
-    point += sizeof( uint8_t );
-
-    if( point > max ) return NULL;
-    code = point;
-    point += strlen(code) + 1;
-
-    if( point > max ) return NULL;
-    nombre = point;
-    point += strlen(nombre) + 1;
-
-    if( point + 16 > max ) return NULL;
-
-    User* u = user_new( tipo, code, nombre, NULL );
-    u->id = id;
-    memcpy( u->password, point, 16 );
-
-    return u;
-*/
 }
 
 /*

@@ -144,52 +144,106 @@ int    binary_pack( char* format, void** data, int* size, ... ){
  * Tanto la extraccion de binarios como de strings, apuntan al propio
  * bloque de datos de entrada, por lo cual, es necesario tomar 
  * recaudos antes de liberar el bloque de memoria de datos.
+ *
+ * Retorno:
+ *   0 => Error
+ *   1 => Ok
+ *  -n => Los ultimos n elementos no fueron seteados
  * */
 int    binary_unpack( char* format, void* data, int size, ... ){
     va_list  vlist;
     va_start( vlist, size );
     void* pointer = data;
+    char* last_byte = ((char*)pointer) + size;
     int  len = 0;
+    int  resto = 0;
     
     while( *format ){
         char*     to_char;
         int*      to_int;
         long*     to_long;
-        long      aux;
+        int       aux_size;
         char**    to_str;
         void**    to_ptr;
         switch( *format ){
             case 'c':
                 to_char    = va_arg( vlist, char* );
-                if( to_char ) to_char[0] = (char)(((uint8_t*)pointer)[0]);
-                pointer   += sizeof(uint8_t);
+                if( resto || ((char*)pointer) + sizeof(uint8_t) > last_byte ){ 
+                    resto ++;
+                    if( to_char ) *to_char = 0;
+                } else {
+                    if( to_char ) *to_char = (char)(((uint8_t*)pointer)[0]);
+                    pointer   += sizeof(uint8_t);
+                }
                 break;
             case 'h':
                 to_int    = va_arg( vlist, int* );
-                if( to_int ) to_int[0] = (int)(((uint16_t*)pointer)[0]);
-                pointer   += sizeof(uint16_t);
+                if( resto || ((char*)pointer) + sizeof(uint16_t) > last_byte ){ 
+                    resto ++;
+                    if( to_int ) *to_int = 0;
+                } else {
+                    if( to_int ) to_int[0] = (int)(((uint16_t*)pointer)[0]);
+                    pointer   += sizeof(uint16_t);
+                }
                 break;
             case 'i':
                 to_int    = va_arg( vlist, int* );
-                if( to_int ) to_int[0] = (int)(((uint32_t*)pointer)[0]);
-                pointer   += sizeof(uint32_t);
+                if( resto || ((char*)pointer) + sizeof(uint32_t) > last_byte ){ 
+                    resto ++;
+                    if( to_int ) *to_int = 0;
+                } else {
+                    if( to_int ) *to_int = (int)(((uint32_t*)pointer)[0]);
+                    pointer   += sizeof(uint32_t);
+                }
                 break;
             case 'l':
                 to_long    = va_arg( vlist, long* );
-                if( to_long) *to_long = (long)(((uint64_t*)pointer)[0]);
-                pointer   += sizeof(uint64_t);
+                if( resto || ((char*)pointer) + sizeof(uint64_t) > last_byte ){ 
+                    resto ++;
+                    if( to_long ) *to_long = 0;
+                } else {
+                    if( to_long) *to_long = (long)(((uint64_t*)pointer)[0]);
+                    pointer   += sizeof(uint64_t);
+                }
                 break;
             case 's':
                 to_str    = va_arg( vlist, char** );
-                if( to_str ) *to_str = ((char*)pointer);
-                pointer   += strlen(to_str[0]) + 1;
+                if( resto ){
+                    resto ++;
+                    if( to_str ) *to_str = NULL;
+                } else {
+                    aux_size = strlen( ((char*)pointer ) ); 
+                    if( ((char*)pointer) + aux_size > last_byte ){
+                        resto ++;
+                        if( to_str ) *to_str = NULL;
+                    } else {
+                        if( to_str ) *to_str = ((char*)pointer);
+                        pointer   += aux_size + 1;
+                    }
+                }
                 break;
             case 'b':
                 to_ptr    = va_arg( vlist, void** );
                 to_int    = va_arg( vlist, int* );
-                size      = (int)(((uint32_t*)pointer)[0]);
-                if( to_int ) *to_int = size;
+                if( resto || ((char*)pointer) + sizeof(uint32_t) > last_byte ){
+                    resto ++;
+                    if( to_int ) *to_int = 0;
+                    if( to_ptr ) *to_ptr = NULL;
+                    break;
+                }
+                aux_size  = (int)(((uint32_t*)pointer)[0]);
+                if( aux_size == 0 ){
+                    if( to_int ) *to_int = 0;
+                    if( to_ptr ) *to_ptr = NULL;
+                    break;
+                }
+                if( to_int ) *to_int = aux_size;
                 pointer   += sizeof(uint32_t);
+                if( ((char*)pointer) + aux_size > last_byte ){
+                    resto ++;
+                    if( to_ptr ) *to_ptr = NULL;
+                    break;
+                }
                 if( to_ptr ) *to_ptr = pointer;
                 pointer   += size;
                 break;
@@ -202,5 +256,5 @@ int    binary_unpack( char* format, void* data, int size, ... ){
     }
 
     va_end( vlist );
-    return 1;
+    return ( resto ? - resto : 1 );
 }
