@@ -40,10 +40,53 @@
 /*
  * Crea un nuevo tipo de juego.
  * */
-GameType*  game_type_new( char* name ){
+GameType*  game_type_new( char* name, time_t created_at ){
     GameType* gt = malloc( sizeof( GameType ) );
     memset( gt, 0, sizeof( GameType ) );
     gt->nombre = strdup( name );
+    if( created_at )
+        gt->created_at = created_at;
+    else {
+        struct timeval tv;
+        gettimeofday( &tv, NULL );
+        gt->created_at = tv.tv_sec ;
+    }
+        
     gt->rec_flags |= RECFLAG_NEW;
     return gt;
+}
+
+/*
+ * Limpiamos la memoria asignada
+ * */
+void       game_type_free( GameType* gt ){
+    if( gt->nombre ) free( gt->nombre );
+    free( gt );
+}
+
+/*
+ * Simple serializador
+ * */
+static int game_type_to_bin( GameType* gt, void** data ){
+    int size;
+    if( binary_pack( "isl", data, &size, gt->id, gt->nombre, (long)gt->created_at ) ){
+        return size;
+    } else return 0;
+}
+
+/*
+ * Deserialización del tipo de juego
+ * */
+GameType*  bin_to_game_type( void* data, int size ){
+    int id;
+    char* nombre;
+    time_t  created_at;
+    if( binary_unpack( "isl", data, size, &id, &nombre, &created_at ) ){
+        GameType* gt = game_type_new( nombre, created_at );
+        gt->id = id;
+        gt->rec_flags &= ~RECFLAG_NEW;
+        return gt;
+    } else {
+        return NULL;
+    }
 }

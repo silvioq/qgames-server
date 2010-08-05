@@ -52,11 +52,11 @@ typedef  struct  StrGame {
 Game*   game_load( char* id ); 
 void    game_free( Game* game );
 int     game_save( Game* game );
-Game*   game_new( char* id, User* user, GameType* type );
+Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
 void    game_set_data( Game*, void* data, unsigned int data_size );
 
 GameType*  game_type_load( char* name );
-GameType*  game_type_new( char* name );
+GameType*  game_type_new( char* name, time_t created_at );
 void       game_type_free( GameType* gt );
 
 
