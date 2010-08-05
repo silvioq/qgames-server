@@ -37,11 +37,12 @@ static DB*   db_users = NULL;
 static DB*   db_users_code = NULL;
 static DB*   db_games = NULL;
 static DB*   db_games_code = NULL;
+static DB*   db_game_types = NULL;
 static DB*   db_stats = NULL;
 
 typedef  struct  StrStats {
     unsigned int  user_id;
-    unsigned int  game_id;
+    unsigned int  game_type_id;
 } Stats;
 
 #define   USERROOT "root"
@@ -270,6 +271,15 @@ int    init_db( char* filename ){
     }
     db->close(db,0);
 
+    flags = DB_CREATE  ;
+    ret = db->open( db, NULL, filename, "game_types", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s (game_types)", filename );
+        db_error = "Error abriendo archivo (game_types)";
+        return 0;
+    }
+    db->close(db,0);
+
     if( db_create( &db, NULL, 0 ) != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
@@ -389,6 +399,7 @@ void   dbact_close(){
     if( db_users )      db_users->close( db_users, 0 );
     if( db_users_code ) db_users_code->close( db_users_code, 0 );
     if( db_games )      db_games->close( db_games, 0 );
+    if( db_game_types ) db_game_types->close( db_game_types, 0 );
     if( db_games_code ) db_games_code->close( db_games_code, 0 );
     if( db_stats  )     db_stats->close( db_stats, 0 );
 
@@ -406,6 +417,7 @@ void   dbact_sync(){
     if( db_users )      db_users->sync( db_users, 0 );
     if( db_users_code ) db_users_code->sync( db_users_code, 0 );
     if( db_games )      db_games->sync( db_games, 0 );
+    if( db_game_types ) db_game_types->sync( db_game_types, 0 );
     if( db_games_code ) db_games_code->sync( db_games_code, 0 );
     if( db_stats  )     db_stats->sync( db_stats, 0 );
 }
