@@ -5,6 +5,7 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		users.h  users.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
+		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
 AM_CFLAGS=-I $(top_srcdir)/common

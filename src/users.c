@@ -29,6 +29,7 @@
 
 #include  "log.h"
 #include  "md5.h"
+#include  "packer.h"
 
 static  char*  secret_key = "YrfHs7SNt1rPjX4Vn7jI/XVXqgG/DVcqfooZbefGjTVd/btw3g8pTGWrt3GUeFY/";
 static  int    secret_len = 0;
@@ -74,8 +75,12 @@ static  void  password_md5( const char* password, unsigned char hash[16] ){
  * cantidad de bytes de espacio.
  * */
 static   int  user_to_bin( User* u, void** data ){
-
-    int csize = ( u->code ? strlen( u->code ) : 0 ) + 1;
+    int size;
+    if( binary_pack( "icssb", data, &size, u->id, u->tipo, u->code, u->nombre, u->password, 16 ) ){
+        return size;
+    }
+    return 0;
+/*    int csize = ( u->code ? strlen( u->code ) : 0 ) + 1;
     int nsize = ( u->nombre ? strlen( u->nombre ) : 0 ) + 1;
 
     int size = sizeof( uint32_t ) // ID
@@ -120,7 +125,7 @@ static   int  user_to_bin( User* u, void** data ){
 
     *data = ret;
     return size;
-    
+    */
     
 }
 
@@ -131,12 +136,27 @@ static   int  user_to_bin( User* u, void** data ){
  * */
 User*  bin_to_user( void* data, int size ){
 
+    int  id;
+    int  tipo;
+    char* code; char* nombre;
+    char* password;
+    int x;
+    if( binary_unpack( "icssb", data, size, &id, &tipo, &code, &nombre, &password, (int*)NULL ) ){
+        User* u = user_new( tipo, code, nombre, NULL );
+        u->id = id;
+        memcpy( u->password, password, 16 );
+        return u;
+    } else {  
+        return NULL;
+    }
+
+/*
     char* max = (char*)data + size;
     char* point = data;
 
 
     char* code; char* nombre;
-    unsigned int  id;
+    int  id;
     int  tipo;
 
     if( point > max ) return NULL;
@@ -162,7 +182,7 @@ User*  bin_to_user( void* data, int size ){
     memcpy( u->password, point, 16 );
 
     return u;
-
+*/
 }
 
 /*

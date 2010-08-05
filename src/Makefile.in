@@ -44,7 +44,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
-	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) md5.$(OBJEXT)
+	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) \
+	md5.$(OBJEXT)
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -151,6 +152,7 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		users.h  users.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
+		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
 AM_CFLAGS = -I $(top_srcdir)/common
@@ -224,6 +226,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/packer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qgserver-tool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/users.Po@am__quote@
 
@@ -254,6 +257,20 @@ log.obj: ../common/log.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/log.c' object='log.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o log.obj `if test -f '../common/log.c'; then $(CYGPATH_W) '../common/log.c'; else $(CYGPATH_W) '$(srcdir)/../common/log.c'; fi`
+
+packer.o: ../common/packer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT packer.o -MD -MP -MF $(DEPDIR)/packer.Tpo -c -o packer.o `test -f '../common/packer.c' || echo '$(srcdir)/'`../common/packer.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/packer.Tpo $(DEPDIR)/packer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/packer.c' object='packer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o packer.o `test -f '../common/packer.c' || echo '$(srcdir)/'`../common/packer.c
+
+packer.obj: ../common/packer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT packer.obj -MD -MP -MF $(DEPDIR)/packer.Tpo -c -o packer.obj `if test -f '../common/packer.c'; then $(CYGPATH_W) '../common/packer.c'; else $(CYGPATH_W) '$(srcdir)/../common/packer.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/packer.Tpo $(DEPDIR)/packer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/packer.c' object='packer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o packer.obj `if test -f '../common/packer.c'; then $(CYGPATH_W) '../common/packer.c'; else $(CYGPATH_W) '$(srcdir)/../common/packer.c'; fi`
 
 md5.o: ../common/md5.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT md5.o -MD -MP -MF $(DEPDIR)/md5.Tpo -c -o md5.o `test -f '../common/md5.c' || echo '$(srcdir)/'`../common/md5.c

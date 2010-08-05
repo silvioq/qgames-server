@@ -5,6 +5,7 @@ LIB=$(QGAMESLIBS)
 DEPENDENCES= ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
 		../common/log.h  ../common/log.c \
+		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
 test_main_SOURCES = test-main.c
