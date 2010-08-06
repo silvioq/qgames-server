@@ -30,6 +30,7 @@
 
 #include  "log.h"
 #include  "users.h"
+#include  "dbmanager.h"
 
 static char* db_file = NULL;
 static char* db_error = NULL;
@@ -75,6 +76,7 @@ static  int  init_stats( DB* db ){
     uint32_t  keyval = 1;
     struct  StrStats stats;
     DBT  val;
+    int ret;
 
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
@@ -85,7 +87,26 @@ static  int  init_stats( DB* db ){
     val.data = &stats;
     val.size = sizeof( stats );
 
-    return db->put( db, NULL, &key, &val, DB_NOOVERWRITE );
+    if( ret = db->put( db, NULL, &key, &val, DB_NOOVERWRITE ) ){
+        LOGPRINT( 1, "Error inicializando stats %d %s", ret, db_strerror( ret ) );
+        return 0;
+    }
+
+    // Inicializo ahora el numero de version
+    keyval = 2;
+    int  version = QGS_MAJOR_VERSION * 10000 + QGS_MINOR_VERSION * 100 + QGS_REV_VERSION ;
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+    key.data = &keyval;
+    key.size = sizeof( keyval );
+    val.data = &version;
+    val.size = sizeof( version );
+
+    if( ret = db->put( db, NULL, &key, &val, DB_NOOVERWRITE ) ){
+        LOGPRINT( 1, "Error inicializando version %s", ret, db_strerror( ret ) );
+        return 0;
+    }
+    return 1;
 }
 
 /*
@@ -140,6 +161,34 @@ static int dbput_stats_struct( struct  StrStats* stats ){
     }
     return 1;
 }
+
+/*
+ * Devuelve el numero de version de la base de datos
+ * para futuros controles
+ * */
+int  dbget_version(  ){
+    open_dbs();
+    DBT  key;
+    
+    uint32_t  keyval = 2;
+    DBT  val;
+    int  ret;
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+
+    key.data = &keyval;
+    key.size = sizeof( keyval );
+    ret = db_stats->get( db_stats, NULL, &key, &val, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 1, "Error leyendo stats %d", ret );
+        db_error = "Error leyendo stats";
+        return 0;
+    }
+    ret = *(int*)val.data;
+    return ret;
+}
+    
 
 /*
  * Obtiene el proximo numero de Usuario
@@ -343,7 +392,7 @@ int    init_db( char* filename ){
     }
     
     ret = init_stats( db );
-    if( ret != 0 ){
+    if( !ret ){
         LOGPRINT( 2, "Error inicializando estadisticas %d", ret );
         db_error = "Error inicializando stats";
         return 0;
@@ -359,6 +408,9 @@ int    init_db( char* filename ){
         db_error = "Error grabando usuario " USERROOT;
         return 0;
     }
+
+    // Muy importante es hacer flush sobre todo!
+    dbact_sync( );
     
 
     return 1;

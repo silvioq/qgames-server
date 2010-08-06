@@ -45,6 +45,8 @@ int  main( int argc, char** argv ){
     assert( stat( FILEDB, &sb) != -1 );
     assert( sb.st_size > 1024 );
     assert( unlink( FILEDB ) != -1 );
+
+    assert( dbget_version( ) > 0 );
     
 
     exit( EXIT_SUCCESS );
