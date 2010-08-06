@@ -194,12 +194,22 @@ int  dbget_version(  ){
  * Obtiene el proximo numero de Usuario
  * */
 unsigned int  dbget_usernextid( ){
-    
-    uint32_t  keyval = 1;
     struct  StrStats* stats;
     unsigned int ret;
     if( !dbget_stats_struct( &stats ) ) return 0;
     ret = ++stats->user_id;
+    if( !dbput_stats_struct( stats ) ) return 0;
+    return  ret;
+}
+
+/*
+ * Obtiene el proximo numero de Game Type
+ * */
+unsigned int  dbget_game_typenextid( ){
+    struct  StrStats* stats;
+    unsigned int ret;
+    if( !dbget_stats_struct( &stats ) ) return 0;
+    ret = ++stats->game_type_id;
     if( !dbput_stats_struct( stats ) ) return 0;
     return  ret;
 }
