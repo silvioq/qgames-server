@@ -89,14 +89,14 @@ static  int  init_stats( DB* db ){
 }
 
 /*
- * Obtiene el proximo numero de Usuario
+ * Obtiene las estadisticas
+ *
  * */
-unsigned int  dbget_usernextid( ){
+static int dbget_stats_struct( struct  StrStats** stats ){
     open_dbs();
     DBT  key;
     
     uint32_t  keyval = 1;
-    struct  StrStats* stats;
     DBT  val;
     int  ret;
 
@@ -111,16 +111,48 @@ unsigned int  dbget_usernextid( ){
         db_error = "Error leyendo stats";
         return 0;
     }
-    stats = (struct StrStats*)val.data;
-    stats->user_id ++;
-    ret = db_stats->put( db_stats, NULL, &key, &val, 0 );
-    if( ret != 0 ){
-        LOGPRINT( 1, "Error leyendo stats %d", ret );
-        db_error = "Error leyendo stats";
+    *stats = (struct StrStats*)val.data;
+    return 1;
+}
+
+/*
+ * Graba las estadisticas
+ * */
+static int dbput_stats_struct( struct  StrStats* stats ){
+    open_dbs();
+    DBT  key;
+    
+    uint32_t  keyval = 1;
+    DBT  val;
+    int  ret;
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+
+    key.data = &keyval;
+    key.size = sizeof( keyval );
+    val.data = stats;
+    val.size = sizeof( stats );
+    if( ret = db_stats->put( db_stats, NULL, &key, &val, 0 ) ){
+        LOGPRINT(1, "Error grabando stats %d %s", ret, db_strerror( ret ) );
+        db_error = "Error grabando stats";
         return 0;
     }
-    return  stats->user_id;
+    return 1;
+}
+
+/*
+ * Obtiene el proximo numero de Usuario
+ * */
+unsigned int  dbget_usernextid( ){
     
+    uint32_t  keyval = 1;
+    struct  StrStats* stats;
+    unsigned int ret;
+    if( !dbget_stats_struct( &stats ) ) return 0;
+    ret = ++stats->user_id;
+    if( !dbput_stats_struct( stats ) ) return 0;
+    return  ret;
 }
 
 /*
