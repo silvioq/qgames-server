@@ -24,15 +24,20 @@
 #ifndef  DBMANAGER_H
 #define  DBMANAGER_H
 
+#define  DBUSER      1
+#define  DBGAME      2
+#define  DBGAMETYPE  3
+
+#define  IDXUSERCODE  11
+
 
 int    init_db( char* filename );
 int    dbset_file( char* filename );
-int    dbput_user( unsigned int id, void* data, int size );
-int    dbput_game( unsigned int id, void* data, int size );
-int    dbget_user( unsigned int id, void** data, int* size );
+int    dbput_data( int db, void* key, int key_size, void* data, int data_size );
+int    dbget_data( int db, void** key, int* key_size, void** data, int* data_size );
 unsigned int  dbget_usernextid( );
 unsigned int  dbget_game_typenextid( );
-int    dbget_game( unsigned int id, void** data, int* size );
+// int    dbget_game( unsigned int id, void** data, int* size );
 int    dbget_user_code( char* code, void** data, int* size );
 void   dbget_stat( );
 void   dbact_close();

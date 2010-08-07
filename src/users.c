@@ -30,6 +30,7 @@
 #include  "log.h"
 #include  "md5.h"
 #include  "packer.h"
+#include  "dbmanager.h"
 
 static  char*  secret_key = "YrfHs7SNt1rPjX4Vn7jI/XVXqgG/DVcqfooZbefGjTVd/btw3g8pTGWrt3GUeFY/";
 static  int    secret_len = 0;
@@ -155,7 +156,7 @@ int     user_save( User* user ){
     }
     int ret;
 
-    ret = dbput_user( user->id, data, size, &user->id );
+    ret = dbput_data( DBUSER, &user->id, sizeof( user->id ), data, size );
     if( ret == 0 ){
         LOGPRINT( 5, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
         return 0;

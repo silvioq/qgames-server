@@ -133,6 +133,7 @@ static int dbget_stats_struct( struct  StrStats** stats ){
         return 0;
     }
     *stats = (struct StrStats*)val.data;
+    LOGPRINT( 6, "Stats leidos user_id = %d", (*stats)->user_id );
     return 1;
 }
 
@@ -430,39 +431,54 @@ int    init_db( char* filename ){
  * Graba un usuario.
  * Si esta informado el id, entonces es una actualizacion. 
  * */
-
-int    dbput_user( unsigned int id, void* data, int size ){
+int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size ){
     int  flags;
     DBT  key;
     DBT  val;
-    uint32_t  keyval;
+    DB*  dbp;
+
+
+    switch(db){
+        case  DBUSER:
+            dbp = db_users;
+            break;
+        case  DBGAME:
+            dbp = db_games;
+            break;
+        case  DBGAMETYPE:
+            dbp = db_game_types;
+            break;
+        default:
+            LOGPRINT( 1, "Error de parametro db => %d", db );
+            return 0;
+    }
 
     if( !open_dbs() ) return 0;
 
     flags = 0;
-    keyval = id;
-
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
 
-    key.data = &keyval;
-    key.size = sizeof( keyval );
+    key.data = keyp;
+    key.size = key_size;
 
     val.data = data;
-    val.size = size;
+    val.size = data_size;
 
-
-    int  ret = db_users->put( db_users, NULL, &key, &val, flags );
+    int  ret = dbp->put( dbp, NULL, &key, &val, flags );
     if( ret == DB_KEYEXIST || ret == EINVAL ){
-        LOGPRINT( 2, "Error, clave duplicada %s", "users" );
+        const char* dbn;
+        const char* dbf;
+        dbp->get_dbname( dbp, &dbf, &dbn );
+        LOGPRINT( 2, "Error, clave duplicada %s", dbn );
         db_error = "Clave duplicada";
         return 0;
     } else if ( ret != 0 ){
-        LOGPRINT( 1, "Error %d usuario => %d", ret, keyval );
-        db_error = "Error get / put user";
+        LOGPRINT( 1, "Error %d %s", ret, db_strerror( ret ) );
+        db_error = "Error get / put";
         return 0;
     } else {
-        LOGPRINT( 5, "Usuario %d salvado", keyval );
+        LOGPRINT( 6, "Dato salvado respuesta = %d", ret );
         return 1;
     }
 }
