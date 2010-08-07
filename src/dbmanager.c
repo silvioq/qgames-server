@@ -467,8 +467,7 @@ int    init_db( char* filename ){
 }
 
 /*
- * Graba un usuario.
- * Si esta informado el id, entonces es una actualizacion. 
+ * Graba en las bases de acuerdo a los datos pasados como parametro
  * */
 int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size ){
     int  flags;
@@ -477,6 +476,7 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
     DB*  dbp;
 
 
+    if( !open_dbs() ) return 0;
     switch(db){
         case  DBUSER:
             dbp = db_users;
@@ -492,7 +492,6 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
             return 0;
     }
 
-    if( !open_dbs() ) return 0;
 
     flags = 0;
     memset( &key, 0, sizeof( key ) );
@@ -509,7 +508,7 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
         const char* dbn;
         const char* dbf;
         dbp->get_dbname( dbp, &dbf, &dbn );
-        LOGPRINT( 2, "Error, clave duplicada %s", dbn );
+        LOGPRINT( 2, "Error, clave duplicada %s => %d (%s)", dbn, ret, db_strerror( ret ) );
         db_error = "Clave duplicada";
         return 0;
     } else if ( ret != 0 ){
@@ -523,39 +522,61 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
 }
 
 /*
- * Obtiene los datos de un usuario a traves del indice secundario
- * que no es otra cosa que el codigo
+ * Graba en las bases de acuerdo a los datos pasados como parametro
  * */
-int    dbget_user_code( char* code, void** data, int* size ){
+int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size ){
     int  flags;
     DBT  key;
     DBT  val;
-    uint32_t  keyval;
-    
-    if( !open_dbs() ) return 0;
+    DB*  dbp;
 
+
+    if( !open_dbs() ) return 0;
+    switch(db){
+        case  DBUSER:
+            dbp = db_users;
+            break;
+        case  DBGAME:
+            dbp = db_games;
+            break;
+        case  DBGAMETYPE:
+            dbp = db_game_types;
+            break;
+        case IDXUSERCODE:
+            dbp = db_users_code;
+            break;
+        case IDXGAMETYPENAME:
+            dbp = db_game_types_name;
+            break;
+        default:
+            LOGPRINT( 1, "Error de parametro db => %d", db );
+            return 0;
+    }
+
+
+    flags = 0;
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
 
-    key.data = code;
-    key.size = strlen(code);
-    
-    int ret = db_users_code->get( db_users_code, NULL, &key, &val, 0 );
-    if( ret == 0 ){
-        if( data ) *data = val.data;
-        if( size ) *size = val.size;
-        return 1;
-    } else if( ret == DB_NOTFOUND ) {
-        LOGPRINT( 5, "%s no encontrado", code );
-        return 0;
-    } else {
-        LOGPRINT( 1, "Error %d al intentar obtener usuario", ret );
-        db_error = "Error al intentar obtener usuario";
-        return 0;
-    }
+    key.data = keyp;
+    key.size = key_size;
 
-    
+    int  ret = dbp->get( dbp, NULL, &key, &val, flags );
+    if( ret == DB_NOTFOUND )  {
+        return 0;
+    } else if( ret == 0 ) {
+        *data = val.data;
+        *data_size = val.size;
+        return 1;
+    } else {
+        const char* dbn;
+        const char* dbf;
+        dbp->get_dbname( dbp, &dbf, &dbn );
+        LOGPRINT( 1, "Error en %s => %d (%s)", dbn, ret, db_strerror( ret ) );
+        return -1;
+    }
 }
+    
 
 /*
  * Esta funcion es muy importante, ya que es la encargada de cerrar todas

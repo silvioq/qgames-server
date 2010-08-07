@@ -177,7 +177,7 @@ User*   user_find_by_code( char* code ){
     void* data;
     int size;
 
-    if( dbget_user_code( code, &data, &size ) ){
+    if( dbget_data( IDXUSERCODE, code, strlen( code ), &data, &size ) ){
         return  bin_to_user( data, size );
     } else {
         return NULL;

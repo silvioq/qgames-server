@@ -29,12 +29,13 @@
 #define  DBGAMETYPE  3
 
 #define  IDXUSERCODE  11
+#define  IDXGAMETYPENAME  12
 
 
 int    init_db( char* filename );
 int    dbset_file( char* filename );
 int    dbput_data( int db, void* key, int key_size, void* data, int data_size );
-int    dbget_data( int db, void** key, int* key_size, void** data, int* data_size );
+int    dbget_data( int db, void* key, int key_size, void** data, int* data_size );
 unsigned int  dbget_usernextid( );
 unsigned int  dbget_game_typenextid( );
 // int    dbget_game( unsigned int id, void** data, int* size );
