@@ -39,6 +39,7 @@ static DB*   db_users_code = NULL;
 static DB*   db_games = NULL;
 static DB*   db_games_code = NULL;
 static DB*   db_game_types = NULL;
+static DB*   db_game_types_name = NULL;
 static DB*   db_stats = NULL;
 
 typedef  struct  StrStats {
@@ -54,7 +55,7 @@ static  int  open_dbs();
 
 
 
-int   user_getcode( DB* secdb, const DBT* pkey,const  DBT* pdata, DBT* skey ){
+static int   user_getcode( DB* secdb, const DBT* pkey,const  DBT* pdata, DBT* skey ){
     memset( skey, 0, sizeof( DBT ) );
     char* code;
     int  size ;
@@ -64,6 +65,20 @@ int   user_getcode( DB* secdb, const DBT* pkey,const  DBT* pdata, DBT* skey ){
         return 0;
     } else {
         LOGPRINT( 1, "Fatal error !!! %s", "userbin" );
+        return DB_DONOTINDEX;
+    }
+}
+
+static int   gametype_getname( DB* secdb, const DBT* pkey,const  DBT* pdata, DBT* skey ){
+    memset( skey, 0, sizeof( DBT ) );
+    char* name;
+    int  size ;
+    if( binary_unpack( "is", pdata->data, pdata->size, NULL, &name ) ){
+        skey->data = name;
+        skey->size = strlen( name );
+        return 0;
+    } else {
+        LOGPRINT( 1, "Fatal error !!! %s", "gametype_bin" );
         return DB_DONOTINDEX;
     }
 }
@@ -264,6 +279,12 @@ static  int  open_dbs(){
         db_error = "Error alocando archivo";
         return 0;
     }
+    ret = db_create( &db_game_types_name, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
     ret = db_create( &db_stats, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
@@ -312,6 +333,24 @@ static  int  open_dbs(){
         db_error = "Error estableciendo asociacion";
         return 0;
     }
+
+    // Este es el indice por nombre de tipo de juego
+    ret = db_game_types_name->open( db_game_types_name, NULL, db_file, "game_type_name_idx",
+                  DB_BTREE, DB_CREATE, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s game_type_name_idx => %d (%s)",
+                    db_file, ret, db_strerror( ret ) );
+        db_error = "Error abriendo game_type_name_idx";
+        return 0;
+    }
+    ret = db_game_types->associate( db_game_types, NULL, db_game_types_name, gametype_getname, DB_CREATE );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error asociando %s game_type_name_idx => %d (%s)",
+                    db_file, ret, db_strerror( ret ) );
+        db_error = "Error asociando game_type_name_idx";
+        return 0;
+    }
+
     
 
 
@@ -527,6 +566,7 @@ void   dbact_close(){
     if( db_users_code ) db_users_code->close( db_users_code, 0 );
     if( db_games )      db_games->close( db_games, 0 );
     if( db_game_types ) db_game_types->close( db_game_types, 0 );
+    if( db_game_types_name ) db_game_types_name->close( db_game_types_name, 0 );
     if( db_games_code ) db_games_code->close( db_games_code, 0 );
     if( db_stats  )     db_stats->close( db_stats, 0 );
 
@@ -534,6 +574,7 @@ void   dbact_close(){
     db_users_code = NULL;
     db_games = NULL;
     db_game_types = NULL;
+    db_game_types_name = NULL;
     db_games_code = NULL;
     db_stats = NULL;
 }
@@ -546,6 +587,7 @@ void   dbact_sync(){
     if( db_users_code ) db_users_code->sync( db_users_code, 0 );
     if( db_games )      db_games->sync( db_games, 0 );
     if( db_game_types ) db_game_types->sync( db_game_types, 0 );
+    if( db_game_types_name ) db_game_types_name->sync( db_game_types_name, 0 );
     if( db_games_code ) db_games_code->sync( db_games_code, 0 );
     if( db_stats  )     db_stats->sync( db_stats, 0 );
 }
