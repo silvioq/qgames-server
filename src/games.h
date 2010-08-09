@@ -36,7 +36,9 @@ typedef  struct  StrGameType {
 
 typedef  struct  StrGame {
   char*             id;
+  unsigned int      user_id;
   User*             user;
+  unsigned int      game_type_id;
   GameType*         game_type;
   unsigned int      data_size;
   void*             data;
@@ -54,6 +56,8 @@ void    game_free( Game* game );
 int     game_save( Game* game );
 Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
 void    game_set_data( Game*, void* data, unsigned int data_size );
+User*   game_user( Game* g );
+GameType*  game_game_type( Game* g );
 
 GameType*  game_type_by_name( char* name );
 GameType*  game_type_new( char* name, time_t created_at );

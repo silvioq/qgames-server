@@ -78,7 +78,7 @@ static int game_type_to_bin( GameType* gt, void** data ){
 /*
  * Deserialización del tipo de juego
  * */
-GameType*  bin_to_game_type( void* data, int size ){
+static  GameType*  bin_to_game_type( void* data, int size ){
     int id;
     char* nombre;
     time_t  created_at;
@@ -105,7 +105,9 @@ GameType*  game_type_by_name( char* nombre ){
     return NULL;
 }
 
-
+/*
+ * Con esta funcion salvo el tipo de juego
+ * */
 int        game_type_save( GameType* gt ){
     if( gt->rec_flags | RECFLAG_NEW ){
         gt->id = dbget_game_typenextid();
@@ -130,3 +132,43 @@ int        game_type_save( GameType* gt ){
     return 1;
 
 }
+
+
+/*
+ *
+ *
+ * A partir de aqui vienen las funciones de Game.
+ * Lo primero es la serializacion, para lo cual usamos las 
+ * maravillosas funciones de empaquetado
+ *
+ * */
+static int game_to_bin( Game* g, void** data ){
+    int size;
+    if( binary_pack( "siibl", data, &size, g->id, g->user_id, g->game_type_id, 
+                            g->data, g->data_size, 
+                            (long)g->created_at ) ){
+        return size;
+    } else return 0;
+}
+
+static Game* bin_to_game( void* data, int size ){
+    char* id;
+    unsigned int user_id;
+    unsigned int game_type_id;
+    void* gdata;
+    int   data_size;
+    time_t  created_at;
+    if( binary_unpack( "siibl", data, size, &id, &user_id, &game_type_id,
+                          &gdata, &data_size, &created_at ) ){
+        Game* g = game_new( id, NULL, NULL, 0 );
+        g->user_id = user_id;
+        g->game_type_id = game_type_id;
+        if( gdata ) game_set_data( g, gdata, data_size );
+        g->created_at = created_at;
+        g->rec_flags &= ~RECFLAG_NEW;
+        return g;
+      
+    } else return NULL;
+}
+
+
