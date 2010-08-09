@@ -57,16 +57,6 @@ static  void  password_md5( const char* password, unsigned char hash[16] ){
 }
 
 
-/* Sin uso, por el momento */
-#define  ADDDATA( data, len, dato, alloc ){ \
-    if( len + sizeof( dato ) > alloc ){ \
-        alloc = len + sizeof( dato ) + 256; \
-        data = realloc( data, alloc ); \
-    } \
-    typeof(dato)* point = (typeof(dato)*)( ((char*)data) + len );\
-    *point = dato ;\
-    len += sizeof( dato ); \
-  }
 
 
 /*

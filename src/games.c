@@ -30,6 +30,7 @@
 
 #include  "users.h"
 #include  "games.h"
+#include  "dbmanager.h"
 
 #include  "log.h"
 
@@ -89,4 +90,43 @@ GameType*  bin_to_game_type( void* data, int size ){
     } else {
         return NULL;
     }
+}
+
+
+/*
+ * Accedo al tipo de juego por su nombre
+ * */
+GameType*  game_type_by_name( char* nombre ){
+    void* data;
+    int  size;
+    if( dbget_data( IDXGAMETYPENAME, nombre, strlen( nombre ), &data, &size ) ){
+        return bin_to_game_type( data, size );
+    }
+    return NULL;
+}
+
+
+int        game_type_save( GameType* gt ){
+    if( gt->rec_flags | RECFLAG_NEW ){
+        gt->id = dbget_game_typenextid();
+    }
+    void* data;
+    int  size;
+
+    size = game_type_to_bin( gt, &data );
+    if( size == 0 ){
+        LOGPRINT( 1, "Error en dump de tuoi de juego %d", gt->id );
+        return 0;
+    }
+
+    int ret;
+    ret = dbput_data( DBGAMETYPE, &gt->id, sizeof( gt->id ), data, size );
+    if( ret == 0 ){
+        LOGPRINT( 5, "Error salvando tipo de juego %d (%s)", gt->id, db_getlasterror() );
+        return 0;
+    }
+    gt->rec_flags &= ~RECFLAG_NEW;
+
+    return 1;
+
 }

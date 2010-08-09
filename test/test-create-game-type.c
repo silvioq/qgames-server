@@ -21,46 +21,59 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#ifndef  GAMES_H
-#define  GAMES_H
+#include  <sys/types.h>
+#include  <sys/stat.h>
+#include  <stdio.h>
+#include  <stdlib.h>
+#include  <unistd.h>
+#include  <assert.h>
+
+#include  "users.h"
+#include  "games.h"
+#include  "dbmanager.h"
+#include  "log.h"
+
+#define   FILEDB  "test.db"
+
+int  main( int argc, char** argv ){
+
+    loglevel = 2;
+    GameType* gt;
+
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+    assert( 1 == dbget_game_typenextid() ) ;
+    dbact_close();
+
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+    dbact_close();
+
+    gt = game_type_new( "Ajedrez", 0 );
+    assert( gt->id == 0 );
+    assert( game_type_save( gt ) );
+    assert( gt->id == 1 );
+    game_type_free( gt );
+    
+    gt = game_type_new( "Gomoku", 0 );
+    assert( gt->id == 0 );
+    assert( game_type_save( gt ) );
+    assert( gt->id == 2 );
+    game_type_free( gt );
+
+    assert( gt = game_type_by_name( "Ajedrez" ) );
+    assert( gt->id == 1 );
+    game_type_free( gt );
+    
+    assert( !game_type_by_name( "Ajedrez2" ) );
+
+    assert( gt = game_type_by_name( "Gomoku" ) );
+    assert( gt->id == 2 );
+    assert( strcmp( "Gomoku", gt->nombre ) == 0 );
+    game_type_free( gt );
 
 
-typedef  struct  StrGameType {
-  unsigned  int     id;
-  char*             nombre;
-  time_t            created_at;
-
-  int               rec_flags;
-} GameType;
-
-
-typedef  struct  StrGame {
-  char*             id;
-  User*             user;
-  GameType*         game_type;
-  unsigned int      data_size;
-  void*             data;
-  time_t            created_at;
-  time_t            modify_at;
-
-  int               rec_flags;
-} Game;
-
-
-
-
-Game*   game_load( char* id ); 
-void    game_free( Game* game );
-int     game_save( Game* game );
-Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
-void    game_set_data( Game*, void* data, unsigned int data_size );
-
-GameType*  game_type_by_name( char* name );
-GameType*  game_type_new( char* name, time_t created_at );
-int        game_type_save( GameType* gt );
-void       game_type_free( GameType* gt );
-
-
-
-
-#endif
+    exit( EXIT_SUCCESS );
+}
