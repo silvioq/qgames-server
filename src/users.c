@@ -135,6 +135,11 @@ void    user_free( User* user ){
     free( user );
 }
 
+
+/*
+ * Guarda el usuario en la base
+ * */
+
 int     user_save( User* user ){
     void* data;
     int  size;
