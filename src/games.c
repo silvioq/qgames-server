@@ -141,6 +141,7 @@ int        game_type_save( GameType* gt ){
  * Lo primero es la serializacion, para lo cual usamos las 
  * maravillosas funciones de empaquetado
  *
+ *
  * */
 static int game_to_bin( Game* g, void** data ){
     int size;
@@ -150,6 +151,10 @@ static int game_to_bin( Game* g, void** data ){
         return size;
     } else return 0;
 }
+
+/*
+ * Dado el binario empaquetado, obtenermos el juego
+ * */
 
 static Game* bin_to_game( void* data, int size ){
     char* id;
@@ -171,4 +176,44 @@ static Game* bin_to_game( void* data, int size ){
     } else return NULL;
 }
 
+/*
+ * Esta es la creacion del juego
+ * */
+Game*   game_new( char* id, User* user, GameType* type, time_t created_at ){
+    Game* g = malloc( sizeof( Game ) );
+    memset( g, 0, sizeof( Game ) );
+    g->id = strdup( id );
+    g->user = user;
+    if( user ) g->user_id = user->id;
+    g->game_type = type;
+    if( type ) g->game_type_id = type->id;
 
+    if( created_at )
+        g->created_at = created_at;
+    else {
+        struct timeval tv;
+        gettimeofday( &tv, NULL );
+        g->created_at = tv.tv_sec ;
+    }
+        
+    g->rec_flags |= RECFLAG_NEW;
+    return g;
+}
+
+
+/*
+ * Seteo los datos del juego
+ * */
+void    game_set_data( Game* g, void* data, unsigned int data_size ){
+    g->data = realloc( g->data, data_size );
+    memcpy( g->data, data, data_size );
+    g->data_size = data_size ;
+}
+
+/*
+ * Libera el espacio de memoria usado
+ * */
+void    game_free( Game* game ){
+    if( game->data ) free( game->data );
+    free( game );
+}

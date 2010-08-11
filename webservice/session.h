@@ -21,31 +21,29 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#ifndef  DBMANAGER_H
-#define  DBMANAGER_H
+#ifndef  SESSION_H
 
-#define  DBUSER      1
-#define  DBGAME      2
-#define  DBGAMETYPE  3
-#define  DBSESSION   4
+typedef  struct  StrSession{
+    char      id[32];
+    
+    time_t    created_at;
+    time_t    last_seen_at;
+    unsigned int  user_id;
+    User*         user;
 
-#define  IDXUSERCODE  11
-#define  IDXGAMETYPENAME  12
+} Session;
+
+/*
+ * Timeout de la sesion en segundos
+ * */
+#define   SESSION_TIMEOUT   60 * 60 * 2   // Dos horas
 
 
-int    init_db( char* filename );
-int    dbset_file( char* filename );
-int    dbput_data( int db, void* key, int key_size, void* data, int data_size );
-int    dbget_data( int db, void* key, int key_size, void** data, int* data_size );
-int    dbdel_data( int db, void* key, int key_size );
-unsigned int  dbget_usernextid( );
-unsigned int  dbget_game_typenextid( );
-// int    dbget_game( unsigned int id, void** data, int* size );
-int    dbget_user_code( char* code, void** data, int* size );
-void   dbget_stat( );
-void   dbact_close();
-void   dbact_sync();
-int    dbget_version(  );
-char*  dbget_lasterror( );
+Session*  session_new( User* user );
+Session*  session_load( char id[32] );
+int       session_save( Session* s );
+void      session_free( Session* s );
+User*     session_user( Session* s );
+int       session_defeated( Session* s );
 
 #endif

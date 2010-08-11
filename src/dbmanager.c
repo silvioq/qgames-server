@@ -41,6 +41,7 @@ static DB*   db_games_code = NULL;
 static DB*   db_game_types = NULL;
 static DB*   db_game_types_name = NULL;
 static DB*   db_stats = NULL;
+static DB*   db_sess  = NULL;
 
 typedef  struct  StrStats {
     unsigned int  user_id;
@@ -291,6 +292,12 @@ static  int  open_dbs(){
         db_error = "Error alocando archivo";
         return 0;
     }
+    ret = db_create( &db_sess, NULL, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error alocando %s", db_file );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
 
     // Ahora abro las bases de datos
     flags = 0;
@@ -316,6 +323,12 @@ static  int  open_dbs(){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s stats", db_file );
         db_error = "Error abriendo stats";
+        return 0;
+    }
+    ret = db_stats->open( db_stats, NULL, db_file, "sess", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s sess", db_file );
+        db_error = "Error abriendo sess";
         return 0;
     }
 
@@ -487,6 +500,9 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
         case  DBGAMETYPE:
             dbp = db_game_types;
             break;
+        case  DBSESSION:
+            dbp = db_sess;
+            break;
         default:
             LOGPRINT( 1, "Error de parametro db => %d", db );
             return 0;
@@ -542,6 +558,9 @@ int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size
         case  DBGAMETYPE:
             dbp = db_game_types;
             break;
+        case  DBSESSION:
+            dbp = db_sess;
+            break;
         case IDXUSERCODE:
             dbp = db_users_code;
             break;
@@ -590,6 +609,7 @@ void   dbact_close(){
     if( db_game_types_name ) db_game_types_name->close( db_game_types_name, 0 );
     if( db_games_code ) db_games_code->close( db_games_code, 0 );
     if( db_stats  )     db_stats->close( db_stats, 0 );
+    if( db_sess   )     db_sess ->close( db_sess , 0 );
 
     db_users = NULL;
     db_users_code = NULL;
@@ -598,6 +618,7 @@ void   dbact_close(){
     db_game_types_name = NULL;
     db_games_code = NULL;
     db_stats = NULL;
+    db_sess  = NULL;
 }
 
 /*
@@ -611,6 +632,7 @@ void   dbact_sync(){
     if( db_game_types_name ) db_game_types_name->sync( db_game_types_name, 0 );
     if( db_games_code ) db_games_code->sync( db_games_code, 0 );
     if( db_stats  )     db_stats->sync( db_stats, 0 );
+    if( db_sess   )     db_sess ->sync( db_sess , 0 );
 }
 
 /*
@@ -621,6 +643,7 @@ void   dbget_stat( ){
         db_users->stat_print( db_users, DB_FAST_STAT );
         db_games->stat_print( db_games, DB_FAST_STAT );
         db_stats->stat_print( db_stats, DB_FAST_STAT );
+        db_sess->stat_print ( db_sess, DB_FAST_STAT );
     } else {
         LOGPRINT( 5, "Bases no abiertas ", 0 );
     }
