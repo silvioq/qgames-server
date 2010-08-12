@@ -103,21 +103,25 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
     int ret;
 
     // Ruta login
-    ret = sscanf( "/login%s", buff );
+    ret = sscanf( ri->uri, "/login%s", buff );
     if( ret == -1 ){
         LOGPRINT( 5, "Ruteando a controlador login => %s", ri->uri );
         login_controller( conn, ri );
         return;
     } else if( ret > 0 ){
+        LOGPRINT( 5, "Ruta de login incorrecta => %s", ri->uri );
         render_404( conn, ri );
         return;
     }
 
     
     
-    if( sscanf( "/%32s/", ri->uri, &x ) ){
+    if( sscanf( ri->uri, "/%32s/", x ) ){
     }
     
+    LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
+    render_404( conn, ri );
+    return;
 }
 
 

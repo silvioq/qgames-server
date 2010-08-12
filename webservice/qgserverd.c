@@ -23,21 +23,24 @@
 
 #include  <stdlib.h>
 #include  <signal.h>
+#include  "log.h"
 
 int   init_webservice( int port );
 static void  trap(int a){
+    LOGPRINT( 5, "Cerrando aplicacion %d", a );
     dbact_sync( );
     dbact_close( );
-    
+    exit( 0 );
 }
 
 
 int main( int argc, char** argv ){
 
-
+    loglevel = 5;
     init_webservice( 8080 );
 
     signal( SIGTERM, trap );
+    signal( SIGINT, trap );
 
 
     while( 1 ){ sleep( 10 ); }
