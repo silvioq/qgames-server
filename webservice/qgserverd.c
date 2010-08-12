@@ -24,6 +24,7 @@
 #include  <stdlib.h>
 #include  <signal.h>
 #include  "log.h"
+#include  "dbmanager.h"
 
 int   init_webservice( int port );
 static void  trap(int a){
@@ -37,14 +38,13 @@ static void  trap(int a){
 int main( int argc, char** argv ){
 
     loglevel = 5;
+
+    dbset_file( "qgserver.db" );
     init_webservice( 8080 );
 
     signal( SIGTERM, trap );
     signal( SIGINT, trap );
 
-
     while( 1 ){ sleep( 10 ); }
-    dbact_sync( );
-    dbact_close( );
     exit( EXIT_SUCCESS );
 }
