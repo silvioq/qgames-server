@@ -1,2 +1,2 @@
-SUBDIRS = src test webservice
+SUBDIRS = src test
 

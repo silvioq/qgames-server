@@ -30,7 +30,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = qgserver-tool$(EXEEXT)
+bin_PROGRAMS = qgserver-tool$(EXEEXT) qgserverd$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -48,6 +48,12 @@ am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
 	md5.$(OBJEXT)
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
+am_qgserverd_OBJECTS = qgserverd.$(OBJEXT) webserver.$(OBJEXT) \
+	mongoose.$(OBJEXT) session.$(OBJEXT) dbmanager.$(OBJEXT) \
+	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) \
+	md5.$(OBJEXT)
+qgserverd_OBJECTS = $(am_qgserverd_OBJECTS)
+qgserverd_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -55,8 +61,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(qgserver_tool_SOURCES)
-DIST_SOURCES = $(qgserver_tool_SOURCES)
+SOURCES = $(qgserver_tool_SOURCES) $(qgserverd_SOURCES)
+DIST_SOURCES = $(qgserver_tool_SOURCES) $(qgserverd_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -155,7 +161,18 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
-AM_CFLAGS = -I $(top_srcdir)/common
+AM_CFLAGS = -I $(top_srcdir)/common -DNO_SSL -DNO_CGI
+qgserverd_SOURCES = qgserverd.c \
+		$(top_srcdir)/webservice/webserver.c \
+		$(top_srcdir)/webservice/mongoose.c    $(top_srcdir)/webservice/mongoose.h \
+		session.c     session.h \
+		dbmanager.c   dbmanager.h \
+		users.h  			users.c \
+		games.h	      games.c \
+		../common/log.h  ../common/log.c \
+		../common/packer.h  ../common/packer.c \
+		../common/md5.h  ../common/md5.c 
+
 all: all-am
 
 .SUFFIXES:
@@ -215,6 +232,9 @@ clean-binPROGRAMS:
 qgserver-tool$(EXEEXT): $(qgserver_tool_OBJECTS) $(qgserver_tool_DEPENDENCIES) 
 	@rm -f qgserver-tool$(EXEEXT)
 	$(LINK) $(qgserver_tool_OBJECTS) $(qgserver_tool_LDADD) $(LIBS)
+qgserverd$(EXEEXT): $(qgserverd_OBJECTS) $(qgserverd_DEPENDENCIES) 
+	@rm -f qgserverd$(EXEEXT)
+	$(LINK) $(qgserverd_OBJECTS) $(qgserverd_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -226,9 +246,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mongoose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/packer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qgserver-tool.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qgserverd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/session.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/users.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webserver.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -285,6 +309,34 @@ md5.obj: ../common/md5.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/md5.c' object='md5.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o md5.obj `if test -f '../common/md5.c'; then $(CYGPATH_W) '../common/md5.c'; else $(CYGPATH_W) '$(srcdir)/../common/md5.c'; fi`
+
+webserver.o: $(top_srcdir)/webservice/webserver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT webserver.o -MD -MP -MF $(DEPDIR)/webserver.Tpo -c -o webserver.o `test -f '$(top_srcdir)/webservice/webserver.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/webserver.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/webserver.Tpo $(DEPDIR)/webserver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/webserver.c' object='webserver.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o webserver.o `test -f '$(top_srcdir)/webservice/webserver.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/webserver.c
+
+webserver.obj: $(top_srcdir)/webservice/webserver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT webserver.obj -MD -MP -MF $(DEPDIR)/webserver.Tpo -c -o webserver.obj `if test -f '$(top_srcdir)/webservice/webserver.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/webserver.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/webserver.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/webserver.Tpo $(DEPDIR)/webserver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/webserver.c' object='webserver.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o webserver.obj `if test -f '$(top_srcdir)/webservice/webserver.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/webserver.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/webserver.c'; fi`
+
+mongoose.o: $(top_srcdir)/webservice/mongoose.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mongoose.o -MD -MP -MF $(DEPDIR)/mongoose.Tpo -c -o mongoose.o `test -f '$(top_srcdir)/webservice/mongoose.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/mongoose.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mongoose.Tpo $(DEPDIR)/mongoose.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/mongoose.c' object='mongoose.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mongoose.o `test -f '$(top_srcdir)/webservice/mongoose.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/mongoose.c
+
+mongoose.obj: $(top_srcdir)/webservice/mongoose.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mongoose.obj -MD -MP -MF $(DEPDIR)/mongoose.Tpo -c -o mongoose.obj `if test -f '$(top_srcdir)/webservice/mongoose.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/mongoose.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/mongoose.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mongoose.Tpo $(DEPDIR)/mongoose.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/mongoose.c' object='mongoose.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mongoose.obj `if test -f '$(top_srcdir)/webservice/mongoose.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/mongoose.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/mongoose.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
