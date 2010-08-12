@@ -124,7 +124,7 @@ int        game_type_save( GameType* gt ){
     int ret;
     ret = dbput_data( DBGAMETYPE, &gt->id, sizeof( gt->id ), data, size );
     if( ret == 0 ){
-        LOGPRINT( 5, "Error salvando tipo de juego %d (%s)", gt->id, db_getlasterror() );
+        LOGPRINT( 5, "Error salvando tipo de juego %d (%s)", gt->id, dbget_lasterror() );
         return 0;
     }
     gt->rec_flags &= ~RECFLAG_NEW;

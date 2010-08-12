@@ -21,12 +21,102 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 #include  <string.h>
+#include  <stdio.h>
+#include  <sys/time.h>
+#include  <time.h>
 #include  "mongoose.h"
+#include  "users.h"
+#include  "log.h"
+#include  "session.h"
 
-static void authorize_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
-    
+static void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+static void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
+static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+
+static void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
+    char* user = mg_get_var( conn, "user" );
+    char* pass = mg_get_var( conn, "pass" );
+    if( strcmp( ri->request_method, "POST" ) != 0 ){
+        render_400( conn, ri, "Debe enviar login por POST" );
+        return;
+    }
+    if( user && pass ){
+        User* u = user_find_by_code( user );
+        if( !u ){
+            render_400( conn, ri, "Usuario o password incorrecta" );
+        } else {
+            if( user_check_password( u, pass ) ){
+                render_200( conn, ri, "Usuario perfecto" );
+            } else {
+                render_400( conn, ri, "Usuario o password incorrecta" );
+            }
+            user_free( u );
+        }
+    } else {
+        render_400( conn, ri, "Debe enviar usuario y password" );
+    }
+    if( user ) mg_free( user );
+    if( pass ) mg_free( pass );
+    return;
 }
-static void application_controller(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
+
+static void render_404(struct mg_connection *conn, const struct mg_request_info *ri){
+    int   status = 404;
+    char* reason = "Not found";
+    char* buff   = "Route not found";
+    int   len    = strlen( buff );
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n%s", status, reason, len, buff);
+}
+
+static void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+    int   status = 404;
+    char* reason = "Bad request";
+    int   len    = strlen( buf );
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n%s", status, reason, len, buf);
+}
+
+static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+    int   status = 200;
+    char* reason = "OK";
+    int   len    = strlen( buf );
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n%s", status, reason, len, buf);
+}
+
+static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
+    char x[33];
+    char buff[1024];
+    int ret;
+
+    // Ruta login
+    ret = sscanf( "/login%s", buff );
+    if( ret == -1 ){
+        LOGPRINT( 5, "Ruteando a controlador login => %s", ri->uri );
+        login_controller( conn, ri );
+        return;
+    } else if( ret > 0 ){
+        render_404( conn, ri );
+        return;
+    }
+
+    
+    
+    if( sscanf( "/%32s/", ri->uri, &x ) ){
+    }
     
 }
 
@@ -38,7 +128,6 @@ int   init_webservice( int port ){
     char puerto[1024];
     sprintf( puerto, "%d", port );
     mg_set_option(ctx, "ports", puerto);
-    mg_set_auth_callback(ctx, "*", &authorize_filter, NULL);
-    mg_set_uri_callback(ctx, "*", &application_controller, NULL );
+    mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
 }
 

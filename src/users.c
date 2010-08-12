@@ -153,7 +153,7 @@ int     user_save( User* user ){
 
     ret = dbput_data( DBUSER, &user->id, sizeof( user->id ), data, size );
     if( ret == 0 ){
-        LOGPRINT( 5, "Error salvando usuario %d (%s)", user->id, db_getlasterror() );
+        LOGPRINT( 5, "Error salvando usuario %d (%s)", user->id, dbget_lasterror() );
         return 0;
     }
 
@@ -165,6 +165,17 @@ void    user_set_password( User* user, char* password ){
     if( password ) password_md5( password, user->password );
 }
 
+/*
+ * Dado una password pasada como parametro, chequea si coincide
+ * con la almacenada por el usuario
+ * */
+int     user_check_password( User* user, char* password ){
+    char  md5p[16];
+    if( !password ) return 0;
+    password_md5( password, md5p );
+    return memcmp( user->password, md5p, sizeof( md5p ) ) == 0;
+}
+
 /* 
  * Dado un codigo de usuario, obtiene la informacion
  * */
@@ -173,6 +184,19 @@ User*   user_find_by_code( char* code ){
     int size;
 
     if( dbget_data( IDXUSERCODE, code, strlen( code ), &data, &size ) ){
+        return  bin_to_user( data, size );
+    } else {
+        return NULL;
+    }
+}
+/* 
+ * Devuelve un usuario dado su identificador
+ * */
+User*   user_load( unsigned int user_id ){
+    void* data;
+    int size;
+
+    if( dbget_data( DBUSER, &user_id, sizeof(user_id), &data, &size ) ){
         return  bin_to_user( data, size );
     } else {
         return NULL;

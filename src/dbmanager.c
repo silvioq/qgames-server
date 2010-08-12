@@ -234,7 +234,7 @@ unsigned int  dbget_game_typenextid( ){
 /*
  * Gran complejidad para esta funcion fundamental
  * */
-char*  db_getlasterror( ){ return db_error; }
+char*  dbget_lasterror( ){ return db_error; }
 
 /*
  *
@@ -325,7 +325,7 @@ static  int  open_dbs(){
         db_error = "Error abriendo stats";
         return 0;
     }
-    ret = db_stats->open( db_stats, NULL, db_file, "sess", DB_BTREE, flags, 0 );
+    ret = db_sess->open( db_sess, NULL, db_file, "sess", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s sess", db_file );
         db_error = "Error abriendo sess";
@@ -462,6 +462,19 @@ int    init_db( char* filename ){
     };
     db->close(db,0);
 
+    if( db_create( &db, NULL, 0 ) != 0 ){
+        LOGPRINT( 2, "Error alocando %s", filename );
+        db_error = "Error alocando archivo";
+        return 0;
+    }
+    flags = DB_CREATE  ;
+    ret = db->open( db, NULL, filename, "sess", DB_BTREE, flags, 0 );
+    if( ret != 0 ){
+        LOGPRINT( 2, "Error abriendo %s (sess)", filename );
+        db_error = "Error abriendo archivo (sess)";
+        return 0;
+    }
+    db->close(db,0);
     
     /* Listo el pollo, ahora hay que crear un nuevo usuario, el 
      * root */

@@ -30,13 +30,14 @@
 #include  "dbmanager.h"
 #include  "md5.h"
 #include  "packer.h"
+#include  "session.h"
 #include  "log.h"
 
 static  void session_generar_id( char id[32] ){
     
     md5_state_t  md5;
     md5_init( &md5 );
-    char[16] hash;
+    char hash[16];
 
     long int r = random( );
     struct timeval tv;
@@ -45,13 +46,13 @@ static  void session_generar_id( char id[32] ){
     int i;
    
     if( tv.tv_sec & 1 ){ 
-        md5_append( &md5, r, sizeof( r ) );
-        md5_append( &md5, tv, sizeof( tv ) );
-        md5_append( &md5, c, sizeof( c ) ) ;
+        md5_append( &md5, (char*)&r, sizeof( r ) );
+        md5_append( &md5, (char*)&tv, sizeof( tv ) );
+        md5_append( &md5, (char*)&c, sizeof( c ) ) ;
     } else {
-        md5_append( &md5, tv, sizeof( tv ) );
-        md5_append( &md5, c, sizeof( c ) ) ;
-        md5_append( &md5, r, sizeof( r ) );
+        md5_append( &md5, (char*)&tv, sizeof( tv ) );
+        md5_append( &md5, (char*)&c, sizeof( c ) ) ;
+        md5_append( &md5, (char*)&r, sizeof( r ) );
     }
     md5_finish( &md5, hash );
     for( i = 0; i < 16; i ++ ){
@@ -147,7 +148,7 @@ int      session_save( Session* s ){
  * */
 Session*  session_load( char id[32] ){
     void * data; int size;
-    int ret = dbget_data( DBSESSION, id, size, &data, size );
+    int ret = dbget_data( DBSESSION, id, 32, &data, &size );
     if( !ret ){
         char s[33]; s[32] = 0;
         memcpy( id, s, 32 );
