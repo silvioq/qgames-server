@@ -1,10 +1,11 @@
-check_PROGRAMS = test-main  test-db-create-file  test-dup-user test-create-user test-create-game-type
+check_PROGRAMS = test-main  test-db-create-file  test-dup-user test-create-user test-create-game-type test-create-session
 
 QGAMESLIBS=@QGAMESLIBS@
 LIB=$(QGAMESLIBS)
 DEPENDENCES= ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
 		../src/games.h  ../src/games.c \
+		../src/session.h  ../src/session.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
@@ -15,6 +16,7 @@ test_db_create_file_SOURCES = $(DEPENDENCES) test-db-create-file.c
 test_dup_user_SOURCES       = $(DEPENDENCES) test-dup-user.c
 test_create_user_SOURCES    = $(DEPENDENCES) test-create-user.c
 test_create_game_type_SOURCES = $(DEPENDENCES) test-create-game-type.c
+test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 
 AM_CFLAGS = -I ../src -I ../common
 

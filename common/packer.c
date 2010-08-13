@@ -245,7 +245,7 @@ int    binary_unpack( char* format, void* data, int size, ... ){
                     break;
                 }
                 if( to_ptr ) *to_ptr = pointer;
-                pointer   += size;
+                pointer   += aux_size;
                 break;
             default:
                 va_end( vlist );

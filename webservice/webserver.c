@@ -29,9 +29,19 @@
 #include  "log.h"
 #include  "session.h"
 
+static void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
+static void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 static void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 static void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
 static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+
+
+/*
+ * Este es el controlador de login.
+ * Lo que voy a hacer es sencillo. 
+ * Primero, controlo que la password sea correcta.
+ * Segundo, devuelvo una nueva sesion
+ * */
 
 static void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
     char* user = mg_get_var( conn, "user" );
@@ -46,7 +56,16 @@ static void login_controller(struct mg_connection *conn, const struct mg_request
             render_400( conn, ri, "Usuario o password incorrecta" );
         } else {
             if( user_check_password( u, pass ) ){
-                render_200( conn, ri, "Usuario perfecto" );
+                Session* s = session_new( u );
+                if( session_save( s ) ){
+                    char buf[100];
+                    sprintf( buf, "respuesta: OK\nsesion: %32s", s->id );
+                    render_200( conn, ri, buf);
+                } else {
+                    render_500( conn, ri, "Error al grabar sesion en " __FILE__ ":" QUOTEME(__LINE__) );
+                }
+                session_free( s );
+                
             } else {
                 render_400( conn, ri, "Usuario o password incorrecta" );
             }
@@ -59,6 +78,8 @@ static void login_controller(struct mg_connection *conn, const struct mg_request
     if( pass ) mg_free( pass );
     return;
 }
+
+
 
 static void render_404(struct mg_connection *conn, const struct mg_request_info *ri){
     int   status = 404;
@@ -88,6 +109,18 @@ static void render_400(struct mg_connection *conn, const struct mg_request_info 
 static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
     int   status = 200;
     char* reason = "OK";
+    int   len    = strlen( buf );
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n%s", status, reason, len, buf);
+}
+
+static void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+    int   status = 500;
+    char* reason = "Internal Error";
     int   len    = strlen( buf );
 		mg_printf(conn,
 		    "HTTP/1.1 %d %s\r\n"

@@ -37,7 +37,7 @@ static  void session_generar_id( char id[32] ){
     
     md5_state_t  md5;
     md5_init( &md5 );
-    char hash[16];
+    unsigned char hash[16];
 
     long int r = random( );
     struct timeval tv;
@@ -56,7 +56,10 @@ static  void session_generar_id( char id[32] ){
     }
     md5_finish( &md5, hash );
     for( i = 0; i < 16; i ++ ){
-      sprintf( id + i, "%02x", hash[i] );
+    /*  char x[16];
+      sprintf( x, "%02x-", hash[i] );
+      id[i*2] = x[0]; id[i*2+1] = x[1];*/
+      sprintf( id + i * 2, "%02x", hash[i] );
     }
 
 }
@@ -93,7 +96,7 @@ static Session*  bin_to_session( void* data, int size ){
  * Genera una nueva sesion
  * */
 Session*  session_new( User* user ){
-    Session* ret = malloc( sizeof( Session* ) );
+    Session* ret = malloc( sizeof( Session ) );
     memset( ret, 0, sizeof( Session ) );
     if( user ){
         ret->user = user;

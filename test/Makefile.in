@@ -31,7 +31,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 check_PROGRAMS = test-main$(EXEEXT) test-db-create-file$(EXEEXT) \
 	test-dup-user$(EXEEXT) test-create-user$(EXEEXT) \
-	test-create-game-type$(EXEEXT)
+	test-create-game-type$(EXEEXT) test-create-session$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -42,11 +42,15 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 am__objects_1 = dbmanager.$(OBJEXT) users.$(OBJEXT) games.$(OBJEXT) \
-	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
+	session.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
 am_test_create_game_type_OBJECTS = $(am__objects_1) \
 	test-create-game-type.$(OBJEXT)
 test_create_game_type_OBJECTS = $(am_test_create_game_type_OBJECTS)
 test_create_game_type_LDADD = $(LDADD)
+am_test_create_session_OBJECTS = $(am__objects_1) \
+	test-create-session.$(OBJEXT)
+test_create_session_OBJECTS = $(am_test_create_session_OBJECTS)
+test_create_session_LDADD = $(LDADD)
 am_test_create_user_OBJECTS = $(am__objects_1) \
 	test-create-user.$(OBJEXT)
 test_create_user_OBJECTS = $(am_test_create_user_OBJECTS)
@@ -68,12 +72,14 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(test_create_game_type_SOURCES) $(test_create_user_SOURCES) \
+SOURCES = $(test_create_game_type_SOURCES) \
+	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
 	$(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
 	$(test_main_SOURCES)
 DIST_SOURCES = $(test_create_game_type_SOURCES) \
-	$(test_create_user_SOURCES) $(test_db_create_file_SOURCES) \
-	$(test_dup_user_SOURCES) $(test_main_SOURCES)
+	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
+	$(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
+	$(test_main_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -168,6 +174,7 @@ LIB = $(QGAMESLIBS)
 DEPENDENCES = ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
 		../src/games.h  ../src/games.c \
+		../src/session.h  ../src/session.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
@@ -177,6 +184,7 @@ test_db_create_file_SOURCES = $(DEPENDENCES) test-db-create-file.c
 test_dup_user_SOURCES = $(DEPENDENCES) test-dup-user.c
 test_create_user_SOURCES = $(DEPENDENCES) test-create-user.c
 test_create_game_type_SOURCES = $(DEPENDENCES) test-create-game-type.c
+test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 AM_CFLAGS = -I ../src -I ../common
 TESTS = $(check_PROGRAMS)
 all: all-am
@@ -218,6 +226,9 @@ clean-checkPROGRAMS:
 test-create-game-type$(EXEEXT): $(test_create_game_type_OBJECTS) $(test_create_game_type_DEPENDENCIES) 
 	@rm -f test-create-game-type$(EXEEXT)
 	$(LINK) $(test_create_game_type_OBJECTS) $(test_create_game_type_LDADD) $(LIBS)
+test-create-session$(EXEEXT): $(test_create_session_OBJECTS) $(test_create_session_DEPENDENCIES) 
+	@rm -f test-create-session$(EXEEXT)
+	$(LINK) $(test_create_session_OBJECTS) $(test_create_session_LDADD) $(LIBS)
 test-create-user$(EXEEXT): $(test_create_user_OBJECTS) $(test_create_user_DEPENDENCIES) 
 	@rm -f test-create-user$(EXEEXT)
 	$(LINK) $(test_create_user_OBJECTS) $(test_create_user_LDADD) $(LIBS)
@@ -242,7 +253,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/packer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/session.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-game-type.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-session.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-db-create-file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-dup-user.Po@am__quote@
@@ -304,6 +317,20 @@ games.obj: ../src/games.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/games.c' object='games.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o games.obj `if test -f '../src/games.c'; then $(CYGPATH_W) '../src/games.c'; else $(CYGPATH_W) '$(srcdir)/../src/games.c'; fi`
+
+session.o: ../src/session.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT session.o -MD -MP -MF $(DEPDIR)/session.Tpo -c -o session.o `test -f '../src/session.c' || echo '$(srcdir)/'`../src/session.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/session.Tpo $(DEPDIR)/session.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/session.c' object='session.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o session.o `test -f '../src/session.c' || echo '$(srcdir)/'`../src/session.c
+
+session.obj: ../src/session.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT session.obj -MD -MP -MF $(DEPDIR)/session.Tpo -c -o session.obj `if test -f '../src/session.c'; then $(CYGPATH_W) '../src/session.c'; else $(CYGPATH_W) '$(srcdir)/../src/session.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/session.Tpo $(DEPDIR)/session.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/session.c' object='session.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o session.obj `if test -f '../src/session.c'; then $(CYGPATH_W) '../src/session.c'; else $(CYGPATH_W) '$(srcdir)/../src/session.c'; fi`
 
 log.o: ../common/log.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT log.o -MD -MP -MF $(DEPDIR)/log.Tpo -c -o log.o `test -f '../common/log.c' || echo '$(srcdir)/'`../common/log.c
