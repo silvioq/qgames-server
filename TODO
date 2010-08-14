@@ -1,3 +1,27 @@
-* Servicio http (mongoose)
 * Sesiones
 * Borrado en la base de datos
+* Leer los tipos de juego (pthread_mutex_init sera nuestro amigo)
+* Controlador: list (lista de juegos)
+* Controlador: game (crea partida, mueve, registra y "desregistra juego")
+* Esta es la lista del dispacher que tenia la version 2.1.12
+  del qgames
+
+  PATH_LIST = {
+    :ingreso      => 'login',   # Login de usuario
+    :lista        => 'lista',   # Lista de tipos de juego
+    :crea_juego   => 'crea',    # Crea una partida
+    :crea_partida => 'crea',    # Crea una partida
+    :crea         => 'crea',    # Crea una partida
+    :registra     => 'registra',          # Registra una partida ya existente
+    :desregistra  => 'desregistra',       # Quita del registro una partida
+    :registraciones  => 'registraciones', # Lista de las partidas existentes en el repositorio
+    :partida      => 'muestra_partida',   # Detalle de la partida (binario)
+    :posicion     => 'muestra_posicion',  # Detalle de la posicion 
+    :tablero      => 'muestra_posicion',  # Detalle de la posición
+    :historial    => 'historial',         # Historial de la partida
+    :posibles     => 'posibles',          # Movidas posibles
+    :imagen       => 'imagen',            # Imagen (PNG) de una posición
+    :mueve        => 'mueve',             # Realiza una movida
+    :html         => 'html_helper',       # Ayuda HTML
+    :reload       => 'reload'             # Reload de varios objetos
+  }
