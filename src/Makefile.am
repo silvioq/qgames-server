@@ -9,10 +9,11 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
-AM_CFLAGS=-I $(top_srcdir)/common -DNO_SSL -DNO_CGI
+AM_CFLAGS=-I $(top_srcdir)/common -I$(top_srcdir)/webservice -DNO_SSL -DNO_CGI
 
 qgserverd_SOURCES = qgserverd.c \
 		$(top_srcdir)/webservice/webserver.c   $(top_srcdir)/webservice/webserver.h \
+    $(top_srcdir)/webservice/app/login.c  \
 		$(top_srcdir)/webservice/mongoose.c    $(top_srcdir)/webservice/mongoose.h \
 		session.c     session.h \
 		dbmanager.c   dbmanager.h \

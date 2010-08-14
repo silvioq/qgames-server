@@ -30,52 +30,8 @@
 #include  "session.h"
 #include  "webserver.h"
 
-void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
-void list_view_xml(  struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
 
-/*
- * Este es el controlador de login.
- * Lo que voy a hacer es sencillo. 
- * Primero, controlo que la password sea correcta.
- * Segundo, devuelvo una nueva sesion
- * */
-
-void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
-    char* user = mg_get_var( conn, "user" );
-    char* pass = mg_get_var( conn, "pass" );
-    if( strcmp( ri->request_method, "POST" ) != 0 ){
-        render_400( conn, ri, "Debe enviar login por POST" );
-        return;
-    }
-    if( user && pass ){
-        User* u = user_find_by_code( user );
-        if( !u ){
-            render_400( conn, ri, "Usuario o password incorrecta" );
-        } else {
-            if( user_check_password( u, pass ) ){
-                Session* s = session_new( u );
-                if( session_save( s ) ){
-                    char buf[100];
-                    sprintf( buf, "respuesta: OK\nsesion: %32s", s->id );
-                    render_200( conn, ri, buf);
-                } else {
-                    render_500( conn, ri, "Error al grabar sesion en " __FILE__ ":" QUOTEME(__LINE__) );
-                }
-                session_free( s );
-                
-            } else {
-                render_400( conn, ri, "Usuario o password incorrecta" );
-            }
-            user_free( u );
-        }
-    } else {
-        render_400( conn, ri, "Debe enviar usuario y password" );
-    }
-    if( user ) mg_free( user );
-    if( pass ) mg_free( pass );
-    return;
-}
 
 
 /*

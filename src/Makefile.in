@@ -49,9 +49,9 @@ am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 am_qgserverd_OBJECTS = qgserverd.$(OBJEXT) webserver.$(OBJEXT) \
-	mongoose.$(OBJEXT) session.$(OBJEXT) dbmanager.$(OBJEXT) \
-	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) \
-	md5.$(OBJEXT)
+	login.$(OBJEXT) mongoose.$(OBJEXT) session.$(OBJEXT) \
+	dbmanager.$(OBJEXT) users.$(OBJEXT) games.$(OBJEXT) \
+	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
 qgserverd_OBJECTS = $(am_qgserverd_OBJECTS)
 qgserverd_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -161,9 +161,10 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c 
 
-AM_CFLAGS = -I $(top_srcdir)/common -DNO_SSL -DNO_CGI
+AM_CFLAGS = -I $(top_srcdir)/common -I$(top_srcdir)/webservice -DNO_SSL -DNO_CGI
 qgserverd_SOURCES = qgserverd.c \
 		$(top_srcdir)/webservice/webserver.c   $(top_srcdir)/webservice/webserver.h \
+    $(top_srcdir)/webservice/app/login.c  \
 		$(top_srcdir)/webservice/mongoose.c    $(top_srcdir)/webservice/mongoose.h \
 		session.c     session.h \
 		dbmanager.c   dbmanager.h \
@@ -245,6 +246,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/login.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mongoose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/packer.Po@am__quote@
@@ -323,6 +325,20 @@ webserver.obj: $(top_srcdir)/webservice/webserver.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/webserver.c' object='webserver.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o webserver.obj `if test -f '$(top_srcdir)/webservice/webserver.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/webserver.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/webserver.c'; fi`
+
+login.o: $(top_srcdir)/webservice/app/login.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT login.o -MD -MP -MF $(DEPDIR)/login.Tpo -c -o login.o `test -f '$(top_srcdir)/webservice/app/login.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/app/login.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/login.Tpo $(DEPDIR)/login.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/app/login.c' object='login.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o login.o `test -f '$(top_srcdir)/webservice/app/login.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/app/login.c
+
+login.obj: $(top_srcdir)/webservice/app/login.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT login.obj -MD -MP -MF $(DEPDIR)/login.Tpo -c -o login.obj `if test -f '$(top_srcdir)/webservice/app/login.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/app/login.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/app/login.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/login.Tpo $(DEPDIR)/login.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/webservice/app/login.c' object='login.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o login.obj `if test -f '$(top_srcdir)/webservice/app/login.c'; then $(CYGPATH_W) '$(top_srcdir)/webservice/app/login.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/webservice/app/login.c'; fi`
 
 mongoose.o: $(top_srcdir)/webservice/mongoose.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mongoose.o -MD -MP -MF $(DEPDIR)/mongoose.Tpo -c -o mongoose.o `test -f '$(top_srcdir)/webservice/mongoose.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/mongoose.c
