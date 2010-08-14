@@ -28,12 +28,10 @@
 #include  "users.h"
 #include  "log.h"
 #include  "session.h"
+#include  "webserver.h"
 
-static void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
-static void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
-static void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
-static void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
-static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
+void list_view_xml(  struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
 
 /*
@@ -43,7 +41,7 @@ static void render_200(struct mg_connection *conn, const struct mg_request_info 
  * Segundo, devuelvo una nueva sesion
  * */
 
-static void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
+void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
     char* user = mg_get_var( conn, "user" );
     char* pass = mg_get_var( conn, "pass" );
     if( strcmp( ri->request_method, "POST" ) != 0 ){
@@ -80,8 +78,13 @@ static void login_controller(struct mg_connection *conn, const struct mg_request
 }
 
 
+/*
+ *
+ * Estas son las funciones que permiten renderizados estandares
+ *
+ * */
 
-static void render_404(struct mg_connection *conn, const struct mg_request_info *ri){
+void render_404(struct mg_connection *conn, const struct mg_request_info *ri){
     int   status = 404;
     char* reason = "Not found";
     char* buff   = "Route not found";
@@ -94,7 +97,7 @@ static void render_404(struct mg_connection *conn, const struct mg_request_info 
 		    "\r\n%s", status, reason, len, buff);
 }
 
-static void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
     int   status = 404;
     char* reason = "Bad request";
     int   len    = strlen( buf );
@@ -106,7 +109,7 @@ static void render_400(struct mg_connection *conn, const struct mg_request_info 
 		    "\r\n%s", status, reason, len, buf);
 }
 
-static void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
     int   status = 200;
     char* reason = "OK";
     int   len    = strlen( buf );
@@ -118,7 +121,7 @@ static void render_200(struct mg_connection *conn, const struct mg_request_info 
 		    "\r\n%s", status, reason, len, buf);
 }
 
-static void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
     int   status = 500;
     char* reason = "Internal Error";
     int   len    = strlen( buf );
@@ -129,6 +132,10 @@ static void render_500(struct mg_connection *conn, const struct mg_request_info 
 		    "Connection: close\r\n"
 		    "\r\n%s", status, reason, len, buf);
 }
+
+
+
+
 
 static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
     char x[33];
@@ -149,7 +156,8 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 
     
     
-    if( sscanf( ri->uri, "/%32s/", x ) ){
+    if( sscanf( ri->uri, "/%32s/list%s", x ) == 1 ){
+        LOGPRINT( 5, "Ruteando a controlador list => %s", ri->uri );
     }
     
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
