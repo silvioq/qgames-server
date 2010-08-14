@@ -113,7 +113,7 @@ void      session_free( Session* s ){
 static const char*  session_id( Session* s ){
     static  char ret[33];
     ret[32] = 0;
-    memcpy( s->id, ret, 32 );
+    memcpy( ret, s->id, 32 );
     return (const char*) ret;
 }
 
