@@ -125,14 +125,16 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 
     
     
-    if( sscanf( ri->uri, "/%32s/crea%s", sess ) == 1 ){
+    if( sscanf( ri->uri, "/%32s/crea/%s", sess, buff ) == 2 ){
         // Lee sesion
         Session* s = session_load( sess );
         if( !s || session_defeated( s ) ){
             render_403( conn, ri );
             return ;
         }
-        LOGPRINT( 5, "Ruteando a controlador game => %s", ri->uri );
+        LOGPRINT( 5, "Ruteando a controlador game/crea/%s => %s", buff, ri->uri );
+        game_controller( conn, ri, s, ACTION_CREA, buff );
+        return;
     }
     
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
