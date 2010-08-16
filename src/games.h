@@ -66,6 +66,7 @@ GameType*  game_type_by_name( char* name );
 GameType*  game_type_new( char* name, time_t created_at );
 int        game_type_save( GameType* gt );
 void       game_type_free( GameType* gt );
+GameType*  game_type_load( char* name );
 
 
 

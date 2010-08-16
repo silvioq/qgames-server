@@ -37,6 +37,10 @@
 
 #define   RECFLAG_NEW   0x01
 
+static  GameType** game_types_lista = NULL;
+static  int       game_types_lista_count = 0;
+static  int       game_types_lista_alloc = 0;
+
 
 
 /*
@@ -131,6 +135,44 @@ int        game_type_save( GameType* gt ){
     gt->rec_flags &= ~RECFLAG_NEW;
 
     return 1;
+
+}
+
+/*
+ * Dado un tipo de juego, verifica si se encuentra en memoria.
+ * En el caso positivo, lo devuelve. Si no esta en memoria, 
+ * intenta leerlo de la base. Si aun no lo encuentra, entonces
+ * verifica su existencia y lo graba.
+ * */
+GameType*  game_type_load( char* name ){
+    int i;
+
+    // Verifico si esta en memoria
+    for( i = 0; i < game_types_lista_count; i ++ ){
+        if( strcmp( game_types_lista[i]->nombre, name ) == 0 ) return game_types_lista[i];
+    }
+
+    // Voy a necesitar espacio en memoria, lo creo
+    if( game_types_lista_count >= game_types_lista_alloc ){
+        game_types_lista_alloc += 10;
+        game_types_lista = realloc( game_types_lista, game_types_lista_alloc * sizeof( GameType* ) );
+    }
+
+    // Verifico si esta en la base
+    GameType* ret = game_type_by_name( name );
+    if( ret ){
+        game_types_lista[game_types_lista_count++] = ret;
+        return ret;
+    }
+
+    // Voy a ver si hay algo!
+    Tipojuego* tj = qg_tipojuego_open( name );
+    if( !tj ) return NULL;
+
+    ret = game_type_new( name, 0 );
+    ret->tipojuego = tj;
+    game_type_save( ret );
+    return ret;
 
 }
 
