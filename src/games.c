@@ -172,6 +172,7 @@ GameType*  game_type_load( char* name ){
     ret = game_type_new( name, 0 );
     ret->tipojuego = tj;
     game_type_save( ret );
+    game_types_lista[game_types_lista_count++] = ret;
     return ret;
 
 }

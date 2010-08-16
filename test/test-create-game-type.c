@@ -38,7 +38,7 @@
 int  main( int argc, char** argv ){
 
     loglevel = 2;
-    GameType* gt;
+    GameType* gt, *gt2;
 
     unlink( FILEDB );
     assert( dbset_file( FILEDB ) ) ;
@@ -74,6 +74,25 @@ int  main( int argc, char** argv ){
     assert( strcmp( "Gomoku", gt->nombre ) == 0 );
     game_type_free( gt );
 
+    // A partir de ahora, intento crear el tipo de juego
+    // por el metodo normal
+    dbact_close();
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+
+    assert( gt = game_type_load( "Ajedrez" ) );
+    assert( gt2 = game_type_load( "Ajedrez" ) );
+    assert( gt == gt2 );
+    assert( 2 == dbget_game_typenextid() ) ;
+    assert( gt = game_type_load( "Gomoku" ) );
+    assert( gt != gt2 );
+    assert( gt2 = game_type_load( "Gomoku" ) );
+    assert( gt == gt2 );
+    assert( 4 == dbget_game_typenextid() ) ;
+
+    // Este no lo puedo encontrar
+    assert( !game_type_load( "GomokuNotFound" ) );
 
     exit( EXIT_SUCCESS );
 }
