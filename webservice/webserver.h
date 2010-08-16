@@ -28,11 +28,18 @@
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri);
 void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
+#define  ACTION_CREA  1
+
+void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action );
+
+
+
 void list_controller( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 void list_view_xml(  struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
 void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+void render_403(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 

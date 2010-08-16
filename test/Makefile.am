@@ -1,3 +1,4 @@
+
 check_PROGRAMS = test-main  test-db-create-file  test-dup-user test-create-user test-create-game-type test-create-session
 
 QGAMESLIBS=@QGAMESLIBS@
@@ -20,5 +21,5 @@ test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 
 AM_CFLAGS = -I ../src -I ../common
 
-TESTS = $(check_PROGRAMS)
+TESTS = $(check_PROGRAMS) webservice/test-webservice.sh
 

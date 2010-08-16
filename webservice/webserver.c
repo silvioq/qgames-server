@@ -53,6 +53,19 @@ void render_404(struct mg_connection *conn, const struct mg_request_info *ri){
 		    "\r\n%s", status, reason, len, buff);
 }
 
+void render_403(struct mg_connection *conn, const struct mg_request_info *ri){
+    int   status = 403;
+    char* reason = "Not authorized";
+    char* buff   = "Not authorized. Must login first.";
+    int   len    = strlen( buff );
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n%s", status, reason, len, buff);
+}
+
 void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
     int   status = 404;
     char* reason = "Bad request";
@@ -94,7 +107,7 @@ void render_500(struct mg_connection *conn, const struct mg_request_info *ri, ch
 
 
 static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
-    char x[33];
+    char sess[33];
     char buff[1024];
     int ret;
 
@@ -112,8 +125,14 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 
     
     
-    if( sscanf( ri->uri, "/%32s/list%s", x ) == 1 ){
-        LOGPRINT( 5, "Ruteando a controlador list => %s", ri->uri );
+    if( sscanf( ri->uri, "/%32s/crea%s", sess ) == 1 ){
+        // Lee sesion
+        Session* s = session_load( sess );
+        if( !s || session_defeated( s ) ){
+            render_403( conn, ri );
+            return ;
+        }
+        LOGPRINT( 5, "Ruteando a controlador game => %s", ri->uri );
     }
     
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
