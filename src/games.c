@@ -27,6 +27,7 @@
 #include  <stdint.h>
 #include  <sys/time.h>
 #include  <time.h>
+#include  <qgames.h>
 
 #include  "users.h"
 #include  "games.h"
@@ -143,6 +144,14 @@ int        game_type_save( GameType* gt ){
  *
  *
  * */
+static void  game_set_partida( Game* g, Partida* p ){
+    void* data;
+    int   size;
+    qg_partida_dump( p, &data, &size );
+    game_set_data( g, data, size );
+}
+
+
 static int game_to_bin( Game* g, void** data ){
     int size;
     if( binary_pack( "siibl", data, &size, g->id, g->user_id, g->game_type_id, 
@@ -215,5 +224,31 @@ void    game_set_data( Game* g, void* data, unsigned int data_size ){
  * */
 void    game_free( Game* game ){
     if( game->data ) free( game->data );
+    if( game->partida ) qg_partida_free( game->partida );
     free( game );
+}
+
+
+/*
+ *
+ * Esta funcion crea una nueva partida y setea, como corresponde
+ * el nuevo objeto game
+ *
+ * */
+
+Game*     game_type_create( GameType* gt, User* u ){
+    if( !gt->tipojuego ){
+        gt->tipojuego = qg_tipojuego_open( gt->nombre );
+        if( !gt->tipojuego ){
+            LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
+            return 0;
+        }
+    }
+    Partida* p = qg_tipojuego_create_partida( gt->tipojuego, NULL );
+    Game* ret = game_new( qg_partida_id( p ), u, gt, 0 );
+    game_set_partida( ret, p );
+    qg_partida_free( p );
+    return ret;
+    
+
 }

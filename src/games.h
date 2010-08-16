@@ -24,12 +24,14 @@
 #ifndef  GAMES_H
 #define  GAMES_H
 
+#include <qgames.h>
 
 typedef  struct  StrGameType {
   unsigned  int     id;
   char*             nombre;
   time_t            created_at;
 
+  Tipojuego*        tipojuego;
   int               rec_flags;
 } GameType;
 
@@ -45,6 +47,7 @@ typedef  struct  StrGame {
   time_t            created_at;
   time_t            modify_at;
 
+  Partida*          partida;
   int               rec_flags;
 } Game;
 
@@ -63,6 +66,15 @@ GameType*  game_type_by_name( char* name );
 GameType*  game_type_new( char* name, time_t created_at );
 int        game_type_save( GameType* gt );
 void       game_type_free( GameType* gt );
+
+
+
+/*
+ * Estas funciones son de interaccion con el qgames 
+ * */
+
+Partida*  game_partida( Game* g );
+Game*     game_type_create( GameType* gt, User* u );
 
 
 
