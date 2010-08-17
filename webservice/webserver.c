@@ -23,6 +23,9 @@
 #include  <string.h>
 #include  <stdio.h>
 #include  <sys/time.h>
+#include  <sys/types.h>
+#include  <sys/stat.h>
+#include  <unistd.h>
 #include  <time.h>
 #include  "mongoose.h"
 #include  "users.h"
@@ -88,6 +91,28 @@ void render_200(struct mg_connection *conn, const struct mg_request_info *ri, ch
 		    "Content-Length: %d\r\n"
 		    "Connection: close\r\n"
 		    "\r\n%s", status, reason, len, buf);
+}
+
+void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, FILE* f){
+    int   status = 200;
+    char* reason = "OK";
+    struct stat st;
+    fstat( fileno( f ), &st );
+    int   len    = st.st_size;
+    
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: text/plain\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n", status, reason, len);
+
+    char buff[1024];
+    rewind( f );
+    while( !feof( f ) ){
+        fgets( buff, 1024, f );
+        mg_printf( conn, buff );
+    }
 }
 
 void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){

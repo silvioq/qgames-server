@@ -43,6 +43,7 @@ void render_400(struct mg_connection *conn, const struct mg_request_info *ri, ch
 void render_403(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, FILE* f);
 
 
 #endif
