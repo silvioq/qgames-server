@@ -35,6 +35,7 @@
     if( len + sizeof( dato ) > alloc ){ \
         alloc += ( len + sizeof( dato ) > alloc + ALLOC_SIZE ? sizeof( dato ) + ALLOC_SIZE : ALLOC_SIZE ); \
         data = realloc( data, alloc ); \
+        pointer = (char*)data + len ; \
     } \
     *(typeof(dato)*)pointer = dato ;\
     pointer = ((char*)pointer) + sizeof( dato ) ;\
@@ -45,6 +46,7 @@
     if( len + size  > alloc ) { \
         alloc += ( len + size > alloc + ALLOC_SIZE ? size + ALLOC_SIZE : ALLOC_SIZE ); \
         data = realloc( data, alloc ); \
+        pointer = (char*)data + len ; \
     } \
     memcpy( pointer, dato, size ); \
     pointer = ((char*)pointer) + size; \

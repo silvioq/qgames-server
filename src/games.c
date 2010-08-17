@@ -217,9 +217,12 @@ GameType*  game_type_share_by_id( unsigned int id ){
     // Verifico si esta en la base
     GameType* ret = game_type_load( id );
     if( ret ){
+        ret->tipojuego = qg_tipojuego_open( ret->nombre );
         game_types_lista[game_types_lista_count++] = ret;
         return ret;
     }
+
+    // Levanto el tipo de juego
     return NULL;
 }
 
@@ -317,6 +320,7 @@ static Game* bin_to_game( void* data, int size ){
         g->game_type_id = game_type_id;
         g->user_id      = user_id;
         g->modified_at  = modified_at;
+        game_set_data( g, game_data, game_data_size );
         return g;
     } else return NULL;
 
@@ -337,7 +341,9 @@ Game*   game_load( char* id ) {
         LOGPRINT( 1, "Error de base de datos %s", dbget_lasterror() );
         return NULL;
     } 
-    return  bin_to_game( data, size );
+    Game* g = bin_to_game( data, size );
+    g->rec_flags &= ~RECFLAG_NEW;
+    return g;
 }
 
 

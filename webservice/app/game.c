@@ -57,7 +57,6 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
 static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     Game*  g = game_load( id );
     GameType* gt = game_game_type( g );
-    
 }
 
 
@@ -70,6 +69,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
     switch(action){
         case  ACTION_CREA:
             game_controller_crea( conn, ri, s, parm );
+            break;
+        case  ACTION_TABLERO:
+            game_controller_tablero( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );

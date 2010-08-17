@@ -41,6 +41,8 @@ int  main( int argc, char** argv ){
     GameType* gt;
     Game*     g;
     User*     u;
+    char buff[100];
+    int i;
 
     unlink( FILEDB );
     assert( dbset_file( FILEDB ) ) ;
@@ -62,7 +64,24 @@ int  main( int argc, char** argv ){
     assert( g->created_at > 0 );
     assert( game_game_type( g )->id == gt->id );
     assert( game_user( g )->id == u->id );
-  
+
+
+    for( i = 0; i < 100; i ++ ){
+        buff[i] = i * 97 % 256;
+    }
+    game_set_data( g, buff, 100 );
+    assert( game_save( g ) );
+    game_free( g );
+
+    assert( g = game_load( "x" ) );
+    assert( g->created_at > 0 );
+    assert( game_game_type( g )->id == gt->id );
+    assert( game_user( g )->id == u->id );
+    assert( g->data_size == 100 );
+    for( i = 0; i < 100; i ++ ){
+        assert( ((char*)g->data)[i] == (char)( i * 97 % 256 ) );
+    }
+    game_free( g );
     
 
     exit( EXIT_SUCCESS );
