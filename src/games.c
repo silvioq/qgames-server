@@ -246,6 +246,8 @@ static void  game_set_partida( Game* g, Partida* p ){
 
 
 
+
+
 /*
  * Esta es la creacion del juego
  * */
@@ -418,4 +420,14 @@ Game*     game_type_create( GameType* gt, User* u ){
     return ret;
     
 
+}
+
+
+
+Partida*  game_partida( Game* g ){
+    if( g->partida ) return g->partida;
+    GameType* gt = game_game_type( g );
+    if( !g->data ) return NULL;
+    g->partida = qg_partida_load( gt->tipojuego, g->data, g->data_size );
+    return g->partida;
 }

@@ -56,7 +56,22 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
 
 static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     Game*  g = game_load( id );
-    GameType* gt = game_game_type( g );
+    Partida* p = game_partida( g );
+    int i;
+    FILE* f = tmpfile( );
+    fprintf( f, "game_id: %s\n", g->id );
+    int pie = qg_partida_tablero_count( p );
+    for( i = 0; i < pie; i ++ ){
+        char* casillero; char* tipo; char* color;
+        qg_partida_tablero_data( p, i, &casillero, &tipo, &color );
+        fprintf( f, "- pieza:\n" );
+        fprintf( f, "  casillero: %s\n", casillero );
+        fprintf( f, "  tipo: %s\n", tipo );
+        fprintf( f, "  color: %s\n", color );
+    }
+    render_200f( conn, ri, f );
+    fclose( f );
+
 }
 
 
