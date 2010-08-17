@@ -111,6 +111,24 @@ GameType*  game_type_by_name( char* nombre ){
 }
 
 /*
+ * Accedo al tipo de juego por su identificador
+ * */
+GameType* game_type_load( unsigned int id ){
+    void* data;
+    int  size, ret;
+    ret = dbget_data( DBGAMETYPE, &id, sizeof( id ), &data, &size ) ;
+    if( ret == 0 ){
+        LOGPRINT( 5, "Tipojuego %d no encontrado", id );
+        return NULL;
+    } else if( ret == -1 ){
+        LOGPRINT( 1, "Error de base de datos %s", dbget_lasterror() );
+        return NULL;
+    } else {
+        return  bin_to_game_type( data, size );
+    }
+}
+
+/*
  * Con esta funcion salvo el tipo de juego
  * */
 int        game_type_save( GameType* gt ){
@@ -144,7 +162,7 @@ int        game_type_save( GameType* gt ){
  * intenta leerlo de la base. Si aun no lo encuentra, entonces
  * verifica su existencia y lo graba.
  * */
-GameType*  game_type_load( char* name ){
+GameType*  game_type_share_by_name( char* name ){
     int i;
 
     // Verifico si esta en memoria
@@ -179,6 +197,35 @@ GameType*  game_type_load( char* name ){
 
 
 /*
+ * Dado un id de tipo de juego, intenta verificar si esta en lo compartido
+ * En el caso que no este, verifica en la base de datos. 
+ * Si no esta, devuelve nulo
+ * */
+GameType*  game_type_share_by_id( unsigned int id ){
+    int i;
+    // Verifico si esta en memoria
+    for( i = 0; i < game_types_lista_count; i ++ ){
+        if( id == game_types_lista[i]->id ) return game_types_lista[i];
+    }
+
+    // Voy a necesitar espacio en memoria, lo creo
+    if( game_types_lista_count >= game_types_lista_alloc ){
+        game_types_lista_alloc += 10;
+        game_types_lista = realloc( game_types_lista, game_types_lista_alloc * sizeof( GameType* ) );
+    }
+
+    // Verifico si esta en la base
+    GameType* ret = game_type_load( id );
+    if( ret ){
+        game_types_lista[game_types_lista_count++] = ret;
+        return ret;
+    }
+    return NULL;
+}
+
+
+
+/*
  *
  *
  * A partir de aqui vienen las funciones de Game.
@@ -195,38 +242,6 @@ static void  game_set_partida( Game* g, Partida* p ){
 }
 
 
-static int game_to_bin( Game* g, void** data ){
-    int size;
-    if( binary_pack( "siibl", data, &size, g->id, g->user_id, g->game_type_id, 
-                            g->data, g->data_size, 
-                            (long)g->created_at ) ){
-        return size;
-    } else return 0;
-}
-
-/*
- * Dado el binario empaquetado, obtenermos el juego
- * */
-
-static Game* bin_to_game( void* data, int size ){
-    char* id;
-    unsigned int user_id;
-    unsigned int game_type_id;
-    void* gdata;
-    int   data_size;
-    time_t  created_at;
-    if( binary_unpack( "siibl", data, size, &id, &user_id, &game_type_id,
-                          &gdata, &data_size, &created_at ) ){
-        Game* g = game_new( id, NULL, NULL, 0 );
-        g->user_id = user_id;
-        g->game_type_id = game_type_id;
-        if( gdata ) game_set_data( g, gdata, data_size );
-        g->created_at = created_at;
-        g->rec_flags &= ~RECFLAG_NEW;
-        return g;
-      
-    } else return NULL;
-}
 
 /*
  * Esta es la creacion del juego
@@ -266,10 +281,113 @@ void    game_set_data( Game* g, void* data, unsigned int data_size ){
  * Libera el espacio de memoria usado
  * */
 void    game_free( Game* game ){
+    if( game->id )  free( game->id );
     if( game->data ) free( game->data );
     if( game->partida ) qg_partida_free( game->partida );
     free( game );
 }
+
+
+/*
+ * Serializacion de juego
+ * */
+
+static  int  game_to_bin( Game* g, void** data ){
+    int  size;
+    if( binary_pack( "siibll", data, &size, g->id, g->user_id, g->game_type_id, g->data, g->data_size, 
+                g->created_at, g->modified_at ) ){
+        return size;
+    } else return 0;
+}
+
+/*
+ * Deserializacion de juego
+ * */
+static Game* bin_to_game( void* data, int size ){
+    char* id;
+    unsigned long user_id, game_type_id;
+    void*  game_data;
+    int    game_data_size;
+    time_t  created_at, modified_at;
+
+    if( binary_unpack( "siibll", data, size, &id, &user_id, &game_type_id,
+                &game_data, &game_data_size, 
+                &created_at, &modified_at ) ){
+        Game* g = game_new( id, NULL, NULL, created_at );
+        g->game_type_id = game_type_id;
+        g->user_id      = user_id;
+        g->modified_at  = modified_at;
+        return g;
+    } else return NULL;
+
+}
+
+
+/*
+ * Lectura de un juego de la base
+ * */
+Game*   game_load( char* id ) {
+    
+    void * data; int size;
+    int ret = dbget_data( DBGAME, id, strlen( id ), &data, &size );
+    if( !ret ){
+        LOGPRINT( 5, "Game no encontrado %s", id );
+        return NULL;
+    } else if( ret == -1 ){
+        LOGPRINT( 1, "Error de base de datos %s", dbget_lasterror() );
+        return NULL;
+    } 
+    return  bin_to_game( data, size );
+}
+
+
+/*
+ * Grabando un nuevo juego!
+ * */
+int  game_save( Game* g ){
+    struct timeval tv;
+    gettimeofday( &tv, NULL );
+    if( !g->created_at ) g->created_at = tv.tv_sec;
+    g->modified_at = tv.tv_sec;
+    
+    void* data;
+    int size = game_to_bin( g, &data );
+    if( size ){
+        if( !dbput_data( DBGAME, g->id, strlen( g->id ), data, size ) ){
+            LOGPRINT( 1, "Error salvando juego %s (%s)", g->id, dbget_lasterror() );
+            return 0 ;
+        }
+    } else {
+        LOGPRINT( 1, "Error serializando juego %s", g->id );
+        return 0;
+    }
+    return 1;
+
+}
+
+
+/*
+ * Devuelve la estructura de usuario asociada al juego
+ * */
+User*  game_user( Game* g ){
+    if( g->user ) return g->user;
+    if( !g->user_id ) return NULL;
+    g->user = user_load( g->user_id );
+    return g->user;
+}
+
+/*
+ * Devuelve la estructura de tipo de juego asociada
+ * */
+GameType*  game_game_type( Game* g ){
+    if( g->game_type ) return g->game_type;
+    if( !g->game_type_id ) return NULL;
+    g->game_type = game_type_share_by_id( g->game_type_id );
+    return g->game_type;
+}
+
+
+
 
 
 /*

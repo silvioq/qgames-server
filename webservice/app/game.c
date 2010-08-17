@@ -20,66 +20,58 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
+#include  <string.h>
+#include  <stdio.h>
+#include  <sys/time.h>
+#include  <time.h>
+#include  "mongoose.h"
+#include  "users.h"
+#include  "games.h"
+#include  "log.h"
+#include  "session.h"
+#include  "webserver.h"
 
-#ifndef  GAMES_H
-#define  GAMES_H
+static void  game_controller_crea( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* game_type ){
 
-#include <qgames.h>
+    // Obtengo el tipo de juego
+    GameType* gt = game_type_share_by_name( game_type );
+    Game*     g ;
+    if( !gt ){
+        render_404( conn, ri );
+        return;
+    }
 
-typedef  struct  StrGameType {
-  unsigned  int     id;
-  char*             nombre;
-  time_t            created_at;
+    g = game_type_create( gt, session_user( s ) );
+    if( !g ){
+        render_500( conn, ri, "Error al crear juego" );
+        return;
+    }
 
-  Tipojuego*        tipojuego;
-  int               rec_flags;
-} GameType;
+    char buff[1024];
+    sprintf( buff, "respuesta: OK\ngame_id: %s\nsesion: %.32s", 
+              g->id, s->id );
+    render_200( conn, ri, buff );
+    
+}
 
-
-typedef  struct  StrGame {
-  char*             id;
-  unsigned int      user_id;
-  User*             user;
-  unsigned int      game_type_id;
-  GameType*         game_type;
-  unsigned int      data_size;
-  void*             data;
-  time_t            created_at;
-  time_t            modified_at;
-
-  Partida*          partida;
-  int               rec_flags;
-} Game;
-
-
-
-
-Game*   game_load( char* id ); 
-void    game_free( Game* game );
-int     game_save( Game* game );
-Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
-void    game_set_data( Game*, void* data, unsigned int data_size );
-User*   game_user( Game* g );
-GameType*  game_game_type( Game* g );
-
-GameType*  game_type_by_name( char* name );
-GameType*  game_type_new( char* name, time_t created_at );
-int        game_type_save( GameType* gt );
-void       game_type_free( GameType* gt );
-GameType*  game_type_load( unsigned int id );
-GameType*  game_type_share_by_name( char* name );
-GameType*  game_type_share_by_id( unsigned int id );
-
+static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    Game*  g = game_load( id );
+    GameType* gt = game_game_type( g );
+    
+}
 
 
 /*
- * Estas funciones son de interaccion con el qgames 
+ * Este es el controlador de game.
+ * Lo que voy a hacer es sencillo. 
  * */
 
-Partida*  game_partida( Game* g );
-Game*     game_type_create( GameType* gt, User* u );
-
-
-
-
-#endif
+void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm ){
+    switch(action){
+        case  ACTION_CREA:
+            game_controller_crea( conn, ri, s, parm );
+            break;
+        default:
+            render_404( conn, ri );
+    }
+}

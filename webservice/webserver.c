@@ -136,6 +136,18 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         game_controller( conn, ri, s, ACTION_CREA, buff );
         return;
     }
+
+    if( sscanf( ri->uri, "/%32s/tablero/%s", sess, buff ) == 2 ){
+        // Lee sesion
+        Session* s = session_load( sess );
+        if( !s || session_defeated( s ) ){
+            render_403( conn, ri );
+            return ;
+        }
+        LOGPRINT( 5, "Ruteando a controlador game/tablero/%s => %s", buff, ri->uri );
+        game_controller( conn, ri, s, ACTION_TABLERO, buff );
+        return;
+    }
     
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
     render_404( conn, ri );
