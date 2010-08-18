@@ -68,7 +68,14 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-echo $output
+for i in a1 b1 c1 d1 e1 f1 g1 h1; do
+  ret=`echo "$output" | grep "casillero: $i"`
+  if [ "blank$ret" == "blank" ]; then
+    echo "No se encuentra casillero $i"
+    kill -2 $PID
+    exit 1;
+  fi
+done
 
 
 

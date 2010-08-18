@@ -97,6 +97,7 @@ void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, F
     int   status = 200;
     char* reason = "OK";
     struct stat st;
+    fflush( f );
     fstat( fileno( f ), &st );
     int   len    = st.st_size;
     
