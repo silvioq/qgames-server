@@ -364,6 +364,8 @@ int  game_save( Game* g ){
         if( !dbput_data( DBGAME, g->id, strlen( g->id ), data, size ) ){
             LOGPRINT( 1, "Error salvando juego %s (%s)", g->id, dbget_lasterror() );
             return 0 ;
+        } else {
+            LOGPRINT( 5, "Juego %s salvado!", g->id );
         }
     } else {
         LOGPRINT( 1, "Error serializando juego %s", g->id );

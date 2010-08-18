@@ -46,6 +46,10 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
         render_500( conn, ri, "Error al crear juego" );
         return;
     }
+    if( !game_save( g ) ){
+        render_500( conn, ri, "Error al salvar juego" );
+        return;
+    }
     dbact_sync();
 
     char buff[1024];
