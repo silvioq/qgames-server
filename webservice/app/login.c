@@ -70,5 +70,6 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
     }
     if( user ) mg_free( user );
     if( pass ) mg_free( pass );
+    dbact_sync();
     return;
 }

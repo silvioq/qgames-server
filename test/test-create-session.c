@@ -61,6 +61,16 @@ int  main( int argc, char** argv ){
 
     assert( s = session_load( id ) );
     assert( s->user_id == 1 );
+    for( i = 0; i < 32; i ++ ){
+        assert( (int)(id[i]) == (int)(s->id[i]) );
+    }
+    session_free( s );
+
+    assert( s = session_load( id ) );
+    assert( s->user_id == 1 );
+    for( i = 0; i < 32; i ++ ){
+        assert( id[i] == s->id[i] );
+    }
     
 
     dbact_close();

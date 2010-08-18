@@ -59,6 +59,17 @@ fi
 
 echo "Juego creado $game"
 
+# Vamos a intentar leer la informacion de ese partido que creamos
+output=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    kill -2 $PID
+    exit 1;
+fi
+
+echo $output
+
 
 
 kill -2 $PID

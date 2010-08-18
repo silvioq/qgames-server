@@ -46,9 +46,10 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
         render_500( conn, ri, "Error al crear juego" );
         return;
     }
+    dbact_sync();
 
     char buff[1024];
-    sprintf( buff, "respuesta: OK\ngame_id: %s\nsesion: %.32s", 
+    sprintf( buff, "respuesta: OK\ngame_id: %s\nsesion: %.32s\n", 
               g->id, s->id );
     render_200( conn, ri, buff );
     
@@ -56,6 +57,10 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
 
 static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
     Partida* p = game_partida( g );
     int i;
     FILE* f = tmpfile( );

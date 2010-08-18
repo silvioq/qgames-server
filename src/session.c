@@ -76,7 +76,7 @@ static int  session_to_bin( Session* s, void** data ){
 }
 
 static Session*  bin_to_session( void* data, int size ){
-    char id[32];
+    char* id;
     unsigned int user_id;
     time_t  created_at;
     time_t  last_seen_at;
