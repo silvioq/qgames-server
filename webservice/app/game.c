@@ -66,9 +66,29 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         return;
     }
     Partida* p = game_partida( g );
-    int i;
+    int i, movidas ;
     FILE* f = tmpfile( );
+    char* res;
     fprintf( f, "game_id: %s\n", g->id );
+    fprintf( f, "tipo_juego: %s\n", game_game_type( g )->nombre );
+    fprintf( f, "color: %s\n", qg_partida_color( p ) );
+    movidas = qg_partida_movhist_count( p );
+    fprintf( f, "cantidad_movidas: %d\n", movidas );
+    qg_partida_final( p, &res );
+    fprintf( f, "descripcion_estado: %s\n", res );
+    fprintf( f, "es_continuacion: %s\n", qg_partida_es_continuacion( p ) ? "true" : "false" );
+    i = 0;
+    if( movidas > 0 ){
+        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+            if( i )
+                fprintf( f, ",%s", res );
+            else
+                fprintf( f, "ultimos_destino: %s" );
+            i ++;
+        }
+        if( i ) fprintf( f, "\n" );
+    }
+    
     int pie = qg_partida_tablero_count( p );
     for( i = 0; i < pie; i ++ ){
         char* casillero; char* tipo; char* color;
