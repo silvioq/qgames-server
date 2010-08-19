@@ -120,7 +120,6 @@ static const char*  session_id( Session* s ){
 /*
  * Salva la sesion en la base de datos
  * */
-
 int      session_save( Session* s ){
     if( s->id[0] == 0 ){
         session_generar_id( s->id );
@@ -143,8 +142,9 @@ int      session_save( Session* s ){
     } 
     LOGPRINT( 5, "Sesion %s salvada", session_id( s ) );
     return 1;
-        
 }
+
+
 
 /*
  * Lee la sesion de la base de datos

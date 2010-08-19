@@ -30,6 +30,7 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 
 #define  ACTION_CREA  1
 #define  ACTION_TABLERO 2
+#define  ACTION_POSIBLES  3
 
 void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm );
 

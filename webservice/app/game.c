@@ -31,6 +31,40 @@
 #include  "session.h"
 #include  "webserver.h"
 
+
+/*
+ * Dado un juego, escribe en el archivo pasado como parametro toda la informacion
+ * relevante 
+ * */
+static void  print_game_data( Game* g, Partida* p, FILE* f ){
+
+    int i, movidas ;
+    char* res;
+    fprintf( f, "game_id: %s\n", g->id );
+    fprintf( f, "tipo_juego: %s\n", game_game_type( g )->nombre );
+    fprintf( f, "color: %s\n", qg_partida_color( p ) );
+    movidas = qg_partida_movhist_count( p );
+    fprintf( f, "cantidad_movidas: %d\n", movidas );
+    qg_partida_final( p, &res );
+    fprintf( f, "descripcion_estado: %s\n", res );
+    fprintf( f, "es_continuacion: %s\n", qg_partida_es_continuacion( p ) ? "true" : "false" );
+    i = 0;
+    if( movidas > 0 ){
+        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+            if( i )
+                fprintf( f, ",%s", res );
+            else
+                fprintf( f, "ultimos_destino: %s" );
+            i ++;
+        }
+        if( i ) fprintf( f, "\n" );
+    }
+}
+
+
+
+
+
 static void  game_controller_crea( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* game_type ){
 
     // Obtengo el tipo de juego
@@ -66,30 +100,12 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         return;
     }
     Partida* p = game_partida( g );
-    int i, movidas ;
+    int i;
     FILE* f = tmpfile( );
-    char* res;
-    fprintf( f, "game_id: %s\n", g->id );
-    fprintf( f, "tipo_juego: %s\n", game_game_type( g )->nombre );
-    fprintf( f, "color: %s\n", qg_partida_color( p ) );
-    movidas = qg_partida_movhist_count( p );
-    fprintf( f, "cantidad_movidas: %d\n", movidas );
-    qg_partida_final( p, &res );
-    fprintf( f, "descripcion_estado: %s\n", res );
-    fprintf( f, "es_continuacion: %s\n", qg_partida_es_continuacion( p ) ? "true" : "false" );
-    i = 0;
-    if( movidas > 0 ){
-        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
-            if( i )
-                fprintf( f, ",%s", res );
-            else
-                fprintf( f, "ultimos_destino: %s" );
-            i ++;
-        }
-        if( i ) fprintf( f, "\n" );
-    }
+    print_game_data( g, p, f );
     
     int pie = qg_partida_tablero_count( p );
+    fprintf( f, "total: %d\n", pie );
     for( i = 0; i < pie; i ++ ){
         char* casillero; char* tipo; char* color;
         qg_partida_tablero_data( p, i, &casillero, &tipo, &color );
@@ -104,18 +120,48 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
 }
 
 
+static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    Partida* p = game_partida( g );
+    int i;
+    FILE* f = tmpfile( );
+    print_game_data( g, p, f );
+    
+    int pie = qg_partida_movidas_count( p );
+    fprintf( f, "total: %d\n", pie );
+    for( i = 0; i < pie; i ++ ){
+        char* notacion; 
+        qg_partida_movidas_data( p, i, &notacion );
+        fprintf( f, "- movida:\n  numero: %d\n  notacion: %s\n", i, notacion );
+    }
+    render_200f( conn, ri, f );
+    fclose( f );
+
+}
+
+
+
+
 /*
  * Este es el controlador de game.
  * Lo que voy a hacer es sencillo. 
  * */
 
 void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm ){
+    session_save( s ); // toco la sesion
     switch(action){
         case  ACTION_CREA:
             game_controller_crea( conn, ri, s, parm );
             break;
         case  ACTION_TABLERO:
             game_controller_tablero( conn, ri, s, parm );
+            break;
+        case  ACTION_POSIBLES:
+            game_controller_posibles( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );

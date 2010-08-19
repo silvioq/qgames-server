@@ -68,6 +68,15 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
+ret=`echo "$output" | grep "total:" | cut -f 2 -d " "`
+if [ x$ret != x32 ]; then
+    echo  "Estoy esperando 32 piezas y tengo $ret"
+    kill -2 $PID
+    exit 1;
+fi
+    
+
+
 for i in a1 b1 c1 d1 e1 f1 g1 h1; do
   ret=`echo "$output" | grep "casillero: $i"`
   if [ "blank$ret" == "blank" ]; then
@@ -77,6 +86,8 @@ for i in a1 b1 c1 d1 e1 f1 g1 h1; do
   fi
 done
 
+output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
+echo "$output"
 
 
 kill -2 $PID
