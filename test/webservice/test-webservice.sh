@@ -87,7 +87,6 @@ for i in a1 b1 c1 d1 e1 f1 g1 h1; do
 done
 
 output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
-echo "$output"
 
 
 kill -2 $PID

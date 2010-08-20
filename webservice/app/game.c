@@ -135,8 +135,15 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     fprintf( f, "total: %d\n", pie );
     for( i = 0; i < pie; i ++ ){
         char* notacion; 
+        int cap = 0;
+        char* pieza, * casillero, * color;
         qg_partida_movidas_data( p, i, &notacion );
         fprintf( f, "- movida:\n  numero: %d\n  notacion: %s\n", i, notacion );
+        while( qg_partida_movidas_capturas( p, i, cap, &pieza, &casillero, &color ) ){
+            if( cap == 0 ) fprintf(f, "  es_captura: 1\n  captura:\n" );
+            fprintf( f, "    - pieza: %s\n      casillero: %s\n      color: %s\n", pieza, casillero, color );
+            cap ++;
+        }
     }
     render_200f( conn, ri, f );
     fclose( f );
