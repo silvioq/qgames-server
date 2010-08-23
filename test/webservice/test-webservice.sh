@@ -57,7 +57,7 @@ if [ "blank$game" == blank ]; then
     exit 1;
 fi
 
-echo "Juego creado $game"
+# echo "Juego creado $game"
 
 # Vamos a intentar leer la informacion de ese partido que creamos
 output=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
@@ -88,7 +88,7 @@ for i in a1 b1 c1 d1 e1 f1 g1 h1; do
 done
 
 output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
-echo "$output" | grep "notacion: Nf3" 
+echo "$output" | grep "notacion: Nf3" > /dev/null
 ret=$?
 if [ $ret != 0 ]; then
   echo "No se encuentra Nf3"

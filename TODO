@@ -6,6 +6,8 @@
     - crea partida, (Listo!)
     - mueve, (Listo!)
     - registra y "desregistra juego" (Pendiente)
+* Chequear que el usuario loggeado tenga permisos
+  sobre el juego con el que se esta trabajando
 
 * Esta es la lista del dispacher que tenia la version 2.1.12
   del qgames

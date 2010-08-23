@@ -165,6 +165,11 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     fclose( f );
 }
 
+
+/*
+ * esta es la accion que devuelve aquellos movimientos posibles
+ * a realizar
+ * */
 static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     Game*  g = game_load( id );
     if( !g ){
@@ -214,7 +219,51 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
 
 }
 
+/*
+ * esta es la accion que devuelve aquellos movimientos posibles
+ * a realizar
+ * */
+static void  game_controller_registra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    if( strcmp( ri->request_method, "POST" ) != 0 ){
+        render_400( conn, ri, "Debe enviar registracion por POST" );
+        return;
+    }
+    Game*  g = game_load( id );
+    if( g ){
+       // TODO: Chequear que sea posible modificar el juego, de acuerdo al 
+       // usuario
+       // TODO: Game delete en el caso que exita
+       //
+       game_free( g );
+    }
+    char*  game_type = strdup( qg_partida_load_tj( ri->post_data, ri->post_data_len ) );
+    GameType* gt = game_type_share_by_name( game_type );
+    free( game_type );
+    if( !gt ){
+        render_500( conn, ri, "No se puede encontrar el tipo de juego" );
+        return;
+    }
+    Partida* p = qg_partida_load( gt->tipojuego, ri->post_data, ri->post_data_len );
+    if( !p ){
+        render_500( conn, ri, "Error al intentar leer la partida" );
+        return;
+    }
+    g = game_new( id, session_user( s ), gt, 0 );
+    if( ! g ){
+        render_500( conn, ri, "Error al crear el juego" );
+        return;
+    }
+    game_set_partida( g, p );
+    if( ! game_save( g ) ){
+        render_500( conn, ri, "Error al guardar el juego" );
+        return;
+    }
 
+    render_200( conn, ri, "Partida registrada" );
+
+}
+
+    
 
 
 /*
@@ -236,6 +285,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_MUEVE:
             game_controller_mueve( conn, ri, s, parm );
+            break;
+        case  ACTION_REGISTRA:
+            game_controller_registra( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );
