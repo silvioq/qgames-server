@@ -153,7 +153,14 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
 
         while( qg_partida_movidas_capturas( p, i, cap, &casillero, &pieza, &color ) ){
             if( cap == 0 ) fprintf(f, "  es_captura: 1\n  captura:\n" );
-            fprintf( f, "    - pieza: %s\n      casillero: %s\n      color: %s\n", pieza, casillero, color );
+            fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", pieza, casillero, color );
+            cap ++;
+        }
+
+        cap = 0;
+        while( qg_partida_movidas_crea( p, i, cap, &casillero, &pieza, &color ) ){
+            if( cap == 0 ) fprintf( f, "  crea_piezas: \n" );
+            fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", pieza, casillero, color );
             cap ++;
         }
     }
