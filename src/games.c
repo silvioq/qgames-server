@@ -232,16 +232,15 @@ GameType*  game_type_share_by_id( unsigned int id ){
  *
  *
  * A partir de aqui vienen las funciones de Game.
- * Lo primero es la serializacion, para lo cual usamos las 
- * maravillosas funciones de empaquetado
  *
  *
  * */
-static void  game_set_partida( Game* g, Partida* p ){
+void  game_set_partida( Game* g, Partida* p ){
     void* data;
     int   size;
     qg_partida_dump( p, &data, &size );
     game_set_data( g, data, size );
+    g->partida = p;
 }
 
 

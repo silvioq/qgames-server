@@ -24,5 +24,5 @@ test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 
 AM_CFLAGS = -I ../src -I ../common
 
-TESTS = $(check_PROGRAMS) webservice/test-webservice.sh
+TESTS = $(check_PROGRAMS) webservice/test-*.sh
 

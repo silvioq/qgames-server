@@ -77,6 +77,7 @@ GameType*  game_type_share_by_id( unsigned int id );
  * */
 
 Partida*  game_partida( Game* g );
+void      game_set_partida( Game* g, Partida* p );
 Game*     game_type_create( GameType* gt, User* u );
 
 

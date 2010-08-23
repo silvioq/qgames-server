@@ -193,7 +193,7 @@ test_create_game_type_SOURCES = $(DEPENDENCES) test-create-game-type.c
 test_create_game_SOURCES = $(DEPENDENCES) test-create-game.c
 test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 AM_CFLAGS = -I ../src -I ../common
-TESTS = $(check_PROGRAMS) webservice/test-webservice.sh
+TESTS = $(check_PROGRAMS) webservice/test-*.sh
 all: all-am
 
 .SUFFIXES:

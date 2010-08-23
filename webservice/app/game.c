@@ -140,29 +140,29 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     Partida* p = game_partida( g );
     int move_number = atoi( move );
     if( move_number ){
-        if( qg_partida_mover( p, move_number ) ){
-            FILE* f = tmpfile( );
-            print_game_data( g, p, f );
-            render_200f( conn, ri, f );
-            fclose( f );
-        } else {
+        if( !qg_partida_mover( p, move_number ) ){
             render_400( conn, ri, "Movida incorrecta" );
+            return;
         }
     } else {
         if( !qg_partida_movida_valida( p, move ) ){
             render_400( conn, ri, "Movida invalida" );
             return;
         }
-        if( qg_partida_mover_notacion( p, move ) ){
-            FILE* f = tmpfile( );
-            print_game_data( g, p, f );
-            render_200f( conn, ri, f );
-            fclose( f );
-        } else {
+        if( !qg_partida_mover_notacion( p, move ) ){
             render_400( conn, ri, "Movida notada incorrecta" );
+            return;
         }
-        
     }
+    game_set_partida( g, p );
+    if(!game_save( g ) ){
+        render_400( conn, ri, "Error al guardar partida" );
+        return;
+    }
+    FILE* f = tmpfile( );
+    print_game_data( g, p, f );
+    render_200f( conn, ri, f );
+    fclose( f );
 }
 
 static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
@@ -235,7 +235,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_posibles( conn, ri, s, parm );
             break;
         case  ACTION_MUEVE:
-            game_controller_posibles( conn, ri, s, parm );
+            game_controller_mueve( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );
