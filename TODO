@@ -2,7 +2,11 @@
 * Borrado en la base de datos
 * Leer los tipos de juego (pthread_mutex_init sera nuestro amigo)
 * Controlador: list (lista de juegos)
-* Controlador: game (crea partida, mueve, registra y "desregistra juego")
+* Controlador: game 
+    - crea partida, (Listo!)
+    - mueve, (Listo!)
+    - registra y "desregistra juego" (Pendiente)
+
 * Esta es la lista del dispacher que tenia la version 2.1.12
   del qgames
 
