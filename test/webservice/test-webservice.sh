@@ -79,7 +79,8 @@ fi
 
 for i in a1 b1 c1 d1 e1 f1 g1 h1; do
   ret=`echo "$output" | grep "casillero: $i"`
-  if [ "blank$ret" == "blank" ]; then
+  ret=$?
+  if [ $ret != 0 ]; then
     echo "No se encuentra casillero $i"
     kill -2 $PID
     exit 1;
@@ -87,7 +88,21 @@ for i in a1 b1 c1 d1 e1 f1 g1 h1; do
 done
 
 output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
-echo "$output"
+echo "$output" | grep "notacion: Nf3" 
+ret=$?
+if [ $ret != 0 ]; then
+  echo "No se encuentra Nf3"
+  kill -2 $PID
+  exit 1;
+fi
+
+echo "$output" | grep "notacion: Nf4" 
+ret=$?
+if [ $ret == 0 ]; then
+  echo "Se encuentra Nf4"
+  kill -2 $PID
+  exit 1;
+fi
 
 
 kill -2 $PID

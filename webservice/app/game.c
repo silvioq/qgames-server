@@ -119,6 +119,51 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
 
 }
 
+/*
+ * Realiza la movida pasada como parametro
+ * */
+static void  game_controller_mueve( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    if( strcmp( ri->request_method, "POST" ) != 0 ){
+        render_400( conn, ri, "Debe enviar movida (m=xxxx) por POST" );
+        return;
+    }
+    char* move = mg_get_var( conn, "m" );
+    if( !move ){
+        render_400( conn, ri, "Debe enviar movida (m=numero de movida)" );
+        return;
+    }
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    Partida* p = game_partida( g );
+    int move_number = atoi( move );
+    if( move_number ){
+        if( qg_partida_mover( p, move_number ) ){
+            FILE* f = tmpfile( );
+            print_game_data( g, p, f );
+            render_200f( conn, ri, f );
+            fclose( f );
+        } else {
+            render_400( conn, ri, "Movida incorrecta" );
+        }
+    } else {
+        if( !qg_partida_movida_valida( p, move ) ){
+            render_400( conn, ri, "Movida invalida" );
+            return;
+        }
+        if( qg_partida_mover_notacion( p, move ) ){
+            FILE* f = tmpfile( );
+            print_game_data( g, p, f );
+            render_200f( conn, ri, f );
+            fclose( f );
+        } else {
+            render_400( conn, ri, "Movida notada incorrecta" );
+        }
+        
+    }
+}
 
 static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     Game*  g = game_load( id );
@@ -187,6 +232,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_tablero( conn, ri, s, parm );
             break;
         case  ACTION_POSIBLES:
+            game_controller_posibles( conn, ri, s, parm );
+            break;
+        case  ACTION_MUEVE:
             game_controller_posibles( conn, ri, s, parm );
             break;
         default:
