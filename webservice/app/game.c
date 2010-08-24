@@ -138,8 +138,8 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
         return;
     }
     Partida* p = game_partida( g );
-    int move_number = atoi( move );
-    if( move_number ){
+    if( move[0] >= '0' && move[0] <= '9' ){
+        int move_number = atoi( move );
         if( !qg_partida_mover( p, move_number ) ){
             render_400( conn, ri, "Movida incorrecta" );
             return;

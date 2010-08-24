@@ -1,6 +1,6 @@
 #!/bin/bash
 PATHQS=../src
-JUEGO=Gomoku
+JUEGO=Ajedrez
 
 
 # Primeramente, cargo una base de datos vacia
@@ -56,13 +56,38 @@ for i in {0..5}; do
     output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
     movidas=`echo "$output" | grep "total: " | cut -f 2 -d " "`
     (( move = RANDOM % movidas ))
-    curl -f  "http://localhost:8080/$sess/mueve/$game" -d "m=$move"  --stderr /dev/null
+    curl -f  "http://localhost:8080/$sess/mueve/$game" -d "m=$move"  --stderr /dev/null > /dev/null
     ret=$?
     if [ $ret != 0 ]; then
         echo  "Error en interacion $i m=$move"
+        curl  "http://localhost:8080/$sess/mueve/$game" -d "m=$move" 
+        kill -2 $PID
+        exit 1;
     fi
 done
 
+# Ahora desregistraremos el juego
+output=`curl -f "http://localhost:8080/$sess/desregistra/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    kill -2 $PID
+    exit 1;
+fi
+
+if [ "$output" != "Partida desregistrada" ]; then
+    echo "Esperado Partida desregistrada. Encontrado $output"
+    kill -2 $PID
+    exit 1;
+fi
+
+output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 22 ]; then
+    echo "Esperado 22. Encontrado $ret"
+    kill -2 $PID
+    exit 1;
+fi
     
 
 kill -2 $PID
