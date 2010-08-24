@@ -32,7 +32,7 @@ POST_UNINSTALL = :
 check_PROGRAMS = test-main$(EXEEXT) test-db-create-file$(EXEEXT) \
 	test-dup-user$(EXEEXT) test-create-user$(EXEEXT) \
 	test-create-game-type$(EXEEXT) test-create-session$(EXEEXT) \
-	test-create-game$(EXEEXT)
+	test-create-game$(EXEEXT) test-del-game$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -64,6 +64,9 @@ am_test_db_create_file_OBJECTS = $(am__objects_1) \
 	test-db-create-file.$(OBJEXT)
 test_db_create_file_OBJECTS = $(am_test_db_create_file_OBJECTS)
 test_db_create_file_LDADD = $(LDADD)
+am_test_del_game_OBJECTS = $(am__objects_1) test-del-game.$(OBJEXT)
+test_del_game_OBJECTS = $(am_test_del_game_OBJECTS)
+test_del_game_LDADD = $(LDADD)
 am_test_dup_user_OBJECTS = $(am__objects_1) test-dup-user.$(OBJEXT)
 test_dup_user_OBJECTS = $(am_test_dup_user_OBJECTS)
 test_dup_user_LDADD = $(LDADD)
@@ -79,13 +82,13 @@ CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(test_create_game_SOURCES) $(test_create_game_type_SOURCES) \
 	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
-	$(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
-	$(test_main_SOURCES)
+	$(test_db_create_file_SOURCES) $(test_del_game_SOURCES) \
+	$(test_dup_user_SOURCES) $(test_main_SOURCES)
 DIST_SOURCES = $(test_create_game_SOURCES) \
 	$(test_create_game_type_SOURCES) \
 	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
-	$(test_db_create_file_SOURCES) $(test_dup_user_SOURCES) \
-	$(test_main_SOURCES)
+	$(test_db_create_file_SOURCES) $(test_del_game_SOURCES) \
+	$(test_dup_user_SOURCES) $(test_main_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -191,6 +194,7 @@ test_dup_user_SOURCES = $(DEPENDENCES) test-dup-user.c
 test_create_user_SOURCES = $(DEPENDENCES) test-create-user.c
 test_create_game_type_SOURCES = $(DEPENDENCES) test-create-game-type.c
 test_create_game_SOURCES = $(DEPENDENCES) test-create-game.c
+test_del_game_SOURCES = $(DEPENDENCES) test-del-game.c
 test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 AM_CFLAGS = -I ../src -I ../common
 TESTS = $(check_PROGRAMS) webservice/test-*.sh
@@ -245,6 +249,9 @@ test-create-user$(EXEEXT): $(test_create_user_OBJECTS) $(test_create_user_DEPEND
 test-db-create-file$(EXEEXT): $(test_db_create_file_OBJECTS) $(test_db_create_file_DEPENDENCIES) 
 	@rm -f test-db-create-file$(EXEEXT)
 	$(LINK) $(test_db_create_file_OBJECTS) $(test_db_create_file_LDADD) $(LIBS)
+test-del-game$(EXEEXT): $(test_del_game_OBJECTS) $(test_del_game_DEPENDENCIES) 
+	@rm -f test-del-game$(EXEEXT)
+	$(LINK) $(test_del_game_OBJECTS) $(test_del_game_LDADD) $(LIBS)
 test-dup-user$(EXEEXT): $(test_dup_user_OBJECTS) $(test_dup_user_DEPENDENCIES) 
 	@rm -f test-dup-user$(EXEEXT)
 	$(LINK) $(test_dup_user_OBJECTS) $(test_dup_user_LDADD) $(LIBS)
@@ -269,6 +276,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-session.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-create-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-db-create-file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-del-game.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-dup-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/users.Po@am__quote@

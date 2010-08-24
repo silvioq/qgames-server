@@ -374,6 +374,19 @@ int  game_save( Game* g ){
 
 }
 
+/*
+ * Elimino un juego existente
+ * */
+int  game_del( Game* g ){
+    if( !dbdel_data( DBGAME, g->id, strlen( g->id ) ) ){
+        LOGPRINT( 1, "Error eliminando juego %s (%s)", g->id, dbget_lasterror() ) ;
+        return 0;
+    } else {
+        LOGPRINT( 5, "Juego %s eliminado", g->id );
+    }
+    return 1;
+}
+
 
 /*
  * Devuelve la estructura de usuario asociada al juego

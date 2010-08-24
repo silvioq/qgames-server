@@ -551,6 +551,54 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
 }
 
 /*
+ * Borra un registro
+ * */
+int    dbdel_data( int db, void* keyp, int key_size ){
+    int  flags;
+    DBT  key;
+    DB*  dbp;
+
+
+    if( !open_dbs() ) return 0;
+    switch(db){
+        case  DBUSER:
+            dbp = db_users;
+            break;
+        case  DBGAME:
+            dbp = db_games;
+            break;
+        case  DBGAMETYPE:
+            dbp = db_game_types;
+            break;
+        case  DBSESSION:
+            dbp = db_sess;
+            break;
+        default:
+            LOGPRINT( 1, "Error de parametro db => %d", db );
+            return 0;
+    }
+
+
+    flags = 0;
+    memset( &key, 0, sizeof( key ) );
+
+    key.data = keyp;
+    key.size = key_size;
+
+    int  ret = dbp->del( dbp, NULL, &key, flags );
+    if( ret == DB_NOTFOUND ){
+        return 1;
+    } else if ( ret != 0 ){
+        LOGPRINT( 1, "Error %d %s", ret, db_strerror( ret ) );
+        db_error = "Error del";
+        return 0;
+    } else {
+        LOGPRINT( 6, "Dato eliminado respuesta = %d", ret );
+        return 1;
+    }
+}
+
+/*
  * Graba en las bases de acuerdo a los datos pasados como parametro
  * */
 int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size ){

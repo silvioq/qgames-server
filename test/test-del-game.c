@@ -21,69 +21,67 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#ifndef  GAMES_H
-#define  GAMES_H
+#include  <sys/types.h>
+#include  <sys/stat.h>
+#include  <stdio.h>
+#include  <stdlib.h>
+#include  <unistd.h>
+#include  <assert.h>
 
-#include <qgames.h>
+#include  "users.h"
+#include  "games.h"
+#include  "dbmanager.h"
+#include  "log.h"
 
-typedef  struct  StrGameType {
-  unsigned  int     id;
-  char*             nombre;
-  time_t            created_at;
+#define   FILEDB  "test.db"
 
-  Tipojuego*        tipojuego;
-  int               rec_flags;
-} GameType;
+int  main( int argc, char** argv ){
 
+    loglevel = 2;
+    GameType* gt;
+    Game*     g;
+    User*     u;
+    char buff[100];
+    int i;
 
-typedef  struct  StrGame {
-  char*             id;
-  unsigned int      user_id;
-  User*             user;
-  unsigned int      game_type_id;
-  GameType*         game_type;
-  unsigned int      data_size;
-  void*             data;
-  time_t            created_at;
-  time_t            modified_at;
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+    dbact_close();
 
-  Partida*          partida;
-  int               rec_flags;
-} Game;
+    assert( gt = game_type_share_by_name( "Ajedrez" ) );
+    assert( gt->id == 1 );
 
+    assert( u = user_find_by_code( "root" ) );
+    assert( u->id ==  1 );
 
+    g = game_new( "x1", u, gt, 0 );
+    for( i = 0; i < 100; i ++ ){
+        buff[i] = i * 97 % 256;
+    }
+    game_set_data( g, buff, 100 );
+    assert( game_save( g ) );
+    game_free( g );
 
+    g = game_new( "x2", u, gt, 0 );
+    for( i = 0; i < 100; i ++ ){
+        buff[i] = i * 31 % 256;
+    }
+    game_set_data( g, buff, 100 );
+    assert( game_save( g ) );
+    game_free( g );
 
-Game*   game_load( char* id ); 
-void    game_free( Game* game );
-void    game_set_data( Game*, void* data, unsigned int data_size );
-User*   game_user( Game* g );
-GameType*  game_game_type( Game* g );
+    assert( g = game_load( "x1" ) );
+    assert( game_del( g ) );
+    game_free( g );
 
-int     game_save( Game* game );
-int     game_del( Game* game );
-Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
+    assert( !game_load( "x1" ) );
+    assert( g = game_load( "x2" ) );
+    for( i = 0; i < 100; i ++ ){
+        assert( ((char*)g->data)[i] == (char)( i * 31 % 256 ) );
+    }
+    game_free( g );
+    
 
-
-GameType*  game_type_by_name( char* name );
-GameType*  game_type_new( char* name, time_t created_at );
-void       game_type_free( GameType* gt );
-GameType*  game_type_share_by_name( char* name );
-GameType*  game_type_share_by_id( unsigned int id );
-
-int        game_type_save( GameType* gt );
-GameType*  game_type_load( unsigned int id );
-
-
-/*
- * Estas funciones son de interaccion con el qgames 
- * */
-
-Partida*  game_partida( Game* g );
-void      game_set_partida( Game* g, Partida* p );
-Game*     game_type_create( GameType* gt, User* u );
-
-
-
-
-#endif
+    exit( EXIT_SUCCESS );
+}
