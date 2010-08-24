@@ -270,9 +270,33 @@ static void  game_controller_desregistra( struct mg_connection* conn, const stru
         return;
     }
     game_del( g );
+    game_free( g );
     render_200( conn, ri, "Partida desregistrada" );
 }
 
+/*
+ * Dado un juego existente en la base, devuelve el binario asociado
+ * */
+static void  game_controller_partida( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    render_200( conn, ri, "Partida desregistrada" );
+    int   status = 200;
+    char* reason = "OK";
+		mg_printf(conn,
+		    "HTTP/1.1 %d %s\r\n"
+		    "Content-Type: application/qgame\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n", status, reason);
+
+    mg_write( conn, g->data, g->data_size );
+    game_free( g );
+}
 
 /*
  * Este es el controlador de game.
@@ -299,6 +323,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_DESREGISTRA:
             game_controller_desregistra( conn, ri, s, parm );
+            break;
+        case  ACTION_PARTIDA:
+            game_controller_partida( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );
