@@ -54,7 +54,7 @@ static void  print_game_data( Game* g, Partida* p, FILE* f ){
             if( i )
                 fprintf( f, ",%s", res );
             else
-                fprintf( f, "ultimos_destino: %s" );
+                fprintf( f, "ultimos_destino: %s", res );
             i ++;
         }
         if( i ) fprintf( f, "\n" );
