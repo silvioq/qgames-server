@@ -220,8 +220,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
 }
 
 /*
- * esta es la accion que devuelve aquellos movimientos posibles
- * a realizar
+ * Esta accion permite registrar un juego a partir de su binario
  * */
 static void  game_controller_registra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     if( strcmp( ri->request_method, "POST" ) != 0 ){
@@ -230,10 +229,7 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
     }
     Game*  g = game_load( id );
     if( g ){
-       // TODO: Chequear que sea posible modificar el juego, de acuerdo al 
-       // usuario
-       // TODO: Game delete en el caso que exita
-       //
+       // TODO: Chequear que sea posible modificar el juego, de acuerdo al usuario
        game_free( g );
     }
     char*  game_type = strdup( qg_partida_load_tj( ri->post_data, ri->post_data_len ) );
@@ -263,7 +259,19 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
 
 }
 
+/*
+ * Dado un juego existente en la base, se desregistra o elimina
+ * */
+static void  game_controller_desregistra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    game_del( g );
+    render_200( conn, ri, "Partida desregistrada" );
+}
 
 
 /*
@@ -288,6 +296,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_REGISTRA:
             game_controller_registra( conn, ri, s, parm );
+            break;
+        case  ACTION_DESREGISTRA:
+            game_controller_desregistra( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );
