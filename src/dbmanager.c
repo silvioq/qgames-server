@@ -37,7 +37,6 @@ static char* db_error = NULL;
 static DB*   db_users = NULL;
 static DB*   db_users_code = NULL;
 static DB*   db_games = NULL;
-static DB*   db_games_code = NULL;
 static DB*   db_game_types = NULL;
 static DB*   db_game_types_name = NULL;
 static DB*   db_stats = NULL;
@@ -263,12 +262,6 @@ static  int  open_dbs(){
         return 0;
     }
     ret = db_create( &db_games, NULL, 0 );
-    if( ret != 0 ){
-        LOGPRINT( 2, "Error alocando %s", db_file );
-        db_error = "Error alocando archivo";
-        return 0;
-    }
-    ret = db_create( &db_games_code, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
@@ -668,7 +661,6 @@ void   dbact_close(){
     if( db_games )      db_games->close( db_games, 0 );
     if( db_game_types ) db_game_types->close( db_game_types, 0 );
     if( db_game_types_name ) db_game_types_name->close( db_game_types_name, 0 );
-    if( db_games_code ) db_games_code->close( db_games_code, 0 );
     if( db_stats  )     db_stats->close( db_stats, 0 );
     if( db_sess   )     db_sess ->close( db_sess , 0 );
 
@@ -677,7 +669,6 @@ void   dbact_close(){
     db_games = NULL;
     db_game_types = NULL;
     db_game_types_name = NULL;
-    db_games_code = NULL;
     db_stats = NULL;
     db_sess  = NULL;
 }
@@ -691,7 +682,6 @@ void   dbact_sync(){
     if( db_games )      db_games->sync( db_games, 0 );
     if( db_game_types ) db_game_types->sync( db_game_types, 0 );
     if( db_game_types_name ) db_game_types_name->sync( db_game_types_name, 0 );
-    if( db_games_code ) db_games_code->sync( db_games_code, 0 );
     if( db_stats  )     db_stats->sync( db_stats, 0 );
     if( db_sess   )     db_sess ->sync( db_sess , 0 );
 }
