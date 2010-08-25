@@ -387,6 +387,16 @@ int  game_del( Game* g ){
     return 1;
 }
 
+/*
+ * Esta funcion devuelve uno o cero dependiendo si el usuario
+ * tiene permisos o no sobre el juego.
+ * En el caso que el usuario sea administrador, tiene permisos.
+ * Si es un usuario comun y corriente, deberia ser el creador
+ * */
+int     game_check_user( Game* g, User* u ){
+    if( u->tipo == USERTYPE_ADMIN ) return 1;
+    return u->id == g->user_id;
+}
 
 /*
  * Devuelve la estructura de usuario asociada al juego

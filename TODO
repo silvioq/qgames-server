@@ -1,5 +1,4 @@
 * Sesiones
-* Borrado en la base de datos
 * Leer los tipos de juego (pthread_mutex_init sera nuestro amigo)
 * Controlador: list (lista de juegos)
 * Controlador: game 

@@ -58,6 +58,14 @@ Game*   game_load( char* id );
 void    game_free( Game* game );
 void    game_set_data( Game*, void* data, unsigned int data_size );
 User*   game_user( Game* g );
+
+/*
+ * Esta funcion devuelve uno o cero dependiendo si el usuario
+ * tiene permisos o no sobre el juego.
+ * En el caso que el usuario sea administrador, tiene permisos.
+ * Si es un usuario comun y corriente, deberia ser el creador
+ * */
+int     game_check_user( Game* g, User* u );
 GameType*  game_game_type( Game* g );
 
 int     game_save( Game* game );

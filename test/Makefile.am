@@ -1,7 +1,7 @@
 
 check_PROGRAMS = test-main  test-db-create-file  \
 				test-dup-user test-create-user test-create-game-type \
-				test-create-session test-create-game \
+				test-create-session test-create-game test-check-user-game \
 				test-del-game
 
 QGAMESLIBS=@QGAMESLIBS@
@@ -19,6 +19,7 @@ test_main_SOURCES = test-main.c
 test_db_create_file_SOURCES = $(DEPENDENCES) test-db-create-file.c
 test_dup_user_SOURCES       = $(DEPENDENCES) test-dup-user.c
 test_create_user_SOURCES    = $(DEPENDENCES) test-create-user.c
+test_check_user_game_SOURCES  = $(DEPENDENCES) test-check-user-game.c
 test_create_game_type_SOURCES = $(DEPENDENCES) test-create-game-type.c
 test_create_game_SOURCES    = $(DEPENDENCES) test-create-game.c
 test_del_game_SOURCES       = $(DEPENDENCES) test-del-game.c
