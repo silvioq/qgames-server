@@ -66,8 +66,8 @@ for i in {0..5}; do
     fi
 done
 
-# Ahora desregistraremos el juego
-output=`curl -f "http://localhost:8080/$sess/desregistra/$game" --stderr /dev/null`
+# Salvamos primeramente todo el tablero y las movidas posibles
+output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
@@ -75,20 +75,98 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-if [ "$output" != "Partida desregistrada" ]; then
-    echo "Esperado Partida desregistrada. Encontrado $output"
+info_mov_save="$output"
+info_tab_save=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
     exit 1;
 fi
 
+
+# Primero metemos la data de la partida en un archivo temporal
+tmpfile=/tmp/$$
+curl -f "http://localhost:8080/$sess/partida/$game" --stderr /dev/null > $tmpfile
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret al leer partida"
+    kill -2 $PID
+    exit 1;
+fi
+
+
+# Ahora desregistraremos el juego
+output=`curl -f "http://localhost:8080/$sess/desregistra/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    rm $tmpfile
+    kill -2 $PID
+    exit 1;
+fi
+
+if [ "$output" != "Partida desregistrada" ]; then
+    echo "Esperado Partida desregistrada. Encontrado $output"
+    rm $tmpfile
+    kill -2 $PID
+    exit 1;
+fi
+
+# El juego no esta mas
 output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
+    rm $tmpfile
+    kill -2 $PID
+    exit 1;
+fi
+
+# Volvemos a registrar el juego, con otro nombre, porque no.
+output=`curl -f "http://localhost:8080/$sess/registra/r$game" --stderr /dev/null --data-binary @$tmpfile`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret al volver a registrar partida"
+    kill -2 $PID
+    rm $tmpfile
+    exit 1;
+fi
+    rm $tmpfile
+
+# Leemos la info de nuestro nuevo juego
+info_mov_new=`curl -f "http://localhost:8080/$sess/posibles/r$game" --stderr /dev/null | sed "s/game_id: r/game_id: /"`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    kill -2 $PID
+    exit 1;
+fi
+
+info_tab_new=`curl -f "http://localhost:8080/$sess/tablero/r$game" --stderr /dev/null | sed "s/game_id: r/game_id: /"`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    kill -2 $PID
+    exit 1;
+fi
+
+if [ "$info_mov_new" != "$info_mov_save" ]; then
+    echo "No son lo mismo --- (Movidas) "
+    echo "$info_mov_new"
+    echo "$info_mov_save"
     kill -2 $PID
     exit 1;
 fi
     
+if [ "$info_tab_new" != "$info_tab_save" ]; then
+    echo "No son lo mismo --- (Tablero) "
+    echo "$info_tab_new"
+    echo "$info_tab_save"
+    kill -2 $PID
+    exit 1;
+fi
+
 
 kill -2 $PID
 exit 0

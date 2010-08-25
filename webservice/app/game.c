@@ -233,12 +233,16 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
        game_free( g );
     }
     char*  game_type = strdup( qg_partida_load_tj( ri->post_data, ri->post_data_len ) );
+    LOGPRINT( 5, "recibo por post %d => %s", ri->post_data_len, game_type );
     GameType* gt = game_type_share_by_name( game_type );
-    free( game_type );
     if( !gt ){
+        LOGPRINT( 2, "Error al intentar encontrar el tipo de juego %s", game_type );
+        free( game_type );
         render_500( conn, ri, "No se puede encontrar el tipo de juego" );
         return;
     }
+    free( game_type );
+
     Partida* p = qg_partida_load( gt->tipojuego, ri->post_data, ri->post_data_len );
     if( !p ){
         render_500( conn, ri, "Error al intentar leer la partida" );
@@ -284,7 +288,6 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
         render_404( conn, ri );
         return;
     }
-    render_200( conn, ri, "Partida desregistrada" );
     int   status = 200;
     char* reason = "OK";
 		mg_printf(conn,
@@ -292,7 +295,7 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
 		    "Content-Type: application/qgame\r\n"
 		    "Content-Length: %d\r\n"
 		    "Connection: close\r\n"
-		    "\r\n", status, reason);
+		    "\r\n", status, reason, g->data_size);
 
     mg_write( conn, g->data, g->data_size );
     game_free( g );

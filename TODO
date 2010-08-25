@@ -5,7 +5,8 @@
 * Controlador: game 
     - crea partida, (Listo!)
     - mueve, (Listo!)
-    - registra y "desregistra juego" (Pendiente)
+    - descarga de partida (accion partida) (Listo)
+    - registra y "desregistra juego" (Listo)
 * Chequear que el usuario loggeado tenga permisos
   sobre el juego con el que se esta trabajando
 
