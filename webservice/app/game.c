@@ -99,6 +99,12 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         render_404( conn, ri );
         return;
     }
+    LOGPRINT( 5, "El usuario es %s", session_user( s )->code );
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
+        return;
+    }
     Partida* p = game_partida( g );
     int i;
     FILE* f = tmpfile( );
@@ -135,6 +141,11 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
+        return;
+    }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
         return;
     }
     Partida* p = game_partida( g );
@@ -174,6 +185,11 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
+        return;
+    }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
         return;
     }
     Partida* p = game_partida( g );
@@ -230,6 +246,11 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
     Game*  g = game_load( id );
     if( g ){
        // TODO: Chequear que sea posible modificar el juego, de acuerdo al usuario
+       if( !game_check_user( g, session_user( s ) ) ){
+           render_500( conn, ri, "Usuario no autorizado" );
+           game_free( g );
+           return;
+       }
        game_free( g );
     }
     char*  game_type = strdup( qg_partida_load_tj( ri->post_data, ri->post_data_len ) );
@@ -273,6 +294,11 @@ static void  game_controller_desregistra( struct mg_connection* conn, const stru
         render_404( conn, ri );
         return;
     }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
+        return;
+    }
     game_del( g );
     game_free( g );
     render_200( conn, ri, "Partida desregistrada" );
@@ -286,6 +312,11 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
+        return;
+    }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
         return;
     }
     int   status = 200;
