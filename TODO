@@ -6,6 +6,7 @@
     - mueve, (Listo!)
     - descarga de partida (accion partida) (Listo)
     - registra y "desregistra juego" (Listo)
+    - Bajar la informacion del juego, incluyendo las imagenes
 * Chequear que el usuario loggeado tenga permisos
   sobre el juego con el que se esta trabajando
 

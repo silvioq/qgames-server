@@ -48,4 +48,12 @@ void   dbact_sync();
 int    dbget_version(  );
 char*  dbget_lasterror( );
 
+#define    DBPREV  -2
+#define    DBLAST  -1
+#define    DBFIRST  1
+#define    DBNEXT   2
+#define    DBCLOSE  0
+void*  dbcur_new( int db );
+int    dbcur_get( void* cur, int accion, void** data, int* size );
+
 #endif

@@ -357,11 +357,7 @@ static  int  open_dbs(){
         return 0;
     }
 
-    
-
-
     return 1;
-
 
 }
 
@@ -685,6 +681,99 @@ void   dbact_sync(){
     if( db_stats  )     db_stats->sync( db_stats, 0 );
     if( db_sess   )     db_sess ->sync( db_sess , 0 );
 }
+
+
+/*
+ * Lectura secuencial de una base de datos ...
+ * */
+int    dbcur_get( void* cur, int accion, void** data, int* size ){
+    DBC* dbc = (DBC*)cur;
+    DBT  key;
+    DBT  val;
+
+    if( accion == DBCLOSE ){
+        dbc->close( dbc );
+        return 1;
+    }
+    int flags;
+    switch( accion ){
+        case DBNEXT:
+            flags = DB_NEXT;
+            break;
+        case DBFIRST:
+            flags = DB_FIRST;
+            break;
+        case DBPREV:  
+            flags = DB_PREV;
+            break;
+        case DBLAST:
+            flags = DB_LAST;
+            break;
+        default:
+            LOGPRINT( 1, "Error de parametro accion => %d", accion );
+            return -1;
+    }
+
+
+    memset( &key, 0, sizeof( key ) );
+    memset( &val, 0, sizeof( val ) );
+    int  ret = dbc->get( dbc, &key, &val, flags );
+    if( ret == DB_NOTFOUND )  {
+        return 0;
+    } else if( ret == 0 ) {
+        if( data )*data = val.data;
+        if( size )*size = val.size;
+        return 1;
+    } else {
+        LOGPRINT( 1, "Error leyendo cursor => %d (%s)", ret, db_strerror( ret ) );
+        db_error = "Error leyendo cursor" ;
+        return -1;
+    }
+}
+
+/*
+ * Apertura de cursor
+ * */
+
+void*  dbcur_new( int db ){
+    DBC* dbc;
+    DB*  dbp;
+    if( !open_dbs() ) return 0;
+    switch(db){
+        case  DBUSER:
+            dbp = db_users;
+            break;
+        case  DBGAME:
+            dbp = db_games;
+            break;
+        case  DBGAMETYPE:
+            dbp = db_game_types;
+            break;
+        case  DBSESSION:
+            dbp = db_sess;
+            break;
+        case IDXUSERCODE:
+            dbp = db_users_code;
+            break;
+        case IDXGAMETYPENAME:
+            dbp = db_game_types_name;
+            break;
+        default:
+            LOGPRINT( 1, "Error de parametro db => %d", db );
+            return 0;
+    }
+
+    int ret = dbp->cursor( dbp, NULL, &dbc, 0 );
+    if( ret == 0 ) return dbc;
+
+    LOGPRINT( 1, "Error en %d (%s) creando cursor", ret, db_strerror( ret ) );
+    db_error = "Error abriendo cursor";
+    return NULL;
+}
+
+
+
+
 
 /*
  * Estadisticas

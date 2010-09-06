@@ -41,6 +41,18 @@
  *
  */
 
+/*
+ * Simple add from Silvio Quadri. 30-08-2010. base64_encode_alloc_pad.
+ * size_t outlen = base64_encode_alloc_pad( in, inlen, line_size, left_pad_chars, &out )
+ *
+ * if (out == NULL && outlen == 0 && inlen != 0)
+ *   FAIL: input too long
+ * if (out == NULL)
+ *   FAIL: memory allocation error
+ * OK: data in OUT/OUTLEN.
+ *
+ */
+
 #include <config.h>
 
 /* Get prototype. */

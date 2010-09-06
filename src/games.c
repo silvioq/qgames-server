@@ -157,6 +157,26 @@ int        game_type_save( GameType* gt ){
 }
 
 /*
+ * Uso del cursor:
+ *
+ *    void * cursor = NULL; // inicializar en nulo
+ *    GameType* gt; 
+ *    while( game_type_cursor( &cursor, &gt, DBNEXT ) ){
+ *      // do something ...
+ *    }
+ *    game_type_cursor( &cursor, NULL, DBCLOSE );
+ * */
+int        game_type_cursor( void** cursor, GameType** gt, int accion ){
+    int  flags = 0;
+    void* dbc = (*cursor);
+    if( !dbc ){
+        dbc = dbcur_new( DBGAMETYPE );
+    }
+    return 1;
+
+}
+
+/*
  * Dado un tipo de juego, verifica si se encuentra en memoria.
  * En el caso positivo, lo devuelve. Si no esta en memoria, 
  * intenta leerlo de la base. Si aun no lo encuentra, entonces

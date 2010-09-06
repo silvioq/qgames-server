@@ -79,6 +79,20 @@ void       game_type_free( GameType* gt );
 GameType*  game_type_share_by_name( char* name );
 GameType*  game_type_share_by_id( unsigned int id );
 
+
+/*
+ * Uso del cursor:
+ *
+ *    void * cursor = NULL; // inicializar en nulo
+ *    GameType* gt; 
+ *    while( game_type_next( &cursor, &gt ) ){
+ *      // do something ...
+ *    }
+ *    game_type_end( &cursor );
+ * */
+int        game_type_next( void** cursor, GameType** gt );
+int        game_type_end( void** cursor );
+
 int        game_type_save( GameType* gt );
 GameType*  game_type_load( unsigned int id );
 

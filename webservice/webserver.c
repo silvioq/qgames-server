@@ -234,6 +234,17 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         return;
     }
 
+    if( sscanf( ri->uri, "/%32s/lista%s", sess, buff ) == 1 ){
+        // Lee la sesion
+        Session* s = session_load( sess );
+        if( !s || session_defeated( s ) ){
+            render_403( conn, ri );
+            return ;
+        }
+        LOGPRINT( 5, "Ruteando a controlador lista => %s", ri->uri );
+        game_controller( conn, ri, s, ACTION_TIPOJUEGOS, NULL );
+    }
+
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
     render_404( conn, ri );
     return;

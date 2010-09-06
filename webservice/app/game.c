@@ -333,10 +333,20 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
 }
 
 /*
+ * En esta accion voy a listar los tipos de juego conocido y voy a
+ * tratar de brindar toda la informacion disponible acerca de los
+ * mismos
+ * */
+static void  game_controller_tjuegos( struct mg_connection* conn, const struct mg_request_info* ri, Session* s ){
+}
+
+
+
+
+/*
  * Este es el controlador de game.
  * Lo que voy a hacer es sencillo. 
  * */
-
 void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm ){
     session_save( s ); // toco la sesion
     switch(action){
