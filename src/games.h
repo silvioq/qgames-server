@@ -77,7 +77,7 @@ GameType*  game_type_by_name( char* name );
 GameType*  game_type_new( char* name, time_t created_at );
 void       game_type_free( GameType* gt );
 GameType*  game_type_share_by_name( char* name );
-GameType*  game_type_share_by_id( unsigned int id );
+GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded );
 
 
 /*

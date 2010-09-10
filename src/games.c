@@ -161,19 +161,51 @@ int        game_type_save( GameType* gt ){
  *
  *    void * cursor = NULL; // inicializar en nulo
  *    GameType* gt; 
- *    while( game_type_cursor( &cursor, &gt, DBNEXT ) ){
+ *    while( game_type_next( &cursor, &gt ) ){
  *      // do something ...
  *    }
- *    game_type_cursor( &cursor, NULL, DBCLOSE );
+ *    game_type_end( &cursor );
  * */
-int        game_type_cursor( void** cursor, GameType** gt, int accion ){
-    int  flags = 0;
+int        game_type_next( void** cursor, GameType** gt ){
+
     void* dbc = (*cursor);
     if( !dbc ){
         dbc = dbcur_new( DBGAMETYPE );
+        *cursor = dbc;
     }
-    return 1;
 
+    void* data;
+    int   size;
+
+    int ret = dbcur_get( dbc, DBNEXT, &data, &size );
+    if( ret == 0 ){
+        if( gt ) *gt = NULL;
+        return 0;
+    } else if( ret == -1){
+        LOGPRINT( 1, "Error al intentar leer data %s", dbget_lasterror() );
+        if( gt ) *gt = NULL;
+        return 0;
+    }
+    GameType* game_temp = bin_to_game_type( data, size );
+    if( game_temp ){
+        if( gt ){ 
+            *gt = game_type_share_by_id( game_temp->id, game_temp );
+            if( *gt != game_temp ) game_type_free( game_temp );
+        } else {
+            game_type_free( game_temp );
+        }
+        return 1;
+    }
+
+    if( gt ) *gt = NULL;
+    return 0;
+}
+
+/*
+ * Finaliza el cursor
+ * */
+int        game_type_end( void** cursor ){
+    dbcur_end( *cursor );
 }
 
 /*
@@ -219,9 +251,10 @@ GameType*  game_type_share_by_name( char* name ){
 /*
  * Dado un id de tipo de juego, intenta verificar si esta en lo compartido
  * En el caso que no este, verifica en la base de datos. 
+ * Si el parametro game_type_loaded no es nulo, entonces se usa ese objeto
  * Si no esta, devuelve nulo
  * */
-GameType*  game_type_share_by_id( unsigned int id ){
+GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
     int i;
     // Verifico si esta en memoria
     for( i = 0; i < game_types_lista_count; i ++ ){
@@ -235,7 +268,7 @@ GameType*  game_type_share_by_id( unsigned int id ){
     }
 
     // Verifico si esta en la base
-    GameType* ret = game_type_load( id );
+    GameType* ret = game_type_loaded ? game_type_loaded : game_type_load( id );
     if( ret ){
         ret->tipojuego = qg_tipojuego_open( ret->nombre );
         game_types_lista[game_types_lista_count++] = ret;
@@ -434,7 +467,7 @@ User*  game_user( Game* g ){
 GameType*  game_game_type( Game* g ){
     if( g->game_type ) return g->game_type;
     if( !g->game_type_id ) return NULL;
-    g->game_type = game_type_share_by_id( g->game_type_id );
+    g->game_type = game_type_share_by_id( g->game_type_id, NULL );
     return g->game_type;
 }
 

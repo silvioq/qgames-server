@@ -772,6 +772,14 @@ void*  dbcur_new( int db ){
 }
 
 
+int    dbcur_end( void* cur ){
+    DBC* dbc = (DBC*)cur;
+    dbc->close( dbc );
+    return 1;
+    
+}
+
+
 
 
 

@@ -54,6 +54,14 @@ char*  dbget_lasterror( );
 #define    DBNEXT   2
 #define    DBCLOSE  0
 void*  dbcur_new( int db );
+
+/*
+ * Retorna:
+ *  1: Ok
+ *  0: EOF
+ *  -1: Error
+ *  */
 int    dbcur_get( void* cur, int accion, void** data, int* size );
+int    dbcur_end( void* cur );
 
 #endif
