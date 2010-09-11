@@ -259,5 +259,8 @@ int   init_webservice( int port ){
     sprintf( puerto, "%d", port );
     mg_set_option(ctx, "ports", puerto);
     mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
+
+    // Verifico los juegos que hay disponibles
+    game_type_discover();
 }
 

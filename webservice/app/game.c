@@ -338,6 +338,22 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
  * mismos
  * */
 static void  game_controller_tjuegos( struct mg_connection* conn, const struct mg_request_info* ri, Session* s ){
+    FILE* f = tmpfile( );
+    void* cursor = NULL;
+    GameType * gt;
+    while( game_type_next( &cursor, &gt ) ){
+        fprintf( f, "- %s:\n", gt->nombre );
+        Tipojuego* tj = gt->tipojuego;
+        int i = 1; const char* color ;
+        fprintf( f, "  colores:\n" );
+        while( color = qg_tipojuego_info_color( tj, i ) ){
+            fprintf( f, "    - %s\n", color );
+            i ++;
+        }
+    }
+    game_type_end( &cursor );
+    render_200f( conn, ri, f );
+    close( f );
 }
 
 
@@ -370,6 +386,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_PARTIDA:
             game_controller_partida( conn, ri, s, parm );
+            break;
+        case  ACTION_TIPOJUEGOS:
+            game_controller_tjuegos( conn, ri, s );
             break;
         default:
             render_404( conn, ri );
