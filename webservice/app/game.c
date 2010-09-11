@@ -342,12 +342,21 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
     void* cursor = NULL;
     GameType * gt;
     while( game_type_next( &cursor, &gt ) ){
-        fprintf( f, "- %s:\n", gt->nombre );
+        fprintf( f, "%s:\n", gt->nombre );
         Tipojuego* tj = gt->tipojuego;
         int i = 1; const char* color ;
         fprintf( f, "  colores:\n" );
         while( color = qg_tipojuego_info_color( tj, i ) ){
-            fprintf( f, "  - %s\n", color );
+            fprintf( f, "  - nombre: %s\n", color );
+            if( qg_tipojuego_info_color_rotado( tj, i ) ) {
+                fprintf( f, "    rotado: true\n" );
+            }
+            i ++;
+        }
+        i = 1; const char* tpieza;
+        fprintf( f, "  tipos_pieza:\n" );
+        while( tpieza = qg_tipojuego_info_tpieza( tj, i ) ){
+            fprintf( f, "  - %s\n", tpieza );
             i ++;
         }
     }

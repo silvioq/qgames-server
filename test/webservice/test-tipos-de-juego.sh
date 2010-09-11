@@ -50,7 +50,9 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-# echo "$output"
+if [ "x$1" == "x-v" ]; then
+  echo "$output"
+fi
 
 
 kill -2 $PID
