@@ -29,6 +29,11 @@
 #include  <time.h>
 #include  <qgames.h>
 
+#include  <sys/types.h>
+#include  <dirent.h>
+#include  <errno.h>
+
+
 #include  "users.h"
 #include  "games.h"
 #include  "dbmanager.h"
@@ -207,6 +212,39 @@ int        game_type_next( void** cursor, GameType** gt ){
 int        game_type_end( void** cursor ){
     dbcur_end( *cursor );
 }
+
+
+/*
+ * Esta funcion recorre el directorio de los tipos de juego e intenta crear todos 
+ * los que encuentre alli
+ * */
+int        game_type_discover( ){
+    const char* dirname = qg_path_games( );
+    DIR*  d = opendir( dirname );
+    struct  dirent*  ent;
+    if( !d ){
+        LOGPRINT( 2, "Error al abrir directorio %s => %d %s", dirname, errno, strerror( errno ) );
+        return 0;
+    }
+
+    while( ent = readdir( d ) ){
+        char nombre[256];
+        strcpy( nombre, ent->d_name );
+        char* aux = strstr( nombre, ".qgame" );
+        if( !aux ) { continue; }
+        aux[0] = 0;
+        LOGPRINT( 5, "Definicion encontrada => %s", nombre );
+        if( !game_type_share_by_name( nombre ) ){
+            LOGPRINT( 2, "Error al querer compartir %s", nombre );
+            return 0;
+        }
+    }
+    return 1;
+
+    
+}
+
+
 
 /*
  * Dado un tipo de juego, verifica si se encuentra en memoria.

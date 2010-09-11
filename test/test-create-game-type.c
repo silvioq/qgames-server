@@ -35,6 +35,15 @@
 
 #define   FILEDB  "test.db"
 
+void    chequear_lectura_del_archivo_de_definiciones(){
+    unlink( FILEDB );
+    assert( dbset_file( FILEDB ) ) ;
+    assert( init_db( FILEDB ) );
+    assert( game_type_discover() );
+    assert( dbget_game_typenextid() > 3 ) ;
+}
+
+
 int  main( int argc, char** argv ){
 
     loglevel = 2;
@@ -97,6 +106,8 @@ int  main( int argc, char** argv ){
 
     assert( game_type_share_by_id( 1, NULL ) == game_type_share_by_name( "Ajedrez" ) );
     assert( game_type_share_by_id( 3, NULL ) == gt );
+    dbact_close( );
 
+    chequear_lectura_del_archivo_de_definiciones();
     exit( EXIT_SUCCESS );
 }

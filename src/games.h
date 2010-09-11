@@ -93,6 +93,12 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded );
 int        game_type_next( void** cursor, GameType** gt );
 int        game_type_end( void** cursor );
 
+/*
+ * Esta funcion recorre el directorio de definicion de tipos
+ * de juego y carga en la base todos los juegos que hay disponibles
+ * */
+int        game_type_discover( );
+
 int        game_type_save( GameType* gt );
 GameType*  game_type_load( unsigned int id );
 
