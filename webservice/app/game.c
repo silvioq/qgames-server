@@ -347,7 +347,7 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
         int i = 1; const char* color ;
         fprintf( f, "  colores:\n" );
         while( color = qg_tipojuego_info_color( tj, i ) ){
-            fprintf( f, "    - %s\n", color );
+            fprintf( f, "  - %s\n", color );
             i ++;
         }
     }

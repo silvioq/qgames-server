@@ -50,7 +50,7 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-echo $output
+# echo "$output"
 
 
 kill -2 $PID
