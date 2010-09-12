@@ -343,7 +343,11 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
     GameType * gt;
     while( game_type_next( &cursor, &gt ) ){
         fprintf( f, "%s:\n", gt->nombre );
-        Tipojuego* tj = gt->tipojuego;
+        Tipojuego* tj = game_type_tipojuego( gt );
+        if( !tj ){
+            LOGPRINT( 2, "Error tratando de obtener tipojuego %s", gt->nombre );
+            continue;
+        }
         int i = 1; const char* color ;
         fprintf( f, "  colores:\n" );
         while( color = qg_tipojuego_info_color( tj, i ) ){
@@ -359,6 +363,19 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
             fprintf( f, "  - %s\n", tpieza );
             i ++;
         }
+
+        i = 1; const char* cas; int* pos;
+        int dims = qg_tipojuego_get_dims( tj );
+        fprintf( f, "  casilleros:\n" );
+        while( cas = qg_tipojuego_info_casillero( tj, i, &pos ) ){
+            fprintf( f, "  - nombre: %s\n", cas );
+            int j;
+            for( j = 0; j < dims; j ++ ){
+                fprintf( f, "    coord%d: %d\n", j, pos[j] );
+            }
+            i ++;
+        }
+
     }
     game_type_end( &cursor );
     render_200f( conn, ri, f );

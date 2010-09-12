@@ -36,13 +36,13 @@ fi
 output=`curl -f "http://localhost:8080/$sess/lista" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret (list)"
     kill -2 $PID
     exit 1;
 fi
 
 
-echo "$output" | grep Ajedrez
+echo "$output" | grep Ajedrez > /dev/null
 ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret buscando ajedrez"
