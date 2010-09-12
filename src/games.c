@@ -317,6 +317,18 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
     return NULL;
 }
 
+Tipojuego*  game_type_tipojuego( GameType* gt ){
+    if( !gt->tipojuego ){
+        gt->tipojuego = qg_tipojuego_open( gt->nombre );
+        if( !gt->tipojuego ){
+            LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
+            return 0;
+        }
+    }
+    return gt->tipojuego;
+    
+}
+
 
 
 /*
@@ -521,14 +533,8 @@ GameType*  game_game_type( Game* g ){
  * */
 
 Game*     game_type_create( GameType* gt, User* u ){
-    if( !gt->tipojuego ){
-        gt->tipojuego = qg_tipojuego_open( gt->nombre );
-        if( !gt->tipojuego ){
-            LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
-            return 0;
-        }
-    }
-    Partida* p = qg_tipojuego_create_partida( gt->tipojuego, NULL );
+    Tipojuego* tj = game_type_tipojuego( gt );
+    Partida* p = qg_tipojuego_create_partida( tj, NULL );
     Game* ret = game_new( qg_partida_id( p ), u, gt, 0 );
     game_set_partida( ret, p );
     qg_partida_free( p );
