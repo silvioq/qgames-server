@@ -41,17 +41,6 @@
  *
  */
 
-/*
- * Simple add from Silvio Quadri. 30-08-2010. base64_encode_alloc_pad.
- * size_t outlen = base64_encode_alloc_pad( in, inlen, line_size, left_pad_chars, &out )
- *
- * if (out == NULL && outlen == 0 && inlen != 0)
- *   FAIL: input too long
- * if (out == NULL)
- *   FAIL: memory allocation error
- * OK: data in OUT/OUTLEN.
- *
- */
 
 #include <config.h>
 
@@ -76,8 +65,8 @@ to_uchar (char ch)
    possible.  If OUTLEN is larger than BASE64_LENGTH(INLEN), also zero
    terminate the output buffer. */
 void
-base64_encode (const char *restrict in, size_t inlen,
-	       char *restrict out, size_t outlen)
+base64_encode (const char * in, size_t inlen,
+	       char * out, size_t outlen)
 {
   static const char b64str[64] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -322,8 +311,8 @@ isbase64 (char ch)
    that, when applicable, you must remove any line terminators that is
    part of the data stream before calling this function.  */
 bool
-base64_decode (const char *restrict in, size_t inlen,
-	       char *restrict out, size_t *outlen)
+base64_decode (const char * in, size_t inlen,
+	       char * out, size_t *outlen)
 {
   size_t outleft = *outlen;
 

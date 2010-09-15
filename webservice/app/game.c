@@ -29,6 +29,7 @@
 #include  "games.h"
 #include  "log.h"
 #include  "session.h"
+#include  "base64.h"
 #include  "webserver.h"
 
 
@@ -376,6 +377,62 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
             i ++;
         }
 
+        // vamos por las imagenes
+        int w, h;
+        void* png;
+        int size;
+        if( size = qg_tipojuego_get_tablero_png( tj, BOARD_ACTUAL, 0, &png, &w, &h ) ){
+            fprintf( f, "  imagenes:\n    tablero:\n      height: %d\n      width: %d\n", w, h  );
+            fprintf( f, "      imagen: !!binary |\n" );
+            char* data, *cursor, *final;
+            size_t  total = base64_encode_alloc( (char*) png, (size_t)size, &data );
+            if( total == 0 || data == NULL ){
+                LOGPRINT( 1, "Error al intentar decodificar png %d", 0 );
+                fclose( f );
+                render_500( conn, ri, "Error al intentar decodificar png" );
+                return ;
+            }
+            final = data + total;
+            cursor = data;
+            while( cursor < final ){
+                fprintf( f, "        %.50s\n", cursor );
+                cursor += 50;
+            }
+            free( data );
+            qgames_free_png( png );
+            i = 1;
+            fprintf( f, "    piezas:\n" );
+            while( tpieza = qg_tipojuego_info_tpieza( tj, i ) ){
+                int c = 1;
+                while( color = qg_tipojuego_info_color( tj, c ) ){
+                    if( size = qg_tipojuego_get_tpieza_png( tj, color, tpieza, &png, &w, &h ) ){
+                        fprintf( f, "    - tipo_pieza: %s\n", tpieza );
+                        fprintf( f, "      color: %s\n", color );
+                        fprintf( f, "      width: %d\n", w );
+                        fprintf( f, "      height: %d\n", h );
+                        fprintf( f, "      imagen: !!binary |\n" );
+                        size_t  total = base64_encode_alloc( (char*) png, (size_t)size, &data );
+                        if( total == 0 || data == NULL ){
+                            LOGPRINT( 1, "Error al intentar decodificar png %d", 0 );
+                            render_500( conn, ri, "Error al intentar decodificar png" );
+                            return ;
+                        }
+                        final = data + total;
+                        cursor = data;
+                        while( cursor < final ){
+                            fprintf( f, "        %.50s\n", cursor );
+                            cursor += 50;
+                        }
+                        free( data );
+                        qgames_free_png( png );
+                    }
+                    c ++;
+                }
+                i ++;
+            }
+        } else {
+            LOGPRINT( 5, "Error al intentar obtener png %s", gt->nombre );
+        }
     }
     game_type_end( &cursor );
     render_200f( conn, ri, f );
