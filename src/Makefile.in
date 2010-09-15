@@ -45,7 +45,7 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
 	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) \
-	md5.$(OBJEXT)
+	md5.$(OBJEXT) base64.$(OBJEXT)
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 am_qgserverd_OBJECTS = qgserverd.$(OBJEXT) webserver.$(OBJEXT) \
@@ -159,7 +159,8 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
-		../common/md5.h  ../common/md5.c 
+		../common/md5.h  ../common/md5.c \
+		../common/base64.h ../common/base64.c
 
 AM_CFLAGS = -I $(top_srcdir)/common -I$(top_srcdir)/webservice -DNO_SSL -DNO_CGI
 qgserverd_SOURCES = qgserverd.c \
@@ -244,6 +245,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/game.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
@@ -313,6 +315,20 @@ md5.obj: ../common/md5.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/md5.c' object='md5.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o md5.obj `if test -f '../common/md5.c'; then $(CYGPATH_W) '../common/md5.c'; else $(CYGPATH_W) '$(srcdir)/../common/md5.c'; fi`
+
+base64.o: ../common/base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT base64.o -MD -MP -MF $(DEPDIR)/base64.Tpo -c -o base64.o `test -f '../common/base64.c' || echo '$(srcdir)/'`../common/base64.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/base64.Tpo $(DEPDIR)/base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/base64.c' object='base64.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o base64.o `test -f '../common/base64.c' || echo '$(srcdir)/'`../common/base64.c
+
+base64.obj: ../common/base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT base64.obj -MD -MP -MF $(DEPDIR)/base64.Tpo -c -o base64.obj `if test -f '../common/base64.c'; then $(CYGPATH_W) '../common/base64.c'; else $(CYGPATH_W) '$(srcdir)/../common/base64.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/base64.Tpo $(DEPDIR)/base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/base64.c' object='base64.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o base64.obj `if test -f '../common/base64.c'; then $(CYGPATH_W) '../common/base64.c'; else $(CYGPATH_W) '$(srcdir)/../common/base64.c'; fi`
 
 webserver.o: $(top_srcdir)/webservice/webserver.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT webserver.o -MD -MP -MF $(DEPDIR)/webserver.Tpo -c -o webserver.o `test -f '$(top_srcdir)/webservice/webserver.c' || echo '$(srcdir)/'`$(top_srcdir)/webservice/webserver.c
