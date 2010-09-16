@@ -1,14 +1,10 @@
-* Sesiones
-* Leer los tipos de juego (pthread_mutex_init sera nuestro amigo)
-* Controlador: list (lista de juegos)
 * Controlador: game 
     - crea partida, (Listo!)
     - mueve, (Listo!)
     - descarga de partida (accion partida) (Listo)
     - registra y "desregistra juego" (Listo)
-    - Bajar la informacion del juego, incluyendo las imagenes
-* Chequear que el usuario loggeado tenga permisos
-  sobre el juego con el que se esta trabajando
+    - Bajar la informacion del juego (Listo)
+    - Bajar la imagen del juego
 
 * Esta es la lista del dispacher que tenia la version 2.1.12
   del qgames

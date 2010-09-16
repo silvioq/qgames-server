@@ -462,6 +462,49 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
 }
 
 
+/*
+ * Dado un juego existente en la base, devuelve el PNG asociado
+ * */
+static void  game_controller_imagen( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
+        return;
+    }
+    char* v;
+    int  flags = GETPNG_HIGHLIGHT_RED;
+    int  move_number = LAST_MOVE;
+    void* png;
+
+    if( v = mg_get_var( conn, "n" )){
+        move_number = atol( v );
+    }
+  
+    if( v = mg_get_var( conn, "r" )) flags |= GETPNG_ROTADO;
+
+    int size = qg_partida_get_png( game_partida( g ), flags, move_number, &png );
+    if( !size ){
+        render_500( conn, ri, "No es posible dibujar la partida" );
+        return;
+    }
+
+    
+		mg_printf(conn,
+		    "HTTP/1.1 200 OK\r\n"
+		    "Content-Type: image/png\r\n"
+		    "Content-Length: %d\r\n"
+		    "Connection: close\r\n"
+		    "\r\n", size );
+
+    mg_write( conn, png, size );
+    qgames_free_png( png );
+}
 
 
 /*
@@ -494,6 +537,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_TIPOJUEGOS:
             game_controller_tjuegos( conn, ri, s );
+            break;
+        case  ACTION_IMAGEN:
+            game_controller_imagen( conn, ri, s, parm );
             break;
         default:
             render_404( conn, ri );
