@@ -549,6 +549,11 @@ Partida*  game_partida( Game* g ){
     if( g->partida ) return g->partida;
     GameType* gt = game_game_type( g );
     if( !g->data ) return NULL;
-    g->partida = qg_partida_load( gt->tipojuego, g->data, g->data_size );
+    Tipojuego* tj = game_type_tipojuego( gt );
+    if( !tj ){
+        LOGPRINT( 2, "Error, este juego no puede resolver su tipo => %s", g->id );
+        return NULL;
+    }
+    g->partida = qg_partida_load( tj, g->data, g->data_size );
     return g->partida;
 }
