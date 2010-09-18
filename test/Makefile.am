@@ -2,7 +2,8 @@
 check_PROGRAMS = test-main  test-db-create-file  \
 				test-dup-user test-create-user test-create-game-type test-cursor-game-type \
 				test-create-session test-create-game test-check-user-game \
-				test-del-game
+				test-del-game  \
+				test-routes
 
 QGAMESLIBS=@QGAMESLIBS@
 LIB=$(QGAMESLIBS)
@@ -26,7 +27,13 @@ test_del_game_SOURCES       = $(DEPENDENCES) test-del-game.c
 test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 test_cursor_game_type_SOURCES = $(DEPENDENCES) test-cursor-game-type.c
 
-AM_CFLAGS = -I ../src -I ../common
+test_routes_SOURCES         = ../webservice/webserver.h \
+		test-routes.c   
+
+
+test_routes_LDADD =  $(top_srcdir)/webservice/libwebserver.a
+
+AM_CFLAGS = -I ../src -I ../common -I ../webservice
 
 TESTS = $(check_PROGRAMS) webservice/test-*.sh
 

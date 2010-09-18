@@ -12,10 +12,6 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 AM_CFLAGS=-I $(top_srcdir)/common -I$(top_srcdir)/webservice -DNO_SSL -DNO_CGI
 
 qgserverd_SOURCES = qgserverd.c \
-		$(top_srcdir)/webservice/webserver.c   $(top_srcdir)/webservice/webserver.h \
-    $(top_srcdir)/webservice/app/login.c  \
-    $(top_srcdir)/webservice/app/game.c  \
-		$(top_srcdir)/webservice/mongoose.c    $(top_srcdir)/webservice/mongoose.h \
 		session.c     session.h \
 		dbmanager.c   dbmanager.h \
 		users.h  			users.c \
@@ -23,5 +19,6 @@ qgserverd_SOURCES = qgserverd.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c \
-		../common/base64.h ../common/base64.c
+		../common/base64.h ../common/base64.c 
 
+qgserverd_LDADD = $(top_srcdir)/webservice/libwebserver.a

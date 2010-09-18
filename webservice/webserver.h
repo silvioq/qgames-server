@@ -28,6 +28,19 @@
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri);
 void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
+#define  FORMAT_YAML         1
+#define  FORMAT_HTML         2
+#define  FORMAT_JSON         3
+#define  FORMAT_PNG          4
+#define  FORMAT_PGN          5
+#define  FORMAT_XML          6
+#define  FORMAT_QGAME        7
+
+#define  CONTROLLER_LOGIN    1
+#define  CONTROLLER_GAME     2
+
+#define  ACTION_LOGIN        1
+
 #define  ACTION_CREA         1
 #define  ACTION_TABLERO      2
 #define  ACTION_POSIBLES     3
@@ -52,5 +65,12 @@ void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, FILE* f);
 
+extern  int    route_controller;
+extern  int    route_action;
+extern  int    route_format;
+
+extern  char   route_session[32];
+extern  char   route_param[100];
+int    get_ruta( char* uri );
 
 #endif

@@ -5,6 +5,8 @@ AC_DEFINE([QGS_REV_VERSION],  [1], Revision version)
 
 AM_INIT_AUTOMAKE
 AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_LEX
 
 AC_CONFIG_SRCDIR([configure.ac])
 
@@ -52,6 +54,7 @@ AC_CONFIG_HEADER(config.h)
 
 AC_CONFIG_FILES(
   [Makefile
+   webservice/Makefile
    src/Makefile
    test/Makefile
   ])

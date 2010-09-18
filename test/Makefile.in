@@ -33,7 +33,8 @@ check_PROGRAMS = test-main$(EXEEXT) test-db-create-file$(EXEEXT) \
 	test-dup-user$(EXEEXT) test-create-user$(EXEEXT) \
 	test-create-game-type$(EXEEXT) test-cursor-game-type$(EXEEXT) \
 	test-create-session$(EXEEXT) test-create-game$(EXEEXT) \
-	test-check-user-game$(EXEEXT) test-del-game$(EXEEXT)
+	test-check-user-game$(EXEEXT) test-del-game$(EXEEXT) \
+	test-routes$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -82,6 +83,9 @@ test_dup_user_LDADD = $(LDADD)
 am_test_main_OBJECTS = test-main.$(OBJEXT)
 test_main_OBJECTS = $(am_test_main_OBJECTS)
 test_main_LDADD = $(LDADD)
+am_test_routes_OBJECTS = test-routes.$(OBJEXT)
+test_routes_OBJECTS = $(am_test_routes_OBJECTS)
+test_routes_DEPENDENCIES = $(top_srcdir)/webservice/libwebserver.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -94,13 +98,15 @@ SOURCES = $(test_check_user_game_SOURCES) $(test_create_game_SOURCES) \
 	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
 	$(test_cursor_game_type_SOURCES) \
 	$(test_db_create_file_SOURCES) $(test_del_game_SOURCES) \
-	$(test_dup_user_SOURCES) $(test_main_SOURCES)
+	$(test_dup_user_SOURCES) $(test_main_SOURCES) \
+	$(test_routes_SOURCES)
 DIST_SOURCES = $(test_check_user_game_SOURCES) \
 	$(test_create_game_SOURCES) $(test_create_game_type_SOURCES) \
 	$(test_create_session_SOURCES) $(test_create_user_SOURCES) \
 	$(test_cursor_game_type_SOURCES) \
 	$(test_db_create_file_SOURCES) $(test_del_game_SOURCES) \
-	$(test_dup_user_SOURCES) $(test_main_SOURCES)
+	$(test_dup_user_SOURCES) $(test_main_SOURCES) \
+	$(test_routes_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -130,6 +136,9 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
+LEX = @LEX@
+LEXLIB = @LEXLIB@
+LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -144,6 +153,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 QGAMESLIBS = @QGAMESLIBS@
+RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -210,7 +220,11 @@ test_create_game_SOURCES = $(DEPENDENCES) test-create-game.c
 test_del_game_SOURCES = $(DEPENDENCES) test-del-game.c
 test_create_session_SOURCES = $(DEPENDENCES) test-create-session.c
 test_cursor_game_type_SOURCES = $(DEPENDENCES) test-cursor-game-type.c
-AM_CFLAGS = -I ../src -I ../common
+test_routes_SOURCES = ../webservice/webserver.h \
+		test-routes.c   
+
+test_routes_LDADD = $(top_srcdir)/webservice/libwebserver.a
+AM_CFLAGS = -I ../src -I ../common -I ../webservice
 TESTS = $(check_PROGRAMS) webservice/test-*.sh
 all: all-am
 
@@ -278,6 +292,9 @@ test-dup-user$(EXEEXT): $(test_dup_user_OBJECTS) $(test_dup_user_DEPENDENCIES)
 test-main$(EXEEXT): $(test_main_OBJECTS) $(test_main_DEPENDENCIES) 
 	@rm -f test-main$(EXEEXT)
 	$(LINK) $(test_main_OBJECTS) $(test_main_LDADD) $(LIBS)
+test-routes$(EXEEXT): $(test_routes_OBJECTS) $(test_routes_DEPENDENCIES) 
+	@rm -f test-routes$(EXEEXT)
+	$(LINK) $(test_routes_OBJECTS) $(test_routes_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -301,6 +318,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-del-game.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-dup-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-routes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/users.Po@am__quote@
 
 .c.o:

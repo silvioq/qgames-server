@@ -133,135 +133,36 @@ void render_500(struct mg_connection *conn, const struct mg_request_info *ri, ch
 
 
 static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
-    char sess[33];
     char buff[1024];
     int ret;
 
     LOGPRINT( 5, "Nueva peticion recibida => %s", ri->uri );
 
-    // Ruta login
-    ret = sscanf( ri->uri, "/login%s", buff );
-    if( ret == -1 ){
-        LOGPRINT( 5, "Ruteando a controlador login => %s", ri->uri );
-        login_controller( conn, ri );
-        return;
-    } else if( ret > 0 ){
-        LOGPRINT( 5, "Ruta de login incorrecta => %s", ri->uri );
-        render_404( conn, ri );
-        return;
-    }
-
-    
-    if( sscanf( ri->uri, "/%32s/crea/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
+    if( get_ruta( ri->uri ) ){
+        Session *s;
+        if( route_session[0] ){
+            s = session_load( route_session );
+            if( !s || session_defeated( s ) ){
+                render_403( conn, ri );
+                return ;
+            }
+        } else {
+            s = NULL;
         }
-        LOGPRINT( 5, "Ruteando a controlador game/crea/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_CREA, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/tablero/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
+        switch(route_controller){
+            case CONTROLLER_LOGIN:
+                login_controller( conn, ri );
+                return;
+            case  CONTROLLER_GAME:
+                game_controller( conn, ri, s, route_action, route_param );
+                return;
         }
-        LOGPRINT( 5, "Ruteando a controlador game/tablero/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_TABLERO, buff );
-        return;
+    } else {
     }
-    
-    if( sscanf( ri->uri, "/%32s/posibles/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/posibles/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_POSIBLES, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/mueve/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/mueve/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_MUEVE, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/registra/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/registra/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_REGISTRA, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/desregistra/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/desregistra/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_DESREGISTRA, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/partida/%s", sess, buff ) == 2 ){
-        // Lee sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/partida/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_PARTIDA, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/imagen/%s", sess, buff ) == 2 ){
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador game/imagen/%s => %s", buff, ri->uri );
-        game_controller( conn, ri, s, ACTION_IMAGEN, buff );
-        return;
-    }
-
-    if( sscanf( ri->uri, "/%32s/lista%s", sess, buff ) == 1 && strstr( ri->uri, "lista" ) ){
-        // Lee la sesion
-        Session* s = session_load( sess );
-        if( !s || session_defeated( s ) ){
-            render_403( conn, ri );
-            return ;
-        }
-        LOGPRINT( 5, "Ruteando a controlador lista => %s", ri->uri );
-        game_controller( conn, ri, s, ACTION_TIPOJUEGOS, NULL );
-        return;
-    }
-
     LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
     render_404( conn, ri );
     return;
+
 }
 
 
