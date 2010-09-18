@@ -43,6 +43,11 @@ char   route_param[100];
 %}
 
 %option noyywrap
+%option fast
+%option batch
+%option case-insensitive
+%option noyylineno
+
 %x      check_gameid    format  with_session  check_param
 
 SESION  [0-9a-fA-F]{32}
