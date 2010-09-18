@@ -32,6 +32,26 @@
 #include  "base64.h"
 #include  "webserver.h"
 
+#include  <pthread.h>
+
+/*
+ * Dado un juego, modfica la partida en el caso que no este previamente
+ * calculada
+ * */
+static  int   save_game_if_not_calculed( Game* g, Partida* p ){
+    if( qg_partida_movidas_analizadas( p ) ) return 1;
+    qg_partida_movidas_count( p );
+    if( qg_partida_movidas_analizadas( p ) ){
+        game_set_partida( g, p );
+        return game_save( g );
+    } else {
+        LOGPRINT( 1, "Extrañamente, no se calcularon bien las posiciones %d", 0 );
+        return 0;
+    }
+        
+}
+
+
 
 /*
  * Dado un juego, escribe en el archivo pasado como parametro toda la informacion
@@ -41,6 +61,9 @@ static void  print_game_data( Game* g, Partida* p, FILE* f ){
 
     int i, movidas ;
     char* res;
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_lock( &mutex );
     fprintf( f, "game_id: %s\n", g->id );
     fprintf( f, "tipo_juego: %s\n", game_game_type( g )->nombre );
     fprintf( f, "color: %s\n", qg_partida_color( p ) );
@@ -60,6 +83,7 @@ static void  print_game_data( Game* g, Partida* p, FILE* f ){
         }
         if( i ) fprintf( f, "\n" );
     }
+    pthread_mutex_unlock( &mutex );
 }
 
 
@@ -107,6 +131,10 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         return;
     }
     Partida* p = game_partida( g );
+    if( !save_game_if_not_calculed( g, p ) ){
+        render_500( conn, ri, "Error al intentar recalcular partida" );
+        return;
+    }
     int i;
     FILE* f = tmpfile( );
     print_game_data( g, p, f );
@@ -166,14 +194,14 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
             return;
         }
     }
+    FILE* f = tmpfile( );
     game_set_partida( g, p );
+    print_game_data( g, p, f );
     if(!game_save( g ) ){
         render_400( conn, ri, "Error al guardar partida" );
-        return;
+    } else {
+        render_200f( conn, ri, f );
     }
-    FILE* f = tmpfile( );
-    print_game_data( g, p, f );
-    render_200f( conn, ri, f );
     fclose( f );
 }
 
@@ -195,6 +223,11 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
         return;
     }
     Partida* p = game_partida( g );
+    if( !save_game_if_not_calculed( g, p ) ){
+        render_500( conn, ri, "Error al intentar recalcular partida" );
+        return;
+    }
+
     int i;
     FILE* f = tmpfile( );
     print_game_data( g, p, f );
