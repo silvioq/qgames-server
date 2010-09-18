@@ -81,12 +81,12 @@ static   int  user_to_bin( User* u, void** data ){
 User*  bin_to_user( void* data, int size ){
 
     int  id;
-    int  tipo;
+    char  tipo;
     char* code; char* nombre;
     char* password;
     int x;
     if( binary_unpack( "icssb", data, size, &id, &tipo, &code, &nombre, &password, (int*)NULL ) ){
-        User* u = user_new( tipo, code, nombre, NULL );
+        User* u = user_new( (int)tipo, code, nombre, NULL );
         u->id = id;
         memcpy( u->password, password, 16 );
         return u;

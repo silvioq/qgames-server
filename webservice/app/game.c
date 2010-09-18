@@ -188,6 +188,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
         render_404( conn, ri );
         return;
     }
+    LOGPRINT( 5, "Mirando posibles de usuario => %d", s->user_id );
     if( !game_check_user( g, session_user( s ) ) ){
         render_500( conn, ri, "Usuario no autorizado" );
         game_free( g );
