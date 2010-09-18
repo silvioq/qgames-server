@@ -28,3 +28,6 @@
     :html         => 'html_helper',       # Ayuda HTML
     :reload       => 'reload'             # Reload de varios objetos
   }
+
+* Manejar múltiples threads en el webservice.
+  Probablemente, el inconveniente radique en el uso de la dbberkeley

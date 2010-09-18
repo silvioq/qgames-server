@@ -27,6 +27,8 @@
 #include  <sys/stat.h>
 #include  <unistd.h>
 #include  <time.h>
+#include  <pthread.h>
+
 #include  "mongoose.h"
 #include  "users.h"
 #include  "log.h"
@@ -138,7 +140,13 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 
     LOGPRINT( 5, "Nueva peticion recibida => %s", ri->uri );
 
-    if( get_ruta( ri->uri ) ){
+    
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock( &mutex );
+    ret = get_ruta( ri->uri );
+    pthread_mutex_unlock( &mutex );
+
+    if( ret ){
         Session *s;
         if( route_session[0] ){
             s = session_load( route_session );
@@ -152,11 +160,9 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         switch(route_controller){
             case CONTROLLER_LOGIN:
                 login_controller( conn, ri );
-                LOGPRINT( 5, "Controlador LOGIN procesado %d", route_controller );
                 return;
             case  CONTROLLER_GAME:
                 game_controller( conn, ri, s, route_action, route_param );
-                LOGPRINT( 5, "Controlador GAME procesado %d", route_controller );
                 return;
         }
     } else {
@@ -175,6 +181,7 @@ int   init_webservice( int port ){
     char puerto[1024];
     sprintf( puerto, "%d", port );
     mg_set_option(ctx, "ports", puerto);
+    mg_set_option(ctx, "max_threads","1" );  // FIXME: Deberia poder manejar multiples threads.
     mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
 
     // Verifico los juegos que hay disponibles

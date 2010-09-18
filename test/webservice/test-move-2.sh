@@ -20,7 +20,7 @@ sleep 1 # le doy un segundo como para que levante
 output=`curl -f "http://localhost:8080/login" -d "user=root&pass=root" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Error 1. Esperado 0. Encontrado $ret"
     kill -2 $PID
     exit 1;
 fi
@@ -36,7 +36,7 @@ fi
 output=`curl -f "http://localhost:8080/$sess/crea/Gomoku" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Error 2. Esperado 0. Encontrado $ret"
     kill -2 $PID
     exit 1;
 fi
