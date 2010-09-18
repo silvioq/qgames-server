@@ -32,6 +32,7 @@
 #include  <sys/types.h>
 #include  <dirent.h>
 #include  <errno.h>
+#include  <pthread.h>
 
 
 #include  "users.h"
@@ -46,6 +47,7 @@ static  GameType** game_types_lista = NULL;
 static  int       game_types_lista_count = 0;
 static  int       game_types_lista_alloc = 0;
 
+static pthread_mutex_t lector_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /*
@@ -274,11 +276,10 @@ GameType*  game_type_share_by_name( char* name ){
     }
 
     // Voy a ver si hay algo!
-    Tipojuego* tj = qg_tipojuego_open( name );
+    ret = game_type_new( name, 0 );
+    Tipojuego* tj = game_type_tipojuego( ret );
     if( !tj ) return NULL;
 
-    ret = game_type_new( name, 0 );
-    ret->tipojuego = tj;
     game_type_save( ret );
     game_types_lista[game_types_lista_count++] = ret;
     return ret;
@@ -308,7 +309,6 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
     // Verifico si esta en la base
     GameType* ret = game_type_loaded ? game_type_loaded : game_type_load( id );
     if( ret ){
-        ret->tipojuego = qg_tipojuego_open( ret->nombre );
         game_types_lista[game_types_lista_count++] = ret;
         return ret;
     }
@@ -319,7 +319,11 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
 
 Tipojuego*  game_type_tipojuego( GameType* gt ){
     if( !gt->tipojuego ){
+        pthread_mutex_lock( &lector_mutex );
+        LOGPRINT( 5, "Intentando leer definiciones de juego %s", gt->nombre );
         gt->tipojuego = qg_tipojuego_open( gt->nombre );
+        LOGPRINT( 5, "Juego %s %s", gt->nombre, ( gt->tipojuego ? "OK" : "ERROR" )  );
+        pthread_mutex_unlock( &lector_mutex );
         if( !gt->tipojuego ){
             LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
             return 0;

@@ -152,9 +152,11 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         switch(route_controller){
             case CONTROLLER_LOGIN:
                 login_controller( conn, ri );
+                LOGPRINT( 5, "Controlador LOGIN procesado %d", route_controller );
                 return;
             case  CONTROLLER_GAME:
                 game_controller( conn, ri, s, route_action, route_param );
+                LOGPRINT( 5, "Controlador GAME procesado %d", route_controller );
                 return;
         }
     } else {
