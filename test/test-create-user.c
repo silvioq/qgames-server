@@ -48,7 +48,7 @@ int  main( int argc, char** argv ){
     unlink( FILEDB );
     assert( dbset_file( FILEDB ) ) ;
     assert( init_db( FILEDB ) );
-    dbact_close();
+    dbact_close(); 
 
     assert( system( "../src/qgserver-tool -d " FILEDB " -u user -n user << EOF\nhola\nEOF\n" ) == 0 );
 

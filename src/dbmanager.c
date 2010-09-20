@@ -27,6 +27,7 @@
 #include  <config.h>
 #include  <errno.h>
 #include  <db.h>
+#include  <pthread.h>
 
 #include  "log.h"
 #include  "users.h"
@@ -41,6 +42,8 @@ static DB*   db_game_types = NULL;
 static DB*   db_game_types_name = NULL;
 static DB*   db_stats = NULL;
 static DB*   db_sess  = NULL;
+
+static  pthread_mutex_t   update_semaphore = PTHREAD_MUTEX_INITIALIZER;
 
 typedef  struct  StrStats {
     unsigned int  user_id;
@@ -247,48 +250,56 @@ static  int  open_dbs(){
     int flags;
 
     LOGPRINT( 5, "Abriendo bases %s", db_file );
+    pthread_mutex_lock( &update_semaphore );
 
     // creo los espacios de memoria necesarios
     ret = db_create( &db_users, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_users_code, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_games, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_game_types, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_game_types_name, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_stats, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_create( &db_sess, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
 
@@ -298,30 +309,35 @@ static  int  open_dbs(){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s users", db_file );
         db_error = "Error abriendo users";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_games->open( db_games, NULL, db_file, "games", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s games", db_file );
         db_error = "Error abriendo games";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_game_types->open( db_game_types, NULL, db_file, "game_types", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s game_types", db_file );
         db_error = "Error abriendo games";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_stats->open( db_stats, NULL, db_file, "stats", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s stats", db_file );
         db_error = "Error abriendo stats";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_sess->open( db_sess, NULL, db_file, "sess", DB_BTREE, flags, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s sess", db_file );
         db_error = "Error abriendo sess";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
 
@@ -331,12 +347,14 @@ static  int  open_dbs(){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s users_code", db_file );
         db_error = "Error abriendo stats";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_users->associate( db_users, NULL, db_users_code, user_getcode, DB_CREATE );
     if( ret != 0 ){
         LOGPRINT( 2, "Error estableciendo asociacion users_code (%s)", db_file );
         db_error = "Error estableciendo asociacion";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
 
@@ -347,6 +365,7 @@ static  int  open_dbs(){
         LOGPRINT( 2, "Error abriendo %s game_type_name_idx => %d (%s)",
                     db_file, ret, db_strerror( ret ) );
         db_error = "Error abriendo game_type_name_idx";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     ret = db_game_types->associate( db_game_types, NULL, db_game_types_name, gametype_getname, DB_CREATE );
@@ -354,9 +373,11 @@ static  int  open_dbs(){
         LOGPRINT( 2, "Error asociando %s game_type_name_idx => %d (%s)",
                     db_file, ret, db_strerror( ret ) );
         db_error = "Error asociando game_type_name_idx";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
 
+    pthread_mutex_unlock( &update_semaphore );
     return 1;
 
 }
@@ -386,10 +407,12 @@ int    init_db( char* filename ){
     LOGPRINT( 5, "Inicializando %s", filename );
     dbset_file( filename );
 
+    pthread_mutex_lock( &update_semaphore );
     int ret = db_create( &db, NULL, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
 
@@ -398,6 +421,7 @@ int    init_db( char* filename ){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s", filename );
         db_error = "Error abriendo archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     db->close(db,0);
@@ -405,6 +429,7 @@ int    init_db( char* filename ){
     if( db_create( &db, NULL, 0 ) != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     flags = DB_CREATE  ;
@@ -412,6 +437,7 @@ int    init_db( char* filename ){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (games)", filename );
         db_error = "Error abriendo archivo (games)";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     db->close(db,0);
@@ -419,6 +445,7 @@ int    init_db( char* filename ){
     if( db_create( &db, NULL, 0 ) != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     flags = DB_CREATE  ;
@@ -426,6 +453,7 @@ int    init_db( char* filename ){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (game_types)", filename );
         db_error = "Error abriendo archivo (game_types)";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     db->close(db,0);
@@ -433,6 +461,7 @@ int    init_db( char* filename ){
     if( db_create( &db, NULL, 0 ) != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     flags = DB_CREATE  ;
@@ -440,6 +469,7 @@ int    init_db( char* filename ){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (stats)", filename );
         db_error = "Error abriendo archivo (stats)";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     
@@ -447,13 +477,15 @@ int    init_db( char* filename ){
     if( !ret ){
         LOGPRINT( 2, "Error inicializando estadisticas %d", ret );
         db_error = "Error inicializando stats";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
-    };
+    }
     db->close(db,0);
 
     if( db_create( &db, NULL, 0 ) != 0 ){
         LOGPRINT( 2, "Error alocando %s", filename );
         db_error = "Error alocando archivo";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     flags = DB_CREATE  ;
@@ -461,9 +493,11 @@ int    init_db( char* filename ){
     if( ret != 0 ){
         LOGPRINT( 2, "Error abriendo %s (sess)", filename );
         db_error = "Error abriendo archivo (sess)";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
     db->close(db,0);
+    pthread_mutex_unlock( &update_semaphore );
     
     /* Listo el pollo, ahora hay que crear un nuevo usuario, el 
      * root */
@@ -510,7 +544,7 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
             return 0;
     }
 
-
+    pthread_mutex_lock( &update_semaphore );
     flags = 0;
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
@@ -528,13 +562,16 @@ int    dbput_data( int db, void* keyp, int key_size, void* data, int data_size )
         dbp->get_dbname( dbp, &dbf, &dbn );
         LOGPRINT( 2, "Error, clave duplicada %s => %d (%s)", dbn, ret, db_strerror( ret ) );
         db_error = "Clave duplicada";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     } else if ( ret != 0 ){
         LOGPRINT( 1, "Error %d %s", ret, db_strerror( ret ) );
         db_error = "Error get / put";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     } else {
         LOGPRINT( 6, "Dato salvado respuesta = %d", ret );
+        pthread_mutex_unlock( &update_semaphore );
         return 1;
     }
 }
@@ -546,7 +583,6 @@ int    dbdel_data( int db, void* keyp, int key_size ){
     int  flags;
     DBT  key;
     DB*  dbp;
-
 
     if( !open_dbs() ) return 0;
     switch(db){
@@ -568,6 +604,7 @@ int    dbdel_data( int db, void* keyp, int key_size ){
     }
 
 
+    pthread_mutex_lock( &update_semaphore );
     flags = 0;
     memset( &key, 0, sizeof( key ) );
 
@@ -580,9 +617,11 @@ int    dbdel_data( int db, void* keyp, int key_size ){
     } else if ( ret != 0 ){
         LOGPRINT( 1, "Error %d %s", ret, db_strerror( ret ) );
         db_error = "Error del";
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     } else {
         LOGPRINT( 6, "Dato eliminado respuesta = %d", ret );
+        pthread_mutex_unlock( &update_semaphore );
         return 1;
     }
 }
@@ -623,6 +662,7 @@ int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size
     }
 
 
+    pthread_mutex_lock( &update_semaphore );
     flags = 0;
     memset( &key, 0, sizeof( key ) );
     memset( &val, 0, sizeof( val ) );
@@ -632,16 +672,19 @@ int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size
 
     int  ret = dbp->get( dbp, NULL, &key, &val, flags );
     if( ret == DB_NOTFOUND )  {
+        pthread_mutex_unlock( &update_semaphore );
         return 0;
     } else if( ret == 0 ) {
         *data = val.data;
         *data_size = val.size;
+        pthread_mutex_unlock( &update_semaphore );
         return 1;
     } else {
         const char* dbn;
         const char* dbf;
         dbp->get_dbname( dbp, &dbf, &dbn );
         LOGPRINT( 1, "Error en %s => %d (%s)", dbn, ret, db_strerror( ret ) );
+        pthread_mutex_unlock( &update_semaphore );
         return -1;
     }
 }
@@ -652,6 +695,7 @@ int    dbget_data( int db, void* keyp, int key_size, void** data, int* data_size
  * las bases. No hay que olvidarse de hacerlo!
  * */
 void   dbact_close(){
+    pthread_mutex_lock( &update_semaphore );
     if( db_users )      db_users->close( db_users, 0 );
     if( db_users_code ) db_users_code->close( db_users_code, 0 );
     if( db_games )      db_games->close( db_games, 0 );
@@ -667,12 +711,14 @@ void   dbact_close(){
     db_game_types_name = NULL;
     db_stats = NULL;
     db_sess  = NULL;
+    pthread_mutex_unlock( &update_semaphore );
 }
 
 /*
  * Funcion para hacer un flush de los archivos
  * */
 void   dbact_sync(){
+    pthread_mutex_lock( &update_semaphore );
     if( db_users )      db_users->sync( db_users, 0 );
     if( db_users_code ) db_users_code->sync( db_users_code, 0 );
     if( db_games )      db_games->sync( db_games, 0 );
@@ -680,6 +726,7 @@ void   dbact_sync(){
     if( db_game_types_name ) db_game_types_name->sync( db_game_types_name, 0 );
     if( db_stats  )     db_stats->sync( db_stats, 0 );
     if( db_sess   )     db_sess ->sync( db_sess , 0 );
+    pthread_mutex_unlock( &update_semaphore );
 }
 
 

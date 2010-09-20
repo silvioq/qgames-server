@@ -31,3 +31,8 @@
 
 * Manejar múltiples threads en el webservice.
   Probablemente, el inconveniente radique en el uso de la dbberkeley
+  2010-09-20. Se modifico el acceso a datos y aparenta no tener inconvenientes
+              De todas formas, el mongoose sigue configurado para trabajar
+              monothread
+
+  
