@@ -4,7 +4,7 @@
     - descarga de partida (accion partida) (Listo)
     - registra y "desregistra juego" (Listo)
     - Bajar la informacion del juego (Listo)
-    - Bajar la imagen del juego
+    - Bajar la imagen del juego (Listo)
 
 * Esta es la lista del dispacher que tenia la version 2.1.12
   del qgames
