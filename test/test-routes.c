@@ -41,13 +41,26 @@ int main(int argc, char** argv){
     assert( get_ruta( "/login" ) );
     assert( route_controller == CONTROLLER_LOGIN );
     assert( route_action    == ACTION_LOGIN );
+    assert( route_format    == 0 );
     assert( route_session[0] == 0 );
 
     assert( get_ruta( "/" unasesion  "/lista" ) );
     assert( route_controller == CONTROLLER_GAME );
     assert( route_action     == ACTION_TIPOJUEGOS ) ;
-    // printf( "La sesion lllego %.32s\n", route_session );
     assert( strncmp( unasesion, route_session, 32 ) == 0 );
+
+    assert( get_ruta( "/login.html" ) );
+    assert( route_controller == CONTROLLER_LOGIN );
+    assert( route_action    == ACTION_LOGIN );
+    assert( route_format    == FORMAT_HTML );
+    assert( route_session[0] == 0 );
+
+    assert( get_ruta( "/" unasesion  "/tablero/hola@com.ar.png" ) );
+    assert( route_controller == CONTROLLER_GAME );
+    assert( route_action     == ACTION_TABLERO ) ;
+    assert( strncmp( unasesion, route_session, 32 ) == 0 );
+    assert( strcmp( route_param, "hola@com.ar" ) == 0 );
+    assert( route_format    == FORMAT_PNG );
 
     exit( EXIT_SUCCESS );
 }

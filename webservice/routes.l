@@ -125,7 +125,7 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                          }
 
 <check_gameid>{GAMEID}{FORMAT} { 
-                            int i = yyleng; int encontrado = 0;
+                            int i = yyleng - 1; int encontrado = 0;
                             while( i ){
                               i --;
                               if( yytext[i] == '.' ){
@@ -152,7 +152,6 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 <format>\.{TYPE_PGN}    { route_format = FORMAT_PGN; } 
 <format>\.{TYPE_XML}    { route_format = FORMAT_XML; } 
 
-.                  
 
 %%
 
