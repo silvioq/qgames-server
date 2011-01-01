@@ -87,6 +87,11 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            BEGIN( check_param );
                          }
 
+<with_session>\/lista\/    { route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_TIPOJUEGOS;
+                           BEGIN( check_param );
+                        }
+
 <with_session>\/lista    { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;
                         }

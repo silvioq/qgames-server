@@ -371,12 +371,16 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
  * En esta accion voy a listar los tipos de juego conocido y voy a
  * tratar de brindar toda la informacion disponible acerca de los
  * mismos
+ * tjuego puede ser nulo o tener un tipo de juego especifico.
+ * En el caso de que sea nulo, solo mostrara cosas basicas
+ * como color y piezas.
  * */
-static void  game_controller_tjuegos( struct mg_connection* conn, const struct mg_request_info* ri, Session* s ){
+static void  game_controller_tjuegos( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* tjuego ){
     FILE* f = tmpfile( );
     void* cursor = NULL;
     GameType * gt;
     while( game_type_next( &cursor, &gt ) ){
+        if( tjuego && strcmp( gt->nombre, tjuego ) != 0 ) continue;
         fprintf( f, "%s:\n", gt->nombre );
         Tipojuego* tj = game_type_tipojuego( gt );
         if( !tj ){
@@ -398,6 +402,10 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
             fprintf( f, "  - %s\n", tpieza );
             i ++;
         }
+
+        // Si no se pidio el tipo de juego, muestro solo info basica
+        //
+        if( !tjuego ) continue;
 
         i = 1; const char* cas; int* pos;
         int dims = qg_tipojuego_get_dims( tj );
@@ -570,7 +578,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_partida( conn, ri, s, parm );
             break;
         case  ACTION_TIPOJUEGOS:
-            game_controller_tjuegos( conn, ri, s );
+            game_controller_tjuegos( conn, ri, s, parm[0] ? parm : NULL );
             break;
         case  ACTION_IMAGEN:
             game_controller_imagen( conn, ri, s, parm );
