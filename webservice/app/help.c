@@ -37,10 +37,10 @@
 void help_controller( struct mg_connection* conn, const struct mg_request_info* ri, int action, int format ){
     FILE* f = tmpfile( );
     fprintf( f, "respuesta: OK\ncomandos:\n" );
-    fprintf( f, "- \"/login\": Envio de informacion de login (por POST)\n" );
-    fprintf( f, "- \"/{sesion}/crea/{tipojuego}\": Crea un nuevo tipo de juego\n" );
-    fprintf( f, "- \"/{sesion}/lista\": Lista los juegos activos\n" );
-    fprintf( f, "- \"/{sesion}/tablero/{idjuego}\": Detalle del tablero\n" );
+    fprintf( f, "  \"/login\": Envio de informacion de login (por POST)\n" );
+    fprintf( f, "  \"/{sesion}/crea/{tipojuego}\": Crea un nuevo tipo de juego\n" );
+    fprintf( f, "  \"/{sesion}/lista\": Lista los juegos activos\n" );
+    fprintf( f, "  \"/{sesion}/tablero/{idjuego}\": Detalle del tablero\n" );
     render_200f( conn, ri, f );
     close( f );
     return;
