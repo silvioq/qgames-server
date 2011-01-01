@@ -24,6 +24,7 @@
 #include  <stdio.h>
 #include  <sys/time.h>
 #include  <time.h>
+#include  <config.h>
 #include  "mongoose.h"
 #include  "users.h"
 #include  "log.h"
@@ -53,7 +54,7 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
                 Session* s = session_new( u );
                 if( session_save( s ) ){
                     char buf[100];
-                    sprintf( buf, "respuesta: OK\nsesion: %.32s\n", s->id );
+                    sprintf( buf, "respuesta: OK\nsesion: %.32s\nversion: " PACKAGE_VERSION "\n", s->id );
                     render_200( conn, ri, buf);
                 } else {
                     render_500( conn, ri, "Error al grabar sesion en " __FILE__ ":" QUOTEME(__LINE__) );
