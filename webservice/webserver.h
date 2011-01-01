@@ -38,6 +38,7 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 
 #define  CONTROLLER_LOGIN    1
 #define  CONTROLLER_GAME     2
+#define  CONTROLLER_HELP     3
 
 #define  ACTION_LOGIN        1
 
@@ -51,7 +52,10 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 #define  ACTION_TIPOJUEGOS   8
 #define  ACTION_IMAGEN       9
 
+#define  ACTION_INDEX        1
+
 void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm );
+void help_controller( struct mg_connection* conn, const struct mg_request_info* ri, int action, int format );
 
 
 

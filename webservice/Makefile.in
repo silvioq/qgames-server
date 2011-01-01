@@ -45,7 +45,8 @@ ARFLAGS = cru
 libwebserver_a_AR = $(AR) $(ARFLAGS)
 libwebserver_a_DEPENDENCIES = $(LIBOBJS)
 am_libwebserver_a_OBJECTS = webserver.$(OBJEXT) login.$(OBJEXT) \
-	game.$(OBJEXT) mongoose.$(OBJEXT) routes.$(OBJEXT)
+	game.$(OBJEXT) help.$(OBJEXT) mongoose.$(OBJEXT) \
+	routes.$(OBJEXT)
 libwebserver_a_OBJECTS = $(am_libwebserver_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -157,6 +158,7 @@ libwebserver_a_SOURCES = \
 		webserver.c   webserver.h \
     app/login.c  \
     app/game.c  \
+    app/help.c  \
 		mongoose.c    mongoose.h \
 		routes.l   
 
@@ -210,6 +212,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/game.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/help.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/login.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mongoose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/routes.Po@am__quote@
@@ -256,6 +259,20 @@ game.obj: app/game.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/game.c' object='game.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o game.obj `if test -f 'app/game.c'; then $(CYGPATH_W) 'app/game.c'; else $(CYGPATH_W) '$(srcdir)/app/game.c'; fi`
+
+help.o: app/help.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT help.o -MD -MP -MF $(DEPDIR)/help.Tpo -c -o help.o `test -f 'app/help.c' || echo '$(srcdir)/'`app/help.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/help.Tpo $(DEPDIR)/help.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/help.c' object='help.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o help.o `test -f 'app/help.c' || echo '$(srcdir)/'`app/help.c
+
+help.obj: app/help.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT help.obj -MD -MP -MF $(DEPDIR)/help.Tpo -c -o help.obj `if test -f 'app/help.c'; then $(CYGPATH_W) 'app/help.c'; else $(CYGPATH_W) '$(srcdir)/app/help.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/help.Tpo $(DEPDIR)/help.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/help.c' object='help.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o help.obj `if test -f 'app/help.c'; then $(CYGPATH_W) 'app/help.c'; else $(CYGPATH_W) '$(srcdir)/app/help.c'; fi`
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)

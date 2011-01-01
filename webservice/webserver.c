@@ -164,6 +164,9 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
             case  CONTROLLER_GAME:
                 game_controller( conn, ri, s, route_action, route_param );
                 return;
+            case  CONTROLLER_HELP:
+                help_controller( conn, ri, route_action, route_param );
+                return;
         }
     } else {
     }

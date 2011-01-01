@@ -24,6 +24,8 @@
 
 #include  <stdio.h>
 #include  <stdlib.h>
+#include  <string.h>
+#include  <unistd.h>
 
 #include  <config.h>
 
@@ -68,6 +70,10 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 
 <INITIAL>\/login         { route_controller = CONTROLLER_LOGIN; 
                            route_action     = ACTION_LOGIN;
+                           BEGIN(format);
+                         }
+<INITIAL>\/help          { route_controller = CONTROLLER_HELP;
+                           route_action     = ACTION_INDEX;
                            BEGIN(format);
                          }
 <INITIAL>\/{SESION}      { strncpy( route_session, yytext + 1, 32 ); 
