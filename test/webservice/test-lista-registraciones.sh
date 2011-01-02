@@ -52,7 +52,7 @@ if [ x$ret != x4 ]; then
     exit 1;
 fi
 
-echo "$output"
+# echo "$output"
 
 
 
