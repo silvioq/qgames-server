@@ -41,6 +41,8 @@ void help_controller( struct mg_connection* conn, const struct mg_request_info* 
     fprintf( f, "  \"/{sesion}/crea/{tipojuego}\": Crea un nuevo tipo de juego\n" );
     fprintf( f, "  \"/{sesion}/lista\": Lista los juegos activos\n" );
     fprintf( f, "  \"/{sesion}/tablero/{idjuego}\": Detalle del tablero\n" );
+    fprintf( f, "  \"/{sesion}/posibles/{idjuego}\": Detalle del tablero y movidas posibles\n" );
+    fprintf( f, "  \"/{sesion}/mueve/{idjuego}\": Detalle del tablero (por POST)\n" );
     render_200f( conn, ri, f );
     close( f );
     return;
