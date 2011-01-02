@@ -22,6 +22,7 @@
  ****************************************************************************/
 
 #include  <stdlib.h>
+#include  <unistd.h>
 #include  <signal.h>
 #include  "log.h"
 #include  "dbmanager.h"
@@ -34,13 +35,48 @@ static void  trap(int a){
     exit( 0 );
 }
 
+void usage(char* prg){
+
+    puts( "Uso:" );
+    printf( "  %s [-vh] [-p port] [-d database_file]\n", prg );
+}
 
 int main( int argc, char** argv ){
 
-    loglevel = 5;
+    loglevel = 2;
+    int opt;
+    int port = 8080;
+    char* db = "qgserver.db";
 
-    dbset_file( "qgserver.db" );
-    init_webservice( 8080 );
+    while(( opt = getopt( argc, argv, "hp:vd:" )) != -1 ){
+        switch(opt){
+            case 'd':
+                db = optarg;
+                break;
+            case 'v':
+                loglevel = 5;
+                break;
+            case 'p':
+                port = atoi( optarg );
+                if( !port ){
+                    usage( argv[0] );
+                    exit( EXIT_FAILURE );
+                }
+                break;
+            case 'h':
+                usage(argv[0]);
+                exit( EXIT_SUCCESS );
+                break;
+            default:
+                usage(argv[0]);
+                exit( EXIT_FAILURE );
+                break;
+
+        }
+    }
+
+    dbset_file( db );
+    init_webservice( port );
 
     signal( SIGTERM, trap );
     signal( SIGINT, trap );
