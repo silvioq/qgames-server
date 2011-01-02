@@ -118,6 +118,10 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            route_action     = ACTION_REGISTRA;
                            BEGIN( check_gameid );
                          }
+<with_session>\/registraciones { 
+                           route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_REGISTRACIONES;
+                         }
 <with_session>\/desregistra\/ { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_DESREGISTRA;
                            BEGIN( check_gameid );

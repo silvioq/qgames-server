@@ -51,6 +51,7 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 #define  ACTION_PARTIDA      7
 #define  ACTION_TIPOJUEGOS   8
 #define  ACTION_IMAGEN       9
+#define  ACTION_REGISTRACIONES  10
 
 #define  ACTION_INDEX        1
 

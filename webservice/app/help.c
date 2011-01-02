@@ -43,6 +43,7 @@ void help_controller( struct mg_connection* conn, const struct mg_request_info* 
     fprintf( f, "  \"/{sesion}/tablero/{idjuego}\": Detalle del tablero\n" );
     fprintf( f, "  \"/{sesion}/posibles/{idjuego}\": Detalle del tablero y movidas posibles\n" );
     fprintf( f, "  \"/{sesion}/mueve/{idjuego}\": Detalle del tablero (por POST)\n" );
+    fprintf( f, "  \"/{sesion}/registraciones\": Partidas registradas actualmente en el servidor\n" );
     render_200f( conn, ri, f );
     close( f );
     return;

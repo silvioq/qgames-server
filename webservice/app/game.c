@@ -51,6 +51,41 @@ static  int   save_game_if_not_calculed( Game* g, Partida* p ){
         
 }
 
+static  void  print_game_data_prefix( Game* g, Partida* p, FILE* f, int spaces ){
+    char  prefix[80];
+    prefix[spaces] = 0;
+    if( spaces ){
+        while( spaces ){
+           prefix[spaces - 1] = ' ';
+           spaces --;
+        }
+    }
+    int i, movidas ;
+    char* res;
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_lock( &mutex );
+    fprintf( f, "%sgame_id: %s\n", prefix, g->id );
+    fprintf( f, "%stipo_juego: %s\n", prefix, game_game_type( g )->nombre );
+    fprintf( f, "%scolor: %s\n", prefix, qg_partida_color( p ) );
+    movidas = qg_partida_movhist_count( p );
+    fprintf( f, "%scantidad_movidas: %d\n", prefix, movidas );
+    qg_partida_final( p, &res );
+    fprintf( f, "%sdescripcion_estado: %s\n", prefix, res );
+    fprintf( f, "%ses_continuacion: %s\n", prefix, qg_partida_es_continuacion( p ) ? "true" : "false" );
+    i = 0;
+    if( movidas > 0 ){
+        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+            if( i )
+                fprintf( f, ",%s", res );
+            else
+                fprintf( f, "%sultimos_destino: %s", prefix, res );
+            i ++;
+        }
+        if( i ) fprintf( f, "\n" );
+    }
+    pthread_mutex_unlock( &mutex );
+}
 
 
 /*
@@ -58,32 +93,7 @@ static  int   save_game_if_not_calculed( Game* g, Partida* p ){
  * relevante 
  * */
 static void  print_game_data( Game* g, Partida* p, FILE* f ){
-
-    int i, movidas ;
-    char* res;
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-    pthread_mutex_lock( &mutex );
-    fprintf( f, "game_id: %s\n", g->id );
-    fprintf( f, "tipo_juego: %s\n", game_game_type( g )->nombre );
-    fprintf( f, "color: %s\n", qg_partida_color( p ) );
-    movidas = qg_partida_movhist_count( p );
-    fprintf( f, "cantidad_movidas: %d\n", movidas );
-    qg_partida_final( p, &res );
-    fprintf( f, "descripcion_estado: %s\n", res );
-    fprintf( f, "es_continuacion: %s\n", qg_partida_es_continuacion( p ) ? "true" : "false" );
-    i = 0;
-    if( movidas > 0 ){
-        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
-            if( i )
-                fprintf( f, ",%s", res );
-            else
-                fprintf( f, "ultimos_destino: %s", res );
-            i ++;
-        }
-        if( i ) fprintf( f, "\n" );
-    }
-    pthread_mutex_unlock( &mutex );
+    print_game_data_prefix( g, p, f, 0 );
 }
 
 
@@ -317,7 +327,11 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
         return;
     }
 
-    render_200( conn, ri, "Partida registrada" );
+    FILE* f = tmpfile( );
+    print_game_data( g, p, f );
+    render_200f( conn, ri, f );
+    fclose( f );
+    
 
 }
 
@@ -367,7 +381,38 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
 
     mg_write( conn, g->data, g->data_size );
     game_free( g );
+
 }
+
+/*
+ * En esta accion se devuelven los juegos activos del usuario
+ * que esta en la sesion
+ * */
+static void  game_controller_registraciones( struct mg_connection* conn, const struct mg_request_info* ri, Session* s ){
+    void* games = NULL;
+    int  primera_vez = 1, cantidad = 0;
+    Game* g ;
+    User* u = session_user( s );
+    FILE* f = tmpfile( );
+    while( game_next( &games, &g ) ){
+        if( game_check_user( g, u ) ){
+            if( primera_vez ){
+                fprintf( f, "games:\n" );
+                primera_vez = 0;
+            }
+            fprintf( f, "  -\n" );
+            print_game_data_prefix( g, game_partida( g ), f, 4 );
+            cantidad ++;
+        }
+        game_free( g );
+    }
+    fprintf( f, "respuesta: OK\ncantidad: %d\n", cantidad );
+    game_type_end( &games );
+    render_200f( conn, ri, f );
+    close( f );
+    
+}
+
 
 /*
  * En esta accion voy a listar los tipos de juego conocido y voy a
@@ -573,6 +618,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
         case  ACTION_REGISTRA:
             game_controller_registra( conn, ri, s, parm );
             break;
+        case  ACTION_REGISTRACIONES:
+            game_controller_registraciones( conn, ri, s);
+            break;
         case  ACTION_DESREGISTRA:
             game_controller_desregistra( conn, ri, s, parm );
             break;
@@ -588,4 +636,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
         default:
             render_404( conn, ri );
     }
+
 }
+
+/* vi: set cin sw=4: */ 

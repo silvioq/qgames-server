@@ -561,3 +561,52 @@ Partida*  game_partida( Game* g ){
     g->partida = qg_partida_load( tj, g->data, g->data_size );
     return g->partida;
 }
+
+
+/*
+ * Uso del cursor:
+ *
+ *    void * cursor = NULL; // inicializar en nulo
+ *    Game* g; 
+ *    while( game_next( &cursor, &g ) ){
+ *      // do something ...
+ *    }
+ *    game_end( &cursor );
+ * */
+int        game_next( void** cursor, Game** g ){
+
+    void* dbc = (*cursor);
+    if( !dbc ){
+        dbc = dbcur_new( DBGAME ); // OPTIMIZE: Crear un indice por estado del partido
+        *cursor = dbc;
+    }
+
+    void* data;
+    int   size;
+
+    int ret = dbcur_get( dbc, DBNEXT, &data, &size );
+    if( ret == 0 ){
+        if( g ) *g = NULL;
+        return 0;
+    } else if( ret == -1){
+        LOGPRINT( 1, "Error al intentar leer data %s", dbget_lasterror() );
+        if( g ) *g = NULL;
+        return 0;
+    }
+    Game* game_temp = bin_to_game( data, size );
+    if( game_temp ){
+        if( g ) *g = game_temp;
+        return 1;
+    }
+
+    if( g ) *g = NULL;
+    return 0;
+}
+
+/*
+ * Finaliza el cursor
+ * */
+int        game_end( void** cursor ){
+    dbcur_end( *cursor );
+}
+/* vi: set cin sw=4: */ 

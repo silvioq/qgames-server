@@ -72,6 +72,21 @@ int     game_save( Game* game );
 int     game_del( Game* game );
 Game*   game_new( char* id, User* user, GameType* type, time_t created_at );
 
+/*
+ * Uso del cursor:
+ *
+ *    void * cursor = NULL; // inicializar en nulo
+ *    Game* g; 
+ *    while( game_next( &cursor, &g ) ){
+ *      // do something ...
+ *    }
+ *    game_end( &cursor );
+ * */
+int   game_next( void** cursor, Game** g );
+int   game_end( void** cursor );
+
+
+
 
 GameType*  game_type_by_name( char* name );
 GameType*  game_type_new( char* name, time_t created_at );
