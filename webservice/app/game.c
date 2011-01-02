@@ -152,14 +152,51 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
     FILE* f = tmpfile( );
     print_game_data( g, p, f );
     
-    int pie = qg_partida_tablero_count( p );
+    int pie = qg_partida_tablero_count( p, LAST_MOVE );
     fprintf( f, "total: %d\npiezas:\n", pie );
     for( i = 0; i < pie; i ++ ){
         char* casillero; char* tipo; char* color;
-        qg_partida_tablero_data( p, i, &casillero, &tipo, &color );
+        qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
         fprintf( f, "- casillero: %s\n", casillero );
         fprintf( f, "  tipo: %s\n", tipo );
         fprintf( f, "  color: %s\n", color );
+    }
+    render_200f( conn, ri, f );
+    fclose( f );
+
+}
+
+static void  game_controller_historial( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+    render_500( conn, ri, "Implementacion pendiente" );
+    return;
+    Game*  g = game_load( id );
+    if( !g ){
+        render_404( conn, ri );
+        return;
+    }
+    if( !game_check_user( g, session_user( s ) ) ){
+        render_500( conn, ri, "Usuario no autorizado" );
+        game_free( g );
+        return;
+    }
+    Partida* p = game_partida( g );
+    if( !save_game_if_not_calculed( g, p ) ){
+        render_500( conn, ri, "Error al intentar recalcular partida" );
+        return;
+    }
+    int i;
+    FILE* f = tmpfile( );
+    print_game_data( g, p, f );
+    
+    fprintf( f, "tablero_inicial:\n" );
+    i = 0;
+    while( true ){
+        char* casillero; char* tipo; char* color;
+        if( !qg_partida_tablero_data( p, 0, i, &casillero, &tipo, &color ) ) break;
+        fprintf( f, "- casillero: %s\n", casillero );
+        fprintf( f, "  tipo: %s\n", tipo );
+        fprintf( f, "  color: %s\n", color );
+        i ++;
     }
     render_200f( conn, ri, f );
     fclose( f );
@@ -608,6 +645,9 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             break;
         case  ACTION_TABLERO:
             game_controller_tablero( conn, ri, s, parm );
+            break;
+        case  ACTION_HISTORIAL:
+            game_controller_historial( conn, ri, s, parm );
             break;
         case  ACTION_POSIBLES:
             game_controller_posibles( conn, ri, s, parm );

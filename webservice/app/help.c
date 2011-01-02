@@ -39,6 +39,7 @@ void help_controller( struct mg_connection* conn, const struct mg_request_info* 
     fprintf( f, "respuesta: OK\ncomandos:\n" );
     fprintf( f, "  \"/login\": Envio de informacion de login (por POST)\n" );
     fprintf( f, "  \"/{sesion}/crea/{tipojuego}\": Crea un nuevo tipo de juego\n" );
+    fprintf( f, "  \"/{sesion}/historial/{idjuego}\": Historial de movidas\n" );
     fprintf( f, "  \"/{sesion}/lista\": Lista los juegos activos\n" );
     fprintf( f, "  \"/{sesion}/tablero/{idjuego}\": Detalle del tablero\n" );
     fprintf( f, "  \"/{sesion}/posibles/{idjuego}\": Detalle del tablero y movidas posibles\n" );

@@ -86,15 +86,26 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            route_action     = ACTION_CREA;
                            BEGIN( check_param );
                          }
-
+<with_session>\/historial\/ { 
+                           route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_HISTORIAL;
+                           BEGIN( check_param );
+                        }
 <with_session>\/lista\/    { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;
                            BEGIN( check_param );
                         }
-
 <with_session>\/lista    { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;
                         }
+<with_session>\/move\/   { route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_MUEVE;
+                           BEGIN( check_gameid );
+                         }
+<with_session>\/mueve\/  { route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_MUEVE;
+                           BEGIN( check_gameid );
+                         }
 
 <with_session>\/tablero\/ { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TABLERO;
@@ -106,14 +117,6 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            BEGIN( check_gameid );
                          }
 
-<with_session>\/mueve\/  { route_controller = CONTROLLER_GAME;
-                           route_action     = ACTION_MUEVE;
-                           BEGIN( check_gameid );
-                         }
-<with_session>\/move\/   { route_controller = CONTROLLER_GAME;
-                           route_action     = ACTION_MUEVE;
-                           BEGIN( check_gameid );
-                         }
 <with_session>\/registra\/ { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_REGISTRA;
                            BEGIN( check_gameid );
