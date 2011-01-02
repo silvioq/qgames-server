@@ -111,10 +111,13 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
     }
     dbact_sync();
 
-    char buff[1024];
-    sprintf( buff, "respuesta: OK\ngame_id: %s\nsesion: %.32s\n", 
-              g->id, s->id );
-    render_200( conn, ri, buff );
+    FILE* f = tmpfile( );
+    g = game_load( g->id );   // FIXME: Es necesario volver a leer. Corregir la funcion game_save para
+                              //        que quede como corresponde
+    Partida* p = game_partida( g );
+    print_game_data( g, p, f );
+    render_200f( conn, ri, f );
+    fclose( f );
     
 }
 

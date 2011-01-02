@@ -45,7 +45,7 @@ fi
 output=`curl -f "http://localhost:8080/$sess/crea/Ajedrez" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret - crea"
     kill -2 $PID
     exit 1;
 fi
@@ -63,7 +63,7 @@ fi
 output=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret - tablero"
     kill -2 $PID
     exit 1;
 fi
