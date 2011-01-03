@@ -89,7 +89,7 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 <with_session>\/historial\/ { 
                            route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_HISTORIAL;
-                           BEGIN( check_param );
+                           BEGIN( check_gameid );
                         }
 <with_session>\/lista\/    { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;

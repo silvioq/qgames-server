@@ -167,10 +167,10 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
 }
 
 static void  game_controller_historial( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
-    render_500( conn, ri, "Implementacion pendiente" );
-    return;
     Game*  g = game_load( id );
+    Movdata movd;
     if( !g ){
+        LOGPRINT( 2, "Juego no encontrado (raro) %s", id );
         render_404( conn, ri );
         return;
     }
@@ -198,6 +198,48 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
         fprintf( f, "  color: %s\n", color );
         i ++;
     }
+
+
+    i = 0;
+    while( qg_partida_movhist_data( p, i, &movd ) ){
+        if( i == 0 ){
+            fprintf( f, "movidas:\n" );
+        }
+        fprintf( f, "- numero: %d\n", movd.numero );
+        fprintf( f, "  descripcion: %s\n", movd.descripcion );
+        fprintf( f, "  pieza: %s\n", movd.pieza );
+        fprintf( f, "  color: %s\n", movd.color );
+        if( movd.captura ){
+            fprintf( f, "  es_captura: 1\n" );
+            fprintf( f, "  captura: %s\n", movd.captura_pieza );
+            fprintf( f, "  captura_cas: %s\n", movd.captura_casillero );
+        }
+        fprintf( f, "  origen: %s\n", ( movd.origen == CASILLERO_POZO ? ":pozo" : movd.origen ) );
+        fprintf( f, "  destino: %s\n", movd.destino );
+        fprintf( f, "  notacion: %s\n", movd.notacion );
+        if( movd.transforma ){
+            fprintf( f, "  transforma_tipo: %s\n", movd.transforma_pieza );
+            fprintf( f, "  transforma_color: %s\n", movd.transforma_color );
+        }
+        if( movd.movida ){
+            fprintf( f, "  detalle:\n" );
+            do{
+                fprintf( f, "  - origen: %s\n", ( movd.movida_origen == CASILLERO_POZO ? ":pozo" : movd.movida_origen ) );
+                fprintf( f, "  - destino: %s\n", ( movd.movida_destino == CASILLERO_POZO ? ":pozo" : movd.movida_destino ) );
+            } while( qg_partida_movdata_nextmov( p, &movd ) );
+        }
+
+        if( movd.crea ){
+            fprintf( f, "  crea: \n" );
+            do {
+                fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", 
+                        movd.crea_pieza, movd.crea_casillero, movd.crea_color );
+            } while( qg_partida_movdata_nextcrea( p, &movd ) );
+        }
+        i ++;
+
+    }
+
     render_200f( conn, ri, f );
     fclose( f );
 

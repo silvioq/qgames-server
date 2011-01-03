@@ -3798,7 +3798,7 @@ YY_RULE_SETUP
 { 
                            route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_HISTORIAL;
-                           BEGIN( check_param );
+                           BEGIN( check_gameid );
                         }
 	YY_BREAK
 case 6:

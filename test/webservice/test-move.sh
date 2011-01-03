@@ -141,5 +141,31 @@ if [ $ret == 0 ]; then
   exit 1;
 fi
 
+# Vamos a intentar leer la informacion de ese partido que creamos
+output=`curl -f "http://localhost:8080/$sess/historial/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret - historial $output"
+    kill -2 $PID
+    exit 1;
+fi
+
+output=`curl -f  "http://localhost:8080/$sess/mueve/$game" -d "m=d5"  --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+  echo "Error: $output"
+  kill -2 $PID
+  exit 1;
+fi
+
+
+output=`curl -f "http://localhost:8080/$sess/historial/$game" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret - historial $output 2"
+    kill -2 $PID
+    exit 1;
+fi
+
 kill -2 $PID
 exit 0
