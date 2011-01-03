@@ -284,23 +284,21 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     int pie = qg_partida_movidas_count( p );
     fprintf( f, "total: %d\nmovidas:\n", pie );
     for( i = 0; i < pie; i ++ ){
-        char* notacion; 
+        Movdata movd;
         int cap = 0;
-        char* pieza, * casillero, * color, * destino;
-        char* ttipo, * tcolor;
-        qg_partida_movidas_data( p, i, &notacion );
-        fprintf( f, "- numero: %d\n  notacion: %s\n", i, notacion );
-
-        if( qg_partida_movidas_pieza( p, i, &casillero, &pieza, &color, &destino, &ttipo, &tcolor ) ){
+        if( qg_partida_movidas_data( p, i, &movd ) ){
+            fprintf( f, "- numero: %d\n  notacion: %s\n", i, movd.notacion );
             fprintf( f, "  pieza: %s\n  color: %s\n  origen: %s\n  destino: %s\n",
-                      pieza, color, 
-                      casillero == CASILLERO_POZO ? ":pozo" : casillero,
-                      destino );
-            if( ttipo ){
-                fprintf( f, "  transforma_tipo: %s\n  transforma_color: %s\n", ttipo, tcolor );
+                      movd.pieza, movd.color, 
+                      movd.origen == CASILLERO_POZO ? ":pozo" : movd.origen,
+                      movd.destino );
+            if( movd.transforma ){
+                fprintf( f, "  transforma_tipo: %s\n  transforma_color: %s\n", 
+                        movd.transforma_pieza, movd.transforma_color );
             }
         }
 
+        char* casillero, *pieza, *color;
         while( qg_partida_movidas_capturas( p, i, cap, &casillero, &pieza, &color ) ){
             if( cap == 0 ) fprintf(f, "  es_captura: 1\n  captura:\n" );
             fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", pieza, casillero, color );
