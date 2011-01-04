@@ -27,7 +27,7 @@
 #include  "log.h"
 #include  "dbmanager.h"
 
-int   init_webservice( int port );
+int   init_webservice( int port, int max_threads );
 static void  trap(int a){
     LOGPRINT( 5, "Cerrando aplicacion %d", a );
     dbact_sync( );
@@ -38,7 +38,7 @@ static void  trap(int a){
 void usage(char* prg){
 
     puts( "Uso:" );
-    printf( "  %s [-vh] [-p port] [-d database_file]\n", prg );
+    printf( "  %s [-vh] [-p port] [-w worker_threads (experimental)] [-d database_file]\n", prg );
 }
 
 int main( int argc, char** argv ){
@@ -46,12 +46,20 @@ int main( int argc, char** argv ){
     loglevel = 2;
     int opt;
     int port = 8080;
+    int maxt = 1;
     char* db = "qgserver.db";
 
-    while(( opt = getopt( argc, argv, "hp:vd:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hp:vd:w:" )) != -1 ){
         switch(opt){
             case 'd':
                 db = optarg;
+                break;
+            case 'w':
+                maxt = atoi(optarg);
+                if( !maxt ){
+                    usage( argv[0] );
+                    exit( EXIT_FAILURE );
+                }
                 break;
             case 'v':
                 loglevel = 5;
@@ -76,7 +84,7 @@ int main( int argc, char** argv ){
     }
 
     dbset_file( db );
-    init_webservice( port );
+    init_webservice( port, maxt );
 
     signal( SIGTERM, trap );
     signal( SIGINT, trap );

@@ -166,7 +166,7 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
                 game_controller( conn, ri, s, route_action, route_param );
                 break;
             case  CONTROLLER_HELP:
-                help_controller( conn, ri, route_action, route_param );
+                help_controller( conn, ri, route_action, route_format );
                 break;
             default:
                 LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
@@ -183,13 +183,17 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 
 
 
-int   init_webservice( int port ){
+int   init_webservice( int port, int maxthreads ){
     struct mg_context *ctx;
     ctx = mg_start();
-    char puerto[1024];
+    char puerto[32];
+    char maxth[32];
     sprintf( puerto, "%d", port );
+    sprintf( maxth, "%d", maxthreads );
     mg_set_option(ctx, "ports", puerto);
-    mg_set_option(ctx, "max_threads","1" );  // FIXME: Deberia poder manejar multiples threads.
+    mg_set_option(ctx, "max_threads", maxth ); 
+    LOGPRINT( 5, "port => %s", puerto );
+    LOGPRINT( 5, "max_threads => %s", maxth );
     mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
 
     // Verifico los juegos que hay disponibles
