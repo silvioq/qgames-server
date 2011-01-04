@@ -23,6 +23,8 @@
 
 #ifndef  SESSION_H
 
+#define  SESSION_FLAGUSERID  2
+
 typedef  struct  StrSession{
     char      id[32];
     
@@ -30,6 +32,8 @@ typedef  struct  StrSession{
     time_t    last_seen_at;
     unsigned int  user_id;
     User*         user;
+
+    int       flags;
 
 } Session;
 

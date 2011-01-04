@@ -60,7 +60,6 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
                     render_500( conn, ri, "Error al grabar sesion en " __FILE__ ":" QUOTEME(__LINE__) );
                 }
                 session_free( s );
-                
             } else {
                 render_400( conn, ri, "Usuario o password incorrecta" );
             }

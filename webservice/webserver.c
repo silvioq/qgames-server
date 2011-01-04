@@ -151,6 +151,7 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         if( route_session[0] ){
             s = session_load( route_session );
             if( !s || session_defeated( s ) ){
+                if( s ) session_free( s );
                 render_403( conn, ri );
                 return ;
             }
@@ -160,18 +161,22 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         switch(route_controller){
             case CONTROLLER_LOGIN:
                 login_controller( conn, ri );
-                return;
+                break;
             case  CONTROLLER_GAME:
                 game_controller( conn, ri, s, route_action, route_param );
-                return;
+                break;
             case  CONTROLLER_HELP:
                 help_controller( conn, ri, route_action, route_param );
-                return;
+                break;
+            default:
+                LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
+                render_404( conn, ri );
         }
+        if( s ) session_free( s );
     } else {
+        LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
+        render_404( conn, ri );
     }
-    LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
-    render_404( conn, ri );
     return;
 
 }

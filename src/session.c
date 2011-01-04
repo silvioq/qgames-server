@@ -107,6 +107,7 @@ Session*  session_new( User* user ){
 
 
 void      session_free( Session* s ){
+    if( s->user && ( s->flags & SESSION_FLAGUSERID ) ) user_free( s->user );
     free( s );
 }
 
@@ -141,6 +142,7 @@ int      session_save( Session* s ){
         return 0;
     } 
     LOGPRINT( 5, "Sesion %s salvada", session_id( s ) );
+    free( data );
     return 1;
 }
 
@@ -179,6 +181,7 @@ User*     session_user( Session* s ){
     if( s->user ) return s->user;
     if( s->user_id ){
         s->user = user_load( s->user_id );
+        s->flags |= SESSION_FLAGUSERID;
         return s->user;
     }
     return NULL;

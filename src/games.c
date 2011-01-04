@@ -241,6 +241,7 @@ int        game_type_discover( ){
             return 0;
         }
     }
+    closedir( d );
     return 1;
 
     
@@ -343,11 +344,8 @@ Tipojuego*  game_type_tipojuego( GameType* gt ){
  *
  * */
 void  game_set_partida( Game* g, Partida* p ){
-    void* data;
-    int   size;
-    qg_partida_dump( p, &data, &size );
-    game_set_data( g, data, size );
-    g->partida = p;
+    if( g->data ) free( g->data );
+    qg_partida_dump( p, &g->data, &g->data_size );
 }
 
 
@@ -477,6 +475,7 @@ int  game_save( Game* g ){
         LOGPRINT( 1, "Error serializando juego %s", g->id );
         return 0;
     }
+    free( data );
     return 1;
 
 }

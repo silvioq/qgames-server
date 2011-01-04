@@ -122,12 +122,15 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
     dbact_sync();
 
     FILE* f = tmpfile( );
-    g = game_load( g->id );   // FIXME: Es necesario volver a leer. Corregir la funcion game_save para
-                              //        que quede como corresponde
+    Game* g2 = game_load( g->id );   // FIXME: Es necesario volver a leer. Corregir la funcion game_save para
+                                     //        que quede como corresponde
+    game_free( g );
+    g = g2;    
     Partida* p = game_partida( g );
     print_game_data( g, p, f );
     render_200f( conn, ri, f );
     fclose( f );
+    game_free( g );
     
 }
 
@@ -162,6 +165,7 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         fprintf( f, "  color: %s\n", color );
     }
     render_200f( conn, ri, f );
+    game_free( g );
     fclose( f );
 
 }
@@ -259,11 +263,13 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
+        free( move );
         return;
     }
     if( !game_check_user( g, session_user( s ) ) ){
         render_500( conn, ri, "Usuario no autorizado" );
         game_free( g );
+        free( move );
         return;
     }
     Partida* p = game_partida( g );
@@ -271,15 +277,18 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
         int move_number = atoi( move );
         if( !qg_partida_mover( p, move_number ) ){
             render_400( conn, ri, "Movida incorrecta" );
+            free( move );
             return;
         }
     } else {
         if( !qg_partida_movida_valida( p, move ) ){
             render_400( conn, ri, "Movida invalida" );
+            free( move );
             return;
         }
         if( !qg_partida_mover_notacion( p, move ) ){
             render_400( conn, ri, "Movida notada incorrecta" );
+            free( move );
             return;
         }
     }
@@ -289,9 +298,12 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     if(!game_save( g ) ){
         render_400( conn, ri, "Error al guardar partida" );
     } else {
+        dbact_sync();
         render_200f( conn, ri, f );
     }
     fclose( f );
+    free( move );
+    game_free( g );
 }
 
 
@@ -314,6 +326,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     Partida* p = game_partida( g );
     if( !save_game_if_not_calculed( g, p ) ){
         render_500( conn, ri, "Error al intentar recalcular partida" );
+        game_free( g );
         return;
     }
 
@@ -355,6 +368,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     }
     render_200f( conn, ri, f );
     fclose( f );
+    game_free( g );
 
 }
 
@@ -649,9 +663,13 @@ static void  game_controller_imagen( struct mg_connection* conn, const struct mg
 
     if( v = mg_get_var( conn, "n" )){
         move_number = atol( v );
+        free( v );
     }
   
-    if( v = mg_get_var( conn, "r" )) flags |= GETPNG_ROTADO;
+    if( v = mg_get_var( conn, "r" )){
+        flags |= GETPNG_ROTADO;
+        free( v );
+    }
 
     int size = qg_partida_get_png( game_partida( g ), flags, move_number, &png );
     if( !size ){
