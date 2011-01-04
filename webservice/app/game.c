@@ -71,7 +71,7 @@ static  void  print_game_data_prefix( Game* g, Partida* p, FILE* f, int spaces )
     movidas = qg_partida_movhist_count( p );
     fprintf( f, "%scantidad_movidas: %d\n", prefix, movidas );
     qg_partida_final( p, &res );
-    fprintf( f, "%sdescripcion_estado: %s\n", prefix, res );
+    fprintf( f, "%sdescripcion_estado: %s\n", prefix, res ? res : "Jugando" );
     fprintf( f, "%ses_continuacion: %s\n", prefix, qg_partida_es_continuacion( p ) ? "true" : "false" );
     i = 0;
     if( movidas > 0 ){
@@ -201,10 +201,8 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
 
 
     i = 0;
+    fprintf( f, "movidas:\n" );
     while( qg_partida_movhist_data( p, i, &movd ) ){
-        if( i == 0 ){
-            fprintf( f, "movidas:\n" );
-        }
         fprintf( f, "- numero: %d\n", movd.numero );
         fprintf( f, "  descripcion: %s\n", movd.descripcion );
         fprintf( f, "  pieza: %s\n", movd.pieza );
@@ -328,7 +326,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     for( i = 0; i < pie; i ++ ){
         Movdata movd;
         if( qg_partida_movidas_data( p, i, &movd ) ){
-            fprintf( f, "- numero: %d\n  notacion: %s\n", i, movd.notacion );
+            fprintf( f, "- numero: %d\n  notacion: %s\n  descripcion: %s\n", i, movd.notacion, movd.descripcion );
             fprintf( f, "  pieza: %s\n  color: %s\n  origen: %s\n  destino: %s\n",
                       movd.pieza, movd.color, 
                       movd.origen == CASILLERO_POZO ? ":pozo" : movd.origen,
