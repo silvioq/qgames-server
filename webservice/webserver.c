@@ -190,7 +190,11 @@ int   init_webservice( int port, int maxthreads ){
     char maxth[32];
     sprintf( puerto, "%d", port );
     sprintf( maxth, "%d", maxthreads );
-    mg_set_option(ctx, "ports", puerto);
+    if( !mg_set_option(ctx, "ports", puerto) ){
+        LOGPRINT( 1, "No puede establecerse el puerto %d", port );
+        mg_stop( ctx );
+        return 0;
+    };
     mg_set_option(ctx, "max_threads", maxth ); 
     LOGPRINT( 5, "port => %s", puerto );
     LOGPRINT( 5, "max_threads => %s", maxth );
@@ -198,5 +202,6 @@ int   init_webservice( int port, int maxthreads ){
 
     // Verifico los juegos que hay disponibles
     game_type_discover();
+    return 1;
 }
 

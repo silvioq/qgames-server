@@ -84,11 +84,12 @@ int main( int argc, char** argv ){
     }
 
     dbset_file( db );
-    init_webservice( port, maxt );
+    if( init_webservice( port, maxt ) ){
 
-    signal( SIGTERM, trap );
-    signal( SIGINT, trap );
+        signal( SIGTERM, trap );
+        signal( SIGINT, trap );
 
-    while( 1 ){ sleep( 10 ); }
-    exit( EXIT_SUCCESS );
+        while( 1 ){ sleep( 10 ); }
+        exit( EXIT_SUCCESS );
+    } else exit( EXIT_FAILURE );
 }
