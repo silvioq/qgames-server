@@ -159,11 +159,19 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
     print_game_data( g, p, f );
     
     int pie = qg_partida_tablero_count( p, LAST_MOVE );
+    int cap = qg_partida_tablero_countcap( p, LAST_MOVE );
     fprintf( f, "total: %d\npiezas:\n", pie );
     for( i = 0; i < pie; i ++ ){
         char* casillero; char* tipo; char* color;
         qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
         fprintf( f, "- casillero: %s\n", casillero );
+        fprintf( f, "  tipo: %s\n", tipo );
+        fprintf( f, "  color: %s\n", color );
+    }
+    for( i = 0; i < cap; i ++ ){
+        char* tipo; char* color;
+        qg_partida_tablero_datacap( p, LAST_MOVE, i, &tipo, &color );
+        fprintf( f, "- casillero: :captured\n" );
         fprintf( f, "  tipo: %s\n", tipo );
         fprintf( f, "  color: %s\n", color );
     }
