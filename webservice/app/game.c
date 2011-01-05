@@ -40,11 +40,14 @@
  * */
 static  int   save_game_if_not_calculed( Game* g, Partida* p ){
     if( qg_partida_movidas_analizadas( p ) ) return 1;
+    char* res;
     qg_partida_movidas_count( p );
     if( qg_partida_movidas_analizadas( p ) ){
         game_set_partida( g, p );
         return game_save( g );
-    } else {
+    } else if( qg_partida_final( p, NULL ) != FINAL_ENJUEGO ){
+        return 1;
+    } else{
         LOGPRINT( 1, "Extrañamente, no se calcularon bien las posiciones %d", 0 );
         return 0;
     }
