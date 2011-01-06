@@ -246,11 +246,15 @@ char*  dbget_lasterror( ){ return db_error; }
 static  int  open_dbs(){
 
     if( db_users ) return 1;
+    pthread_mutex_lock( &update_semaphore );
+    if( db_users ){
+        pthread_mutex_unlock( &update_semaphore );
+        return 1;
+    }
     int ret;
     int flags;
 
     LOGPRINT( 5, "Abriendo bases %s", db_file );
-    pthread_mutex_lock( &update_semaphore );
 
     // creo los espacios de memoria necesarios
     ret = db_create( &db_users, NULL, 0 );

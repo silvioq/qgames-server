@@ -47,7 +47,6 @@ static  GameType** game_types_lista = NULL;
 static  int       game_types_lista_count = 0;
 static  int       game_types_lista_alloc = 0;
 
-static pthread_mutex_t lector_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /*
@@ -319,20 +318,19 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
 }
 
 Tipojuego*  game_type_tipojuego( GameType* gt ){
+    static pthread_mutex_t lector_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock( &lector_mutex );
     if( !gt->tipojuego ){
-        pthread_mutex_lock( &lector_mutex );
+        LOGPRINT( 5, "Intentando leer definiciones de juego %s", gt->nombre );
+        gt->tipojuego = qg_tipojuego_open( gt->nombre );
+        LOGPRINT( 5, "Juego %s %s", gt->nombre, ( gt->tipojuego ? "OK" : "ERROR" )  );
         if( !gt->tipojuego ){
-            LOGPRINT( 5, "Intentando leer definiciones de juego %s", gt->nombre );
-            gt->tipojuego = qg_tipojuego_open( gt->nombre );
-            LOGPRINT( 5, "Juego %s %s", gt->nombre, ( gt->tipojuego ? "OK" : "ERROR" )  );
-            if( !gt->tipojuego ){
-                LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
-                pthread_mutex_unlock( &lector_mutex );
-                return 0;
-            }
+            LOGPRINT( 1, "Error al intentar leer las reglas de %s", gt->nombre );
+            pthread_mutex_unlock( &lector_mutex );
+            return 0;
         }
-        pthread_mutex_unlock( &lector_mutex );
     }
+    pthread_mutex_unlock( &lector_mutex );
     return gt->tipojuego;
     
 }
