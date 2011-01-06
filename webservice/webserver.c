@@ -137,6 +137,8 @@ void render_500(struct mg_connection *conn, const struct mg_request_info *ri, ch
 static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
     char buff[1024];
     int ret;
+    int   my_action, my_format, my_controller;
+    char  my_param[100], my_session[32];
 
     LOGPRINT( 5, "Nueva peticion recibida => %s", ri->uri );
 
@@ -144,12 +146,17 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock( &mutex );
     ret = get_ruta( ri->uri );
+    my_action = route_action;
+    my_format = route_format;
+    my_controller = route_controller;
+    strncpy( my_session, route_session, 32 );
+    strncpy( my_param, route_param, 100 );
     pthread_mutex_unlock( &mutex );
 
     if( ret ){
         Session *s;
-        if( route_session[0] ){
-            s = session_load( route_session );
+        if( my_session && my_session[0] ){
+            s = session_load( my_session );
             if( !s || session_defeated( s ) ){
                 if( s ) session_free( s );
                 render_403( conn, ri );
@@ -158,15 +165,15 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         } else {
             s = NULL;
         }
-        switch(route_controller){
+        switch(my_controller){
             case CONTROLLER_LOGIN:
                 login_controller( conn, ri );
                 break;
             case  CONTROLLER_GAME:
-                game_controller( conn, ri, s, route_action, route_param );
+                game_controller( conn, ri, s, my_action, my_param );
                 break;
             case  CONTROLLER_HELP:
-                help_controller( conn, ri, route_action, route_format );
+                help_controller( conn, ri, my_action, my_format );
                 break;
             default:
                 LOGPRINT( 5, "Ruta incorrecta => %s", ri->uri );
