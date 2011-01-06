@@ -16,6 +16,7 @@ EOF
 ret=$?
 if [ $ret != 0 ]; then
     echo "Error al intentar crear usuario test"
+    wait
     exit 1;
 fi
 
@@ -31,6 +32,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -40,6 +42,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -56,6 +59,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -63,6 +67,7 @@ game=`echo "$output" | grep game_id | cut -d " " -f 2`
 if [ "blank$game" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -74,6 +79,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -81,6 +87,7 @@ ret=`echo "$output" | grep "total:" | cut -f 2 -d " "`
 if [ x$ret != x32 ]; then
     echo  "Estoy esperando 32 piezas y tengo $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
     
@@ -88,6 +95,7 @@ output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
   kill -2 $PID
+    wait
   exit 1;
 fi
 
@@ -103,6 +111,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -112,6 +121,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret en login"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -120,6 +130,7 @@ sess=`echo "$output" | grep sesion | cut -d " " -f 2`
 if [ "blank$sess" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -129,6 +140,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret leyendo tablero"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -138,6 +150,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -147,6 +160,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -156,6 +170,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -167,6 +182,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret al leer partida"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -177,6 +193,7 @@ if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
     rm $tmpfile
+    wait
     exit 1;
 fi
 
@@ -188,6 +205,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -195,6 +213,7 @@ game=`echo "$output" | grep game_id | cut -d " " -f 2`
 if [ "blank$game" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -206,6 +225,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -215,9 +235,11 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret moviendo con test"
     kill -2 $PID
+    wait
     exit 1;
 fi
 # Final del tema
 
 kill -2 $PID
+wait
 exit 0

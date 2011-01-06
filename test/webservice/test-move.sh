@@ -22,6 +22,7 @@ ret=$?
 if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -31,6 +32,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -54,6 +56,7 @@ game=`echo "$output" | grep game_id | cut -d " " -f 2`
 if [ "blank$game" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -65,6 +68,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -101,6 +105,7 @@ ret=$?
 if [ $ret != 0 ]; then
   echo "Error: $output"
   kill -2 $PID
+    wait
   exit 1;
 fi
 
@@ -110,6 +115,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -118,6 +124,7 @@ ret=`echo "$output" | grep "total:" | cut -f 2 -d " "`
 if [ x$ret != x32 ]; then
     echo  "Estoy esperando 32 piezas y tengo $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -128,6 +135,7 @@ for i in a1 b1 c1 d1 e1 f1 f3 h1 a2 b2 c2 d2 e2 f2 g2 h2; do
     echo "Error: $output"
     echo "No se encuentra casillero $i"
     kill -2 $PID
+    wait
     exit 1;
   fi
 done
@@ -138,6 +146,7 @@ ret=$?
 if [ $ret == 0 ]; then
   echo "algo quedo en g1"; echo $output
   kill -2 $PID
+    wait
   exit 1;
 fi
 
@@ -147,6 +156,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret - historial $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -155,6 +165,7 @@ ret=$?
 if [ $ret != 0 ]; then
   echo "Error: $output"
   kill -2 $PID
+    wait
   exit 1;
 fi
 
@@ -164,8 +175,10 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret - historial $output 2"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
 kill -2 $PID
+    wait
 exit 0

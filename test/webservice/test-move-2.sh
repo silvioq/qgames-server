@@ -22,6 +22,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Error 1. Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -29,6 +30,7 @@ sess=`echo "$output" | grep sesion | cut -d " " -f 2`
 if [ "blank$sess" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -38,6 +40,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Error 2. Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -45,6 +48,7 @@ game=`echo "$output" | grep game_id | cut -d " " -f 2`
 if [ "blank$game" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -56,6 +60,7 @@ if [ $ret == 0 ]; then
   echo "$output"
   echo "Debe dar error ya que no se pasaron correctamente los parametros por post"
   kill -2 $PID
+  wait
   exit 1;
 fi
 
@@ -65,6 +70,7 @@ ret=$?
 if [ $ret != 0 ]; then
   echo "Error 1: $output"
   kill -2 $PID
+  wait
   exit 1;
 fi
 
@@ -74,12 +80,13 @@ ret=$?
 if [ $ret != 0 ]; then
   echo "Error 2: $output"
   kill -2 $PID
+  wait
   exit 1;
 fi
 
 # Aca viene la joda. Cierro el servidor y lo vuelvo a abrir
 kill -2 $PID
-sleep 1 # le doy un segundo como para que cierre
+wait
 
 $PATHQS/qgserverd &
 PID=$!
@@ -90,6 +97,7 @@ ret=$?
 if [ $ret != 0 ]; then
   echo "Error 3: $output"
   kill -2 $PID
+  wait
   exit 1;
 fi
 
@@ -98,4 +106,5 @@ fi
 # FIn del test, paro el servidor
 
 kill -2 $PID
+wait
 exit 0

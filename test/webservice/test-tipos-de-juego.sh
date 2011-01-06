@@ -22,6 +22,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -29,6 +30,7 @@ sess=`echo "$output" | grep sesion | cut -d " " -f 2`
 if [ "blank$sess" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -47,6 +49,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret buscando ajedrez"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -56,4 +59,5 @@ fi
 
 
 kill -2 $PID
+wait
 exit 0

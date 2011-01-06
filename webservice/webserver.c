@@ -189,9 +189,9 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
 }
 
 
+static struct mg_context *ctx;
 
 int   init_webservice( int port, int maxthreads ){
-    struct mg_context *ctx;
     game_type_discover();
     ctx = mg_start();
     char puerto[32];
@@ -204,11 +204,15 @@ int   init_webservice( int port, int maxthreads ){
         return 0;
     };
     mg_set_option(ctx, "max_threads", maxth ); 
-    LOGPRINT( 5, "port => %s", puerto );
-    LOGPRINT( 5, "max_threads => %s", maxth );
+    LOGPRINT( 4, "port => %s", puerto );
+    LOGPRINT( 4, "max_threads => %s", maxth );
     mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
 
     // Verifico los juegos que hay disponibles
     return 1;
 }
 
+
+int   stop_webservice( ){
+    mg_stop(ctx);
+}

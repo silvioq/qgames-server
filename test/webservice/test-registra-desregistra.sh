@@ -23,6 +23,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -30,6 +31,7 @@ sess=`echo "$output" | grep sesion | cut -d " " -f 2`
 if [ "blank$sess" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -39,6 +41,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -46,6 +49,7 @@ game=`echo "$output" | grep game_id | cut -d " " -f 2`
 if [ "blank$game" == blank ]; then
     echo  "No encontre juego $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -62,6 +66,7 @@ for i in {0..5}; do
         echo  "Error en interacion $i m=$move"
         curl  "http://localhost:8080/$sess/mueve/$game" -d "m=$move" 
         kill -2 $PID
+        wait
         exit 1;
     fi
 done
@@ -72,6 +77,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -81,6 +87,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -92,6 +99,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret al leer partida"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -103,6 +111,7 @@ if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     rm $tmpfile
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -110,6 +119,7 @@ if [ "$output" != "Partida desregistrada" ]; then
     echo "Esperado Partida desregistrada. Encontrado $output"
     rm $tmpfile
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -120,6 +130,7 @@ if [ $ret != 22 ]; then
     echo "Esperado 22. Encontrado $ret"
     rm $tmpfile
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -130,9 +141,10 @@ if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret al volver a registrar partida"
     kill -2 $PID
     rm $tmpfile
+    wait
     exit 1;
 fi
-    rm $tmpfile
+rm $tmpfile
 
 # Leemos la info de nuestro nuevo juego
 info_mov_new=`curl -f "http://localhost:8080/$sess/posibles/r$game" --stderr /dev/null | sed "s/game_id: r/game_id: /"`
@@ -140,6 +152,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -148,6 +161,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -156,6 +170,7 @@ if [ "$info_mov_new" != "$info_mov_save" ]; then
     echo "$info_mov_new"
     echo "$info_mov_save"
     kill -2 $PID
+    wait
     exit 1;
 fi
     
@@ -164,9 +179,11 @@ if [ "$info_tab_new" != "$info_tab_save" ]; then
     echo "$info_tab_new"
     echo "$info_tab_save"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
 
 kill -2 $PID
+wait
 exit 0

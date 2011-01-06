@@ -22,6 +22,7 @@ ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -29,6 +30,7 @@ sess=`echo "$output" | grep sesion | cut -d " " -f 2`
 if [ "blank$sess" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -39,6 +41,7 @@ for i in Ajedrez Ajedrez Jubilado Gomoku; do
   if [ $ret != 0 ]; then
       echo "Esperado 0. Encontrado $ret - crea"
       kill -2 $PID
+      wait
       exit 1;
   fi
 done
@@ -49,6 +52,7 @@ ret=`echo "$output" | grep "cantidad:" | cut -f 2 -d " "`
 if [ x$ret != x4 ]; then
     echo "Estao esperando 4 partidas y tengo $ret"
     kill -2 $PID
+    wait
     exit 1;
 fi
 
@@ -57,4 +61,5 @@ fi
 
 
 kill -2 $PID
+wait
 exit 0

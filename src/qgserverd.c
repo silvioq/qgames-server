@@ -29,8 +29,9 @@
 
 int   init_webservice( int port, int max_threads );
 static void  trap(int a){
-    LOGPRINT( 5, "Cerrando aplicacion %d", a );
-    dbact_sync( );
+    LOGPRINT( 4, "Cerrando aplicacion %d", a );
+    stop_webservice( );
+    LOGPRINT( 4, "Cerrando bases %d", a );
     dbact_close( );
     exit( 0 );
 }
@@ -43,7 +44,7 @@ void usage(char* prg){
 
 int main( int argc, char** argv ){
 
-    loglevel = 2;
+    loglevel = 4;
     int opt;
     int port = 8080;
     int maxt = 1;
