@@ -427,7 +427,7 @@ static Game* bin_to_game( void* data, int size ){
         g->game_type_id = game_type_id;
         g->user_id      = user_id;
         g->modified_at  = modified_at;
-        game_set_data( g, game_data, game_data_size );
+        if( game_data_size ) game_set_data( g, game_data, game_data_size );
         return g;
     } else return NULL;
 
