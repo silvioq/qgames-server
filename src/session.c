@@ -70,7 +70,8 @@ static  void session_generar_id( char id[32] ){
  * */
 static int  session_to_bin( Session* s, void** data ){
     int  size;
-    if( binary_pack( "bill", data, &size, s->id, sizeof( s->id ), s->user_id, s->created_at, s->last_seen_at ) ){
+    if( binary_pack( "billl", data, &size, s->id, sizeof( s->id ), s->user_id, 
+                              s->created_at, s->last_seen_at, s->closed_at ) ){
         return size;
     } else return 0;
 }
@@ -79,12 +80,13 @@ static Session*  bin_to_session( void* data, int size ){
     char* id;
     unsigned int user_id;
     time_t  created_at;
-    time_t  last_seen_at;
-    if( binary_unpack( "bill", data, size, &id, NULL, &user_id, &created_at, &last_seen_at ) ){
+    time_t  last_seen_at, closed_at;
+    if( binary_unpack( "billl", data, size, &id, NULL, &user_id, &created_at, &last_seen_at, &closed_at ) ){
         Session * s = session_new( NULL );
         memcpy( s->id, id, 32 );
         s->user_id = user_id;
         s->created_at = created_at;
+        s->closed_at = closed_at;
         s->last_seen_at = last_seen_at;
         return s;
     } else return NULL;
@@ -135,6 +137,7 @@ int      session_save( Session* s ){
     if( size ){
         if( !dbput_data( DBSESSION, s->id, 32, data, size ) ){
             LOGPRINT( 1, "Error salvando session %s", dbget_lasterror() );
+            free( data );
             return 0;
         }
     } else {
@@ -144,6 +147,19 @@ int      session_save( Session* s ){
     LOGPRINT( 5, "Sesion %s salvada", session_id( s ) );
     free( data );
     return 1;
+}
+
+int   session_del( Session* s ){
+    if( s->id[0] == 0 ){
+        LOGPRINT( 2, "Sesion que intenta borrar no tiene id %p", s );
+        return 0;
+    }
+    if( !dbdel_data( DBSESSION, s->id, 32 ) ){
+        LOGPRINT( 1, "Error borrando session %s %s", session_id(s), dbget_lasterror() );
+        return 0;
+    }
+    return 1;
+    
 }
 
 
@@ -187,12 +203,25 @@ User*     session_user( Session* s ){
     return NULL;
 }
 
+
+/*
+ * Cierra la sesion (y nunca mas la podras usar!)
+ * */
+
+int      session_close( Session* s ){
+    struct timeval tv;
+    gettimeofday( &tv, NULL );
+    s->closed_at = tv.tv_sec;
+    return session_save( s );
+}
+
 /*
  * Sesion vencida
  * */
 
 int       session_defeated( Session* s ){
     struct timeval tv;
+    if( s->closed_at ) return 1;
     gettimeofday( &tv, NULL );
     return( s->last_seen_at + SESSION_TIMEOUT < tv.tv_sec );
     

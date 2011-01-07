@@ -38,13 +38,14 @@
  * Segundo, devuelvo una nueva sesion
  * */
 
-void login_controller(struct mg_connection *conn, const struct mg_request_info *ri){
-    char* user = mg_get_var( conn, "user" );
-    char* pass = mg_get_var( conn, "pass" );
+static void login(struct mg_connection *conn, const struct mg_request_info *ri){
     if( strcmp( ri->request_method, "POST" ) != 0 ){
         render_400( conn, ri, "Debe enviar login por POST" );
         return;
     }
+    char* user = mg_get_var( conn, "user" );
+    char* pass = mg_get_var( conn, "pass" );
+
     if( user && pass ){
         User* u = user_find_by_code( user );
         if( !u ){
@@ -72,4 +73,25 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
     if( pass ) mg_free( pass );
     dbact_sync();
     return;
+}
+
+static void logout(struct mg_connection *conn, const struct mg_request_info *ri, Session* s){
+    session_close( s );
+    render_200( conn, ri, "sesion cerrada" );
+}
+
+void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session *s, int action, int format){
+    switch( action ){
+        case ACTION_LOGIN:
+            login( conn, ri );
+            break;
+        case ACTION_LOGOUT:
+            logout( conn, ri, s );
+            break;
+        case ACTION_PING:
+            render_200( conn, ri, "pong" );
+            break;
+        default:
+            render_404( conn, ri );
+    }
 }

@@ -289,17 +289,20 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
         if( !qg_partida_mover( p, move_number ) ){
             render_400( conn, ri, "Movida incorrecta" );
             free( move );
+            game_free( g );
             return;
         }
     } else {
         if( !qg_partida_movida_valida( p, move ) ){
             render_400( conn, ri, "Movida invalida" );
             free( move );
+            game_free( g );
             return;
         }
         if( !qg_partida_mover_notacion( p, move ) ){
             render_400( conn, ri, "Movida notada incorrecta" );
             free( move );
+            game_free( g );
             return;
         }
     }

@@ -167,7 +167,7 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
         }
         switch(my_controller){
             case CONTROLLER_LOGIN:
-                login_controller( conn, ri );
+                login_controller( conn, ri, s, my_action, my_format );
                 break;
             case  CONTROLLER_GAME:
                 game_controller( conn, ri, s, my_action, my_param );

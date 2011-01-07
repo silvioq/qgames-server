@@ -25,8 +25,6 @@
 #define  WEBSERVER_H
 
 
-void login_controller(struct mg_connection *conn, const struct mg_request_info *ri);
-void login_view_xml( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
 #define  FORMAT_YAML         1
 #define  FORMAT_HTML         2
@@ -41,6 +39,8 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 #define  CONTROLLER_HELP     3
 
 #define  ACTION_LOGIN        1
+#define  ACTION_LOGOUT       2
+#define  ACTION_PING         3
 
 #define  ACTION_CREA         1
 #define  ACTION_TABLERO      2
@@ -56,13 +56,9 @@ void login_view_xml( struct mg_connection *conn, const struct mg_request_info* r
 
 #define  ACTION_INDEX        1
 
+void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session* s, int action, int format );
 void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm );
 void help_controller( struct mg_connection* conn, const struct mg_request_info* ri, int action, int format );
-
-
-
-void list_controller( struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
-void list_view_xml(  struct mg_connection *conn, const struct mg_request_info* ri, Session* s );
 
 void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);

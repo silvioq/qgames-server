@@ -28,8 +28,9 @@
 typedef  struct  StrSession{
     char      id[32];
     
-    time_t    created_at;
-    time_t    last_seen_at;
+    time_t        created_at;
+    time_t        last_seen_at;
+    time_t        closed_at;
     unsigned int  user_id;
     User*         user;
 
@@ -46,8 +47,10 @@ typedef  struct  StrSession{
 Session*  session_new( User* user );
 Session*  session_load( char id[32] );
 int       session_save( Session* s );
+int       session_del( Session* s );
 void      session_free( Session* s );
 User*     session_user( Session* s );
+int       session_close( Session* s );
 int       session_defeated( Session* s );
 
 #endif

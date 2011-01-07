@@ -68,19 +68,27 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 
 %%
 
-<INITIAL>\/login         { route_controller = CONTROLLER_LOGIN; 
-                           route_action     = ACTION_LOGIN;
-                           BEGIN(format);
-                         }
-<INITIAL>\/help          { route_controller = CONTROLLER_HELP;
-                           route_action     = ACTION_INDEX;
-                           BEGIN(format);
-                         }
 <INITIAL>\/{SESION}      { strncpy( route_session, yytext + 1, 32 ); 
                            route_session[32] = 0;
                            BEGIN( with_session );
                          }
 
+<INITIAL>\/login         { route_controller = CONTROLLER_LOGIN; 
+                           route_action     = ACTION_LOGIN;
+                           BEGIN(format);
+                         }
+<with_session>\/logout  {  route_controller = CONTROLLER_LOGIN;
+                          route_action  = ACTION_LOGOUT;
+                        }
+<INITIAL>\/ping          { route_controller = CONTROLLER_LOGIN;
+                           route_action     = ACTION_PING;
+                           BEGIN(format);
+                         }
+
+<INITIAL>\/help          { route_controller = CONTROLLER_HELP;
+                           route_action     = ACTION_INDEX;
+                           BEGIN(format);
+                         }
 
 <with_session>\/crea\/   { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_CREA;
@@ -133,7 +141,6 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            route_action     = ACTION_PARTIDA;
                            BEGIN( check_gameid );
                          }
-
 
 
 
