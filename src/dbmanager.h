@@ -45,6 +45,7 @@ int    dbget_user_code( char* code, void** data, int* size );
 void   dbget_stat( );
 void   dbact_close();
 void   dbact_sync();
+void   dbact_verify( );
 int    dbget_version(  );
 char*  dbget_lasterror( );
 

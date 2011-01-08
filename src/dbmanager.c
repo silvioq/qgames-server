@@ -733,6 +733,14 @@ void   dbact_sync(){
     pthread_mutex_unlock( &update_semaphore );
 }
 
+/*
+ * Funcion para hacer un flush de los archivos
+ * */
+void   dbact_verify(){
+    pthread_mutex_lock( &update_semaphore );
+    LOGPRINT( 2, "Not implemented yet %p", dbact_verify );
+    pthread_mutex_unlock( &update_semaphore );
+}
 
 /*
  * Lectura secuencial de una base de datos ...
