@@ -311,7 +311,7 @@ static  int  open_dbs(){
     flags = 0;
     ret = db_users->open( db_users, NULL, db_file, "users", DB_BTREE, flags, 0 );
     if( ret != 0 ){
-        LOGPRINT( 2, "Error abriendo %s users", db_file );
+        LOGPRINT( 2, "Error abriendo %s users (%d - %s)", db_file, ret, db_strerror( ret ) );
         db_error = "Error abriendo users";
         pthread_mutex_unlock( &update_semaphore );
         return 0;

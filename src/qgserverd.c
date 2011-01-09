@@ -33,7 +33,7 @@ static void  trap(int a){
     LOGPRINT( 4, "Cerrando aplicacion %d", a );
     if( closing ){
         LOGPRINT( 4, "App closing", 0 );
-        return 0;
+        return;
     }
     closing = 1;
     stop_webservice( );
@@ -91,10 +91,12 @@ int main( int argc, char** argv ){
     }
 
     dbset_file( db );
+
     if( init_webservice( port, maxt ) ){
 
         signal( SIGTERM, trap );
         signal( SIGINT, trap );
+        signal( SIGSEGV, trap );
 
         while( 1 ){ sleep( 10 ); }
         exit( EXIT_SUCCESS );

@@ -310,6 +310,7 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
     game_set_partida( g, p );
     print_game_data( g, p, f );
     if(!game_save( g ) ){
+        LOGPRINT( 5, "Error de partida!", 0 );
         render_400( conn, ri, "Error al guardar partida" );
     } else {
         dbact_sync();
