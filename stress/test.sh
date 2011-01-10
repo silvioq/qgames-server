@@ -10,12 +10,16 @@ PORT=8015
 
 # Primeramente, cargo una base de datos vacia
 rm $DBFILE
-
 echo "Creando archivo"
 $PATHQS/qgserver-tool -c $DBFILE
 ret=$?
 if [ $ret != 0 ]; then
     exit 1;
+fi
+
+# el directorio de archivos temporales.
+if [ ! -e ./stress/tmp ]; then
+    mkdir  ./stress/tmp
 fi
 
 # Voy a intentar ejecutar el servicio web
@@ -52,17 +56,17 @@ function   juega_hasta_200(){
         printf " $i"
     done
     echo  "Termina $tipojuego => movidas $movidas "
+    exit
 }
 
 waiting=""
 for i in `seq 1 30`; do
-    juega_hasta_200 $i &
+    juega_hasta_200 $i > ./stress/tmp/$i &
     waiting="$waiting $!"
 done
-
 wait  $waiting
 
-echo "Fin de todos los procesos, cancelo"
+echo "Fin de todos los procesos, cancelo $PID"
 kill -2 $PID
 wait
 exit 0
