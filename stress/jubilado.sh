@@ -24,27 +24,11 @@ PID=$!
 
 sleep 1 # le doy un segundo como para que levante
 
-
 # Intento crear un juego de Jubilado
 function  juego_de_jubilado(){
 # Me logoneo bien
     num=$1
-    echo "Login"
-    output=`curl -f "http://localhost:$PORT/login" -d "user=root&pass=root" --stderr /dev/null`
-    ret=$?
-    if [ $ret != 0 ]; then
-        echo "Error en login: Esperado 0. Encontrado $ret"
-        kill -2 $PID
-        wait
-        exit 1;
-    fi
-    
-    sess=`echo "$output" | grep sesion | cut -d " " -f 2`
-    if [ "blank$sess" == blank ]; then
-        echo  "No encontre sesion $output"
-        kill -2 $PID
-        exit 1;
-    fi
+    sess=$(sesslogin)
 
     echo "Creando juego"
     output=`curl -f "http://localhost:$PORT/$sess/crea/Jubilado" --stderr /dev/null`
@@ -106,6 +90,7 @@ for i in `seq 1 30`; do
     waiting="$waiting $!"
 done
 wait $waiting
+
 
 echo "Fin de todos los procesos, cancelo"
 kill -2 $PID
