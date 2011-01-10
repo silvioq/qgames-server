@@ -29,6 +29,7 @@ sess=$(sesslogin)
 
 function   juega_hasta_200(){
     tipojuego=`selecttipojuego`
+    num=$1
     echo $tipojuego
     movidas=200
     game=`creajuego $tipojuego`
@@ -45,7 +46,7 @@ function   juega_hasta_200(){
 
         stat=`statusgame $game`
         if [ "x$stat" != "xJugando" ]; then
-            echo "Termina => Estado $stat ($i)"
+            echo "Termina => Estado $stat (num: $num mov:$i)"
             exit
         fi
         printf " $i"
