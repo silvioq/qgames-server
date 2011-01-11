@@ -24,7 +24,7 @@ fi
 
 # Voy a intentar ejecutar el servicio web
 echo "Iniciando servidor"
-$PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE &
+$PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE > ./stress/tmp/salida.txt &
 PID=$!
 
 sleep 1 # le doy un segundo como para que levante
@@ -59,14 +59,33 @@ function   juega_hasta_200(){
     exit
 }
 
+
+
+function  watch_registraciones(){
+    sleep 1
+    while [ true ]; do 
+        # clear
+        registraciones 
+        sleep 2
+    done
+}
+
+
+
 waiting=""
 for i in `seq 1 30`; do
     juega_hasta_200 $i > ./stress/tmp/$i &
     waiting="$waiting $!"
 done
+
+echo "Inicio registraciones"
+watch_registraciones &
+PIDR=$!
 wait  $waiting
 
-echo "Fin de todos los procesos, cancelo $PID"
+echo "Fin de todos los procesos, cancelo $PID $PIDR"
+kill -9 $PIDR
+wait $PIDR
 kill -2 $PID
 wait
 exit 0

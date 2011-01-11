@@ -107,4 +107,25 @@ function  selecttipojuego(){
     echo "$posibles" | head -n $elegida | tail -n 1
 }
 
+function   registraciones(){
+    output=`curl -f "http://localhost:$PORT/$sess/registraciones" --stderr /dev/null`
+    ret=$?
+    if [ $ret != 0 ]; then
+        echo "Esperado 0. Encontrado $ret"
+        kill -2 $PID
+        exit 1;
+    fi
+    fileT=`echo "$output" | grep tipo_juego | sed s/\\ *tipo_juego:\\ *//g`
+    fileG=`echo "$output" | grep game_id | sed s/\\ *game_id:\\ *//g`
+    fileM=`echo "$output" | grep movidas | sed s/\\ *cantidad_movidas:\\ *//g`
+    fileE=`echo "$output" | grep descripcion_estado | sed s/\\ *descripcion_estado:\\ *//g`
+    
+    echo "$fileT" > /tmp/.filet.$$
+    echo "$fileG" > /tmp/.fileg.$$
+    echo "$fileM" > /tmp/.filem.$$
+    echo "$fileE" > /tmp/.filee.$$
 
+    paste /tmp/.filet.$$ /tmp/.fileg.$$  /tmp/.filem.$$  /tmp/.filee.$$
+    rm /tmp/.filet.$$ /tmp/.fileg.$$  /tmp/.filem.$$  /tmp/.filee.$$
+
+}
