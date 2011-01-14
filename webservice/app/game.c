@@ -160,20 +160,24 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
     
     int pie = qg_partida_tablero_count( p, LAST_MOVE );
     int cap = qg_partida_tablero_countcap( p, LAST_MOVE );
-    fprintf( f, "total: %d\npiezas:\n", pie );
-    for( i = 0; i < pie; i ++ ){
-        char* casillero; char* tipo; char* color;
-        qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
-        fprintf( f, "- casillero: %s\n", casillero );
-        fprintf( f, "  tipo: %s\n", tipo );
-        fprintf( f, "  color: %s\n", color );
-    }
-    for( i = 0; i < cap; i ++ ){
-        char* tipo; char* color;
-        qg_partida_tablero_datacap( p, LAST_MOVE, i, &tipo, &color );
-        fprintf( f, "- casillero: :captured\n" );
-        fprintf( f, "  tipo: %s\n", tipo );
-        fprintf( f, "  color: %s\n", color );
+    if( pie + cap == 0 ){
+        fprintf( f, "total: 0\npiezas: []\n" );
+    } else {
+        fprintf( f, "total: %d\npiezas:\n", pie );
+        for( i = 0; i < pie; i ++ ){
+            char* casillero; char* tipo; char* color;
+            qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
+            fprintf( f, "- casillero: %s\n", casillero );
+            fprintf( f, "  tipo: %s\n", tipo );
+            fprintf( f, "  color: %s\n", color );
+        }
+        for( i = 0; i < cap; i ++ ){
+            char* tipo; char* color;
+            qg_partida_tablero_datacap( p, LAST_MOVE, i, &tipo, &color );
+            fprintf( f, "- casillero: :captured\n" );
+            fprintf( f, "  tipo: %s\n", tipo );
+            fprintf( f, "  color: %s\n", color );
+        }
     }
     render_200f( conn, ri, f );
     game_free( g );
@@ -202,16 +206,20 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
     int i;
     FILE* f = tmpfile( );
     print_game_data( g, p, f );
-    
-    fprintf( f, "tablero_inicial:\n" );
-    i = 0;
-    while( true ){
-        char* casillero; char* tipo; char* color;
-        if( !qg_partida_tablero_data( p, 0, i, &casillero, &tipo, &color ) ) break;
-        fprintf( f, "- casillero: %s\n", casillero );
-        fprintf( f, "  tipo: %s\n", tipo );
-        fprintf( f, "  color: %s\n", color );
-        i ++;
+   
+    if( qg_partida_tablero_count( p, 0 ) == 0 ){
+        fprintf( f, "tablero_inicial: []\n" );
+    } else {
+        fprintf( f, "tablero_inicial:\n" );
+        i = 0;
+        while( true ){
+            char* casillero; char* tipo; char* color;
+            if( !qg_partida_tablero_data( p, 0, i, &casillero, &tipo, &color ) ) break;
+            fprintf( f, "- casillero: %s\n", casillero );
+            fprintf( f, "  tipo: %s\n", tipo );
+            fprintf( f, "  color: %s\n", color );
+            i ++;
+        }
     }
 
 
@@ -227,7 +235,7 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
             fprintf( f, "  captura: %s\n", movd.captura_pieza );
             fprintf( f, "  captura_cas: %s\n", movd.captura_casillero );
         }
-        fprintf( f, "  origen: %s\n", ( movd.origen == CASILLERO_POZO ? ":pozo" : movd.origen ) );
+        fprintf( f, "  origen: %s\n", ( movd.origen == CASILLERO_POZO ? "" : movd.origen ) );
         fprintf( f, "  destino: %s\n", movd.destino );
         fprintf( f, "  notacion: %s\n", movd.notacion );
         if( movd.transforma ){
@@ -237,8 +245,8 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
         if( movd.movida ){
             fprintf( f, "  detalle:\n" );
             do{
-                fprintf( f, "  - origen: %s\n", ( movd.movida_origen == CASILLERO_POZO ? ":pozo" : movd.movida_origen ) );
-                fprintf( f, "  - destino: %s\n", ( movd.movida_destino == CASILLERO_POZO ? ":pozo" : movd.movida_destino ) );
+                fprintf( f, "  - origen: %s\n", ( movd.movida_origen == CASILLERO_POZO ? "" : movd.movida_origen ) );
+                fprintf( f, "  - destino: %s\n", ( movd.movida_destino == CASILLERO_POZO ? "" : movd.movida_destino ) );
             } while( qg_partida_movdata_nextmov( p, &movd ) );
         }
 
@@ -357,7 +365,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
             fprintf( f, "- numero: %d\n  notacion: %s\n  descripcion: %s\n", i, movd.notacion, movd.descripcion );
             fprintf( f, "  pieza: %s\n  color: %s\n  origen: %s\n  destino: %s\n",
                       movd.pieza, movd.color, 
-                      movd.origen == CASILLERO_POZO ? ":pozo" : movd.origen,
+                      movd.origen == CASILLERO_POZO ? "" : movd.origen,
                       movd.destino );
             if( movd.transforma ){
                 fprintf( f, "  transforma_tipo: %s\n  transforma_color: %s\n", 
