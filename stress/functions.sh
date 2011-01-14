@@ -1,14 +1,18 @@
 
+if [ x$HOST == x ]; then
+    $HOST = "localhost";
+fi
+
 function  mueve(){
     move=$1
-    # echo "curl -f  "http://localhost:$PORT/$sess/mueve/$game" --data-urlencode "m=$move"  --stderr /dev/null"
-    output=`curl -f  "http://localhost:$PORT/$sess/mueve/$game" --data-urlencode "m=$move"  --stderr /dev/null`
+    # echo "curl -f  "http://$HOST:$PORT/$sess/mueve/$game" --data-urlencode "m=$move"  --stderr /dev/null"
+    output=`curl -f  "http://$HOST:$PORT/$sess/mueve/$game" --data-urlencode "m=$move"  --stderr /dev/null`
     return $?
 }
 
 
 function   sesslogin(){
-    output=`curl -f "http://localhost:$PORT/login" -d "user=root&pass=root" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/login" -d "user=root&pass=root" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "Error en login: Esperado 0. Encontrado $ret"
@@ -30,7 +34,7 @@ function   sesslogin(){
 
 function creajuego(){
     tipojuego=$1
-    output=`curl -f "http://localhost:$PORT/$sess/crea/$tipojuego" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/$sess/crea/$tipojuego" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "Esperado 0. Encontrado $ret"
@@ -50,7 +54,7 @@ function creajuego(){
 
 function   listaposibles(){
     game=$1
-    output=`curl -f "http://localhost:$PORT/$sess/posibles/$game" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/$sess/posibles/$game" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "Esperado 0. Encontrado $ret"
@@ -63,7 +67,7 @@ function   listaposibles(){
 
 function   statusgame(){
     game=$1
-    output=`curl -f "http://localhost:$PORT/$sess/tablero/$game" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/$sess/tablero/$game" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "statusgame: Esperado 0. Encontrado $ret"
@@ -86,7 +90,7 @@ function   selectposibles(){
 
 
 function   listatipos(){
-    output=`curl -f "http://localhost:$PORT/$sess/lista" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/$sess/lista" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "Esperado 0. Encontrado $ret"
@@ -108,7 +112,7 @@ function  selecttipojuego(){
 }
 
 function   registraciones(){
-    output=`curl -f "http://localhost:$PORT/$sess/registraciones" --stderr /dev/null`
+    output=`curl -f "http://$HOST:$PORT/$sess/registraciones" --stderr /dev/null`
     ret=$?
     if [ $ret != 0 ]; then
         echo "Esperado 0. Encontrado $ret"
