@@ -17,7 +17,7 @@ AC_CONFIG_SRCDIR([configure.ac])
 AC_CHECK_HEADERS([gd.h])
 AC_CHECK_LIB(gd,gdImageCreate)
 AC_CHECK_HEADERS([db.h])
-AC_CHECK_LIB(db,db_create)
+AC_CHECK_LIB(db,db_create,, AC_MSG_ERROR([db berkeley no instalada]))
 
 AC_ARG_WITH([qgames],
     [AC_HELP_STRING([--with-qgames=dir],[Establecer directorio del paquete qgames])],
@@ -31,12 +31,12 @@ qgamesinc=
 # http://gcc.gnu.org/wiki/Regenerating_GCC_Configuration
 AS_IF([test x$with_qgames != xyes],
     [
-qgameslibs="-L$with_qgames/lib"
-QGAMESLIBS=${with_qgames}/lib
+qgameslibs="-L$with_qgames/lib/.libs"
+# QGAMESLIBS=${with_qgames}/lib/.libs
 qgamesinc="-I$with_qgames/include"
 CFLAGS="$CFLAGS $qgamesinc $qgameslibs"
 AC_SUBST(qgameslibs) 
-AC_SUBST(QGAMESLIBS) 
+# AC_SUBST(QGAMESLIBS) 
 AC_SUBST(qgamesinc)
 ])
 

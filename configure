@@ -698,7 +698,6 @@ CPP
 GREP
 EGREP
 qgameslibs
-QGAMESLIBS
 qgamesinc
 LIBOBJS
 LTLIBOBJS'
@@ -4698,6 +4697,10 @@ _ACEOF
 
   LIBS="-ldb $LIBS"
 
+else
+  { { echo "$as_me:$LINENO: error: db berkeley no instalada" >&5
+echo "$as_me: error: db berkeley no instalada" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
@@ -4723,12 +4726,12 @@ qgamesinc=
 # http://gcc.gnu.org/wiki/Regenerating_GCC_Configuration
 if test x$with_qgames != xyes; then
 
-qgameslibs="-L$with_qgames/lib"
-QGAMESLIBS=${with_qgames}/lib
+qgameslibs="-L$with_qgames/lib/.libs"
+# QGAMESLIBS=${with_qgames}/lib/.libs
 qgamesinc="-I$with_qgames/include"
 CFLAGS="$CFLAGS $qgamesinc $qgameslibs"
 
-
+# AC_SUBST(QGAMESLIBS)
 
 
 fi
@@ -6509,13 +6512,12 @@ CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 qgameslibs!$qgameslibs$ac_delim
-QGAMESLIBS!$QGAMESLIBS$ac_delim
 qgamesinc!$qgamesinc$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 87; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 86; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
