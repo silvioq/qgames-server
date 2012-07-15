@@ -24,10 +24,11 @@
 #include  <stdlib.h>
 #include  <unistd.h>
 #include  <signal.h>
+#include  <qgames.h>
 #include  "log.h"
 #include  "dbmanager.h"
 
-int   init_webservice( int port, int max_threads );
+int   init_webservice( char* port, int max_threads );
 static void  trap(int a){
     static int closing = 0;
     LOGPRINT( 4, "Cerrando aplicacion %d", a );
@@ -45,18 +46,19 @@ static void  trap(int a){
 void usage(char* prg){
 
     puts( "Uso:" );
-    printf( "  %s [-vh] [-p port] [-w worker_threads (experimental)] [-d database_file]\n", prg );
+    printf( "  %s [-vh] [-p port|bindaddr:port] [-w worker_threads (experimental)] [-d database_file] [-g gamepath]\n", prg );
 }
 
 int main( int argc, char** argv ){
 
     loglevel = 4;
     int opt;
-    int port = 8080;
+    char* port = "8080";
     int maxt = 1;
     char* db = "qgserver.db";
+    char* path_games = NULL;
 
-    while(( opt = getopt( argc, argv, "hp:vd:w:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hp:vd:w:g:" )) != -1 ){
         switch(opt){
             case 'd':
                 db = optarg;
@@ -72,11 +74,10 @@ int main( int argc, char** argv ){
                 loglevel = 5;
                 break;
             case 'p':
-                port = atoi( optarg );
-                if( !port ){
-                    usage( argv[0] );
-                    exit( EXIT_FAILURE );
-                }
+                port = optarg;
+                break;
+            case 'g':
+                path_games = optarg ;
                 break;
             case 'h':
                 usage(argv[0]);
@@ -91,6 +92,10 @@ int main( int argc, char** argv ){
     }
 
     dbset_file( db );
+    if( path_games ){
+        LOGPRINT( 4, "Path games => %s", path_games );
+        qg_path_set( path_games );
+    }
 
     if( init_webservice( port, maxt ) ){
 
