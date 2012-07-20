@@ -57,6 +57,14 @@ if [ "x$1" == "x-v" ]; then
   echo "$output"
 fi
 
+# Una prueba
+output=`curl -f "http://localhost:8080/$sess/lista/Ajedrez" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret (list)"
+    kill -2 $PID
+    exit 1;
+fi
 
 kill -2 $PID
 wait
