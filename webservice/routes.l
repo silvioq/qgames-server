@@ -77,6 +77,10 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            route_action     = ACTION_LOGIN;
                            BEGIN(format);
                          }
+<INITIAL><<EOF>>         { route_controller = CONTROLLER_LOGIN;
+                           route_action     = ACTION_WELCOME;
+                           yyterminate( );
+                         }
 <with_session>\/logout  {  route_controller = CONTROLLER_LOGIN;
                           route_action  = ACTION_LOGOUT;
                         }

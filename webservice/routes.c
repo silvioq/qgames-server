@@ -3785,16 +3785,23 @@ YY_RULE_SETUP
                            BEGIN(format);
                          }
 	YY_BREAK
+case YY_STATE_EOF(INITIAL):
+#line 80 "routes.l"
+{ route_controller = CONTROLLER_LOGIN;
+                           route_action     = ACTION_WELCOME;
+                           yyterminate( );
+                         }
+	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 80 "routes.l"
+#line 84 "routes.l"
 {  route_controller = CONTROLLER_LOGIN;
                           route_action  = ACTION_LOGOUT;
                         }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 83 "routes.l"
+#line 87 "routes.l"
 { route_controller = CONTROLLER_LOGIN;
                            route_action     = ACTION_PING;
                            BEGIN(format);
@@ -3802,7 +3809,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 88 "routes.l"
+#line 92 "routes.l"
 { route_controller = CONTROLLER_HELP;
                            route_action     = ACTION_INDEX;
                            BEGIN(format);
@@ -3810,7 +3817,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 93 "routes.l"
+#line 97 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_CREA;
                            BEGIN( check_param );
@@ -3818,7 +3825,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 97 "routes.l"
+#line 101 "routes.l"
 { 
                            route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_HISTORIAL;
@@ -3827,7 +3834,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 102 "routes.l"
+#line 106 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;
                            BEGIN( check_param );
@@ -3835,20 +3842,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 106 "routes.l"
+#line 110 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TIPOJUEGOS;
                         }
 	YY_BREAK
 case 10:
-YY_RULE_SETUP
-#line 109 "routes.l"
-{ route_controller = CONTROLLER_GAME;
-                           route_action     = ACTION_MUEVE;
-                           BEGIN( check_gameid );
-                         }
-	YY_BREAK
-case 11:
 YY_RULE_SETUP
 #line 113 "routes.l"
 { route_controller = CONTROLLER_GAME;
@@ -3856,9 +3855,17 @@ YY_RULE_SETUP
                            BEGIN( check_gameid );
                          }
 	YY_BREAK
+case 11:
+YY_RULE_SETUP
+#line 117 "routes.l"
+{ route_controller = CONTROLLER_GAME;
+                           route_action     = ACTION_MUEVE;
+                           BEGIN( check_gameid );
+                         }
+	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 118 "routes.l"
+#line 122 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_TABLERO;
                            BEGIN( check_gameid );
@@ -3866,7 +3873,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 123 "routes.l"
+#line 127 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_POSIBLES;
                            BEGIN( check_gameid );
@@ -3874,7 +3881,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 128 "routes.l"
+#line 132 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_REGISTRA;
                            BEGIN( check_gameid );
@@ -3882,7 +3889,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 132 "routes.l"
+#line 136 "routes.l"
 { 
                            route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_REGISTRACIONES;
@@ -3890,7 +3897,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 136 "routes.l"
+#line 140 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_DESREGISTRA;
                            BEGIN( check_gameid );
@@ -3898,7 +3905,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 140 "routes.l"
+#line 144 "routes.l"
 { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_PARTIDA;
                            BEGIN( check_gameid );
@@ -3906,14 +3913,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 148 "routes.l"
+#line 152 "routes.l"
 { strcpy( route_param, yytext );
                            BEGIN( format );
                          }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 152 "routes.l"
+#line 156 "routes.l"
 { 
                             int i = yyleng - 1; int encontrado = 0;
                             while( i ){
@@ -3931,52 +3938,51 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 166 "routes.l"
+#line 170 "routes.l"
 { strcpy( route_param, yytext );
                          }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 172 "routes.l"
+#line 176 "routes.l"
 { route_format = FORMAT_YAML; } 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 173 "routes.l"
+#line 177 "routes.l"
 { route_format = FORMAT_HTML; } 
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 174 "routes.l"
+#line 178 "routes.l"
 { route_format = FORMAT_JSON; } 
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 175 "routes.l"
+#line 179 "routes.l"
 { route_format = FORMAT_QGAME; } 
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 176 "routes.l"
+#line 180 "routes.l"
 { route_format = FORMAT_PNG; } 
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 177 "routes.l"
+#line 181 "routes.l"
 { route_format = FORMAT_PGN; } 
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 178 "routes.l"
+#line 182 "routes.l"
 { route_format = FORMAT_XML; } 
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 181 "routes.l"
+#line 185 "routes.l"
 ECHO;
 	YY_BREAK
-#line 3979 "routes.c"
-case YY_STATE_EOF(INITIAL):
+#line 3986 "routes.c"
 case YY_STATE_EOF(check_gameid):
 case YY_STATE_EOF(format):
 case YY_STATE_EOF(with_session):
@@ -4863,7 +4869,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 181 "routes.l"
+#line 185 "routes.l"
 
 
 int    get_ruta( char* uri ){

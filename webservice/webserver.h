@@ -41,6 +41,7 @@
 #define  ACTION_LOGIN        1
 #define  ACTION_LOGOUT       2
 #define  ACTION_PING         3
+#define  ACTION_WELCOME      4
 
 #define  ACTION_CREA         1
 #define  ACTION_TABLERO      2
