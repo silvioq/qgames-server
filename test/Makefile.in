@@ -152,7 +152,6 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-QGAMESLIBS = @QGAMESLIBS@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -201,6 +200,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+QGAMESLIBS = @QGAMESLIBS@
 LIB = $(QGAMESLIBS)
 DEPENDENCES = ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
