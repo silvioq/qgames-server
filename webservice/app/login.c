@@ -22,6 +22,7 @@
  ****************************************************************************/
 #include  <string.h>
 #include  <stdio.h>
+#include  <stdlib.h>
 #include  <sys/time.h>
 #include  <time.h>
 #include  <config.h>
@@ -43,8 +44,8 @@ static void login(struct mg_connection *conn, const struct mg_request_info *ri){
         render_400( conn, ri, "Debe enviar login por POST" );
         return;
     }
-    char* user = mg_get_var( conn, "user" );
-    char* pass = mg_get_var( conn, "pass" );
+    char* user = get_var( conn, ri, "user" );
+    char* pass = get_var( conn, ri, "pass" );
 
     if( user && pass ){
         User* u = user_find_by_code( user );
@@ -69,8 +70,8 @@ static void login(struct mg_connection *conn, const struct mg_request_info *ri){
     } else {
         render_400( conn, ri, "Debe enviar usuario y password" );
     }
-    if( user ) mg_free( user );
-    if( pass ) mg_free( pass );
+    if( user ) free( user );
+    if( pass ) free( pass );
     dbact_sync();
     return;
 }

@@ -275,7 +275,7 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
         render_400( conn, ri, "Debe enviar movida (m=xxxx) por POST" );
         return;
     }
-    char* move = mg_get_var( conn, "m" );
+    char* move = get_var( conn, ri, "m" );
     if( !move ){
         render_400( conn, ri, "Debe enviar movida (m=numero de movida)" );
         return;
@@ -414,8 +414,14 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
        }
        game_free( g );
     }
-    char*  game_type = strdup( qg_partida_load_tj( ri->post_data, ri->post_data_len ) );
-    LOGPRINT( 5, "recibo por post %d => %s", ri->post_data_len, game_type );
+    void*  post_data; int post_len;
+    if( !get_post_data( conn, ri, &post_data, &post_len ) ){
+        render_500( conn, ri, "Peticion incorrecta, no puede tomarse datos de metodo POST" );
+        game_free( g );
+        return ;
+    }
+    char*  game_type = strdup( qg_partida_load_tj( post_data, post_len ) );
+    LOGPRINT( 5, "recibo por post %d => %s", post_len, game_type );
     GameType* gt = game_type_share_by_name( game_type );
     if( !gt ){
         LOGPRINT( 2, "Error al intentar encontrar el tipo de juego %s", game_type );
@@ -425,7 +431,7 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
     }
     free( game_type );
 
-    Partida* p = qg_partida_load( gt->tipojuego, ri->post_data, ri->post_data_len );
+    Partida* p = qg_partida_load( gt->tipojuego, post_data, post_len );
     if( !p ){
         render_500( conn, ri, "Error al intentar leer la partida" );
         return;
@@ -685,12 +691,12 @@ static void  game_controller_imagen( struct mg_connection* conn, const struct mg
     int  move_number = LAST_MOVE;
     void* png;
 
-    if( v = mg_get_var( conn, "n" )){
+    if( v = get_var( conn, ri, "n" )){
         move_number = atol( v );
         free( v );
     }
   
-    if( v = mg_get_var( conn, "r" )){
+    if( v = get_var( conn, ri, "r" )){
         flags |= GETPNG_ROTADO;
         free( v );
     }

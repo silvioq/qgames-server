@@ -32,6 +32,10 @@ int   init_webservice( char* port, int max_threads );
 static void  trap(int a){
     static int closing = 0;
     LOGPRINT( 4, "Cerrando aplicacion %d", a );
+    if( a == SIGSEGV ){ 
+        dbact_close( );
+        exit( EXIT_FAILURE );
+    }
     if( closing ){
         LOGPRINT( 4, "App closing", 0 );
         return;
@@ -40,7 +44,7 @@ static void  trap(int a){
     stop_webservice( );
     LOGPRINT( 4, "Cerrando bases %d", a );
     dbact_close( );
-    exit( 0 );
+    exit( EXIT_SUCCESS );
 }
 
 void usage(char* prg){

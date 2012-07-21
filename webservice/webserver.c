@@ -21,6 +21,7 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 #include  <string.h>
+#include  <stdlib.h>
 #include  <stdio.h>
 #include  <sys/time.h>
 #include  <sys/types.h>
@@ -36,6 +37,18 @@
 #include  "webserver.h"
 
 
+#define  POST_BUFFER_LEN   8192
+typedef  struct {
+    int    size_get;
+    int    size_post;
+    char   buffer[1];
+}  StrBuffer;
+
+
+
+static  void    routes_filter(struct mg_connection *conn, const struct mg_request_info *ri);
+static  void    free_post_data( const struct mg_request_info *ri );
+static  void    read_post_data( struct mg_connection *conn, const struct mg_request_info *ri );
 
 
 
@@ -131,10 +144,99 @@ void render_500(struct mg_connection *conn, const struct mg_request_info *ri, ch
 }
 
 
+static  void * event_handler (enum mg_event event,
+    struct mg_connection *conn,
+    const struct mg_request_info *request_info){
+
+    switch( event ){
+        case MG_NEW_REQUEST:
+            LOGPRINT( 5, "Request %p from %d.%d.%d.%d:%d => %s", request_info,
+                            (int)( request_info->remote_ip & 0xFF000000 ) >> 24,
+                            (int)( request_info->remote_ip & 0xFF0000 ) >> 16,
+                            (int)( request_info->remote_ip & 0xFF00 ) >> 8,
+                            (int)( request_info->remote_ip & 0xFF ) ,
+                            (int)request_info->remote_port, 
+                            request_info->uri );
+            routes_filter( conn, request_info );
+            free_post_data( request_info );
+            return (void*)1;
+        case MG_EVENT_LOG:
+            LOGPRINT( 2, "[mongoose event: %s]", request_info->log_message );
+            break;
+        case MG_REQUEST_COMPLETE:
+            LOGPRINT( 5, "Request complete %p", request_info );
+            break;
+
+    }
+    return  NULL;
+}
+
+/*
+ * Lee la informacion POSTeada por el cliente, en el buffer temporal
+ * */
+static  void    read_post_data( struct mg_connection *conn, const struct mg_request_info *ri ){
+    StrBuffer*  sbuff;
+    if( !ri->user_data ){
+        int  max_val = POST_BUFFER_LEN;
+        const char* clen = mg_get_header( conn, "Content-Lenght" );
+        if( clen ){
+            max_val = atol( clen );
+        }
+        sbuff = malloc( max_val + sizeof( int ) * 2 );
+        sbuff->size_post = mg_read( conn, sbuff->buffer, max_val );
+        sbuff->size_get  = ( ri->query_string ? strlen( ri->query_string ) : 0 );
+        ((struct mg_request_info *)ri)->user_data = sbuff;
+    }
+}
+
+static  void    free_post_data( const struct mg_request_info *ri ){
+   if( ri->user_data ) free( ri->user_data );
+}
 
 
+/*
+ * Retorna el binario con los datos POSTeados
+ * */
+int     get_post_data( struct mg_connection *conn, const struct mg_request_info *ri, void** data, int* size ){
+    StrBuffer*  sbuff;
+    read_post_data( conn, ri );
+    sbuff = (StrBuffer*)ri->user_data;
+    if( !sbuff->size_post ) return 0;
+    if( size ) *size = sbuff->size_post;
+    if( data ) *data = sbuff->buffer;
+    return sbuff->size_post;
+}
 
-static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri, void *data){
+/*
+ * Retorna una variable "encoded". 
+ * Primero verifica las variables GET's y luego las POST's
+ * */
+char*   get_var( struct mg_connection *conn, const struct mg_request_info *ri, char* var ){
+    
+    StrBuffer*  sbuff;
+    read_post_data( conn, ri );
+    sbuff = (StrBuffer*)ri->user_data;
+
+    int   ret_size = sbuff->size_get + sbuff->size_post;
+    char* ret= malloc( ret_size );
+
+    if( ri->query_string ){
+        if( mg_get_var( ri->query_string, sbuff->size_get, var, ret, ret_size ) > 0 ){
+            return ret ;
+        }
+    }
+
+    if( sbuff->size_post ){
+        if( mg_get_var( sbuff->buffer, sbuff->size_post, var, ret, ret_size ) > 0 ){
+            return  ret ;
+        }
+    }
+    free( ret );
+    return NULL;
+}
+
+
+static void routes_filter(struct mg_connection *conn, const struct mg_request_info *ri){
     char buff[1024];
     int ret;
     int   my_action, my_format, my_controller;
@@ -193,24 +295,27 @@ static struct mg_context *ctx;
 
 int   init_webservice( char* port, int maxthreads ){
     game_type_discover();
-    ctx = mg_start();
     char maxth[32];
     sprintf( maxth, "%d", maxthreads );
-    if( !mg_set_option(ctx, "ports", port) ){
-        LOGPRINT( 1, "No puede establecerse el puerto %s", port );
-        mg_stop( ctx );
-        return 0;
-    };
-    mg_set_option(ctx, "max_threads", maxth ); 
+
+    char* options[] = { "num_threads", maxth, "p", port, NULL };
     LOGPRINT( 4, "port => %s", port );
-    LOGPRINT( 4, "max_threads => %s", maxth );
-    mg_set_uri_callback(ctx, "*", &routes_filter, NULL );
+    LOGPRINT( 4, "num_threads => %s", maxth );
 
     // Verifico los juegos que hay disponibles
+    ctx = mg_start( event_handler, NULL, (const char**) options );
+    if( !ctx ){
+       LOGPRINT( 1, "No puede abrirse el webservice", 0 );
+       return 0;
+    }
+
+    LOGPRINT( 5, "started %p", ctx );
     return 1;
 }
 
 
 int   stop_webservice( ){
+    LOGPRINT( 5, "stopping %p", ctx );
     mg_stop(ctx);
+    LOGPRINT( 5, "stopped", 0 );
 }

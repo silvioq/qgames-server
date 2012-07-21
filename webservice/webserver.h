@@ -75,4 +75,12 @@ extern  char   route_session[32];
 extern  char   route_param[100];
 int    get_ruta( char* uri );
 
+
+/*
+ * Retorna una variable "encoded". 
+ * Primero verifica las variables GET's y luego las POST's
+ * */
+char*   get_var( struct mg_connection *conn, const struct mg_request_info *ri, char* var );
+int     get_post_data( struct mg_connection *conn, const struct mg_request_info *ri, void** data, int* size );
+
 #endif
