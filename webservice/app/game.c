@@ -24,6 +24,7 @@
 #include  <stdio.h>
 #include  <sys/time.h>
 #include  <time.h>
+#include  <stdlib.h>
 #include  "mongoose.h"
 #include  "users.h"
 #include  "games.h"
