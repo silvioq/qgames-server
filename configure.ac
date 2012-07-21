@@ -1,7 +1,7 @@
-AC_INIT([qgames-server], [0.0.1], [silvioq@gmail.com])
+AC_INIT([qgames-server], [0.0.2], [silvioq@gmail.com])
 AC_DEFINE([QGS_MAJOR_VERSION],[0], Major version)
 AC_DEFINE([QGS_MINOR_VERSION],[0], Minor version)
-AC_DEFINE([QGS_REV_VERSION],  [1], Revision version)
+AC_DEFINE([QGS_REV_VERSION],  [2], Revision version)
 
 AM_INIT_AUTOMAKE
 AC_PROG_CC
