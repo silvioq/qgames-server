@@ -1,6 +1,6 @@
 
 if [ x$HOST == x ]; then
-    $HOST = "localhost";
+    $HOST="localhost";
 fi
 
 function  mueve(){

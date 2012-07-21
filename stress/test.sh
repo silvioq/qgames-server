@@ -46,7 +46,7 @@ while getopts "vg:k:wh:p:scm:n" OPTION; do
       c) INITDB=1;;
       g) GAMES=$OPTARG;;
       h) HOST=$OPTARG;;
-      k) WORKERS=-w $OPTARG;;
+      k) WORKERS="-w $OPTARG";;
       m) MOVIDAS=$OPTARG;;
       n) VALGRIND=1;;
       p) PORT=$OPTARG;;
