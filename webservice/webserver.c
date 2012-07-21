@@ -113,8 +113,8 @@ void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, F
     char buff[1024];
     rewind( f );
     while( !feof( f ) ){
-        fgets( buff, 1024, f );
-        mg_printf( conn, buff );
+        if( fgets( buff, 1024, f ) )
+          mg_write( conn, buff, strlen( buff ) );
     }
 }
 
