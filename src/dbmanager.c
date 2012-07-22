@@ -121,7 +121,7 @@ static  int  init_stats( DB* db ){
     val.size = sizeof( version );
 
     if( ret = db->put( db, NULL, &key, &val, DB_NOOVERWRITE ) ){
-        LOGPRINT( 1, "Error inicializando version %s", ret, db_strerror( ret ) );
+        LOGPRINT( 1, "Error inicializando version %d: %s", ret, db_strerror( ret ) );
         return 0;
     }
     return 1;
