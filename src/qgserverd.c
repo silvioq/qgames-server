@@ -50,7 +50,7 @@ static void  trap(int a){
 void usage(char* prg){
 
     puts( "Uso:" );
-    printf( "  %s [-vh] [-p port|bindaddr:port] [-w worker_threads (experimental)] [-d database_file] [-g gamepath]\n", prg );
+    printf( "  %s [-vh] [-p port|bindaddr:port] [-w worker_threads (experimental)] [-d database_file] [-g gamepath] [-i imagepath]\n", prg );
 }
 
 int main( int argc, char** argv ){
@@ -61,8 +61,9 @@ int main( int argc, char** argv ){
     int maxt = 1;
     char* db = "qgserver.db";
     char* path_games = NULL;
+    char* path_images = NULL;
 
-    while(( opt = getopt( argc, argv, "hp:vd:w:g:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hp:vd:w:g:i:" )) != -1 ){
         switch(opt){
             case 'd':
                 db = optarg;
@@ -83,6 +84,9 @@ int main( int argc, char** argv ){
             case 'g':
                 path_games = optarg ;
                 break;
+            case 'i':
+                path_images = optarg ;
+                break;
             case 'h':
                 usage(argv[0]);
                 exit( EXIT_SUCCESS );
@@ -99,6 +103,10 @@ int main( int argc, char** argv ){
     if( path_games ){
         LOGPRINT( 4, "Path games => %s", path_games );
         qg_path_set( path_games );
+    }
+    if( path_images ){
+        LOGPRINT( 4, "Path images => %s", path_images );
+        qgames_graph_image_dir( path_images );
     }
 
     if( init_webservice( port, maxt ) ){
