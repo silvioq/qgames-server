@@ -93,16 +93,7 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
             render_200( conn, ri, "pong" );
             break;
         case ACTION_WELCOME:
-            render_200( conn, ri, "Welcome to qgserverd " VERSION "\nAcciones: \n" 
-                     "  /login                   (recibe parametros user & pass)\n"
-                     "  /session/crea/TipoJuego  \n"
-                     "  /session/posibles/juego  \n"
-                     "  /session/mueve/juego     (recibe parametro m)\n"
-                     "  /session/historial/juego \n" 
-                     "  /session/registraciones  \n"
-                     "  /session/lista           \n"
-                     "  /session/lista/TipoJuego \n"
-                     "  /logout          \n" );
+            render_200( conn, ri, "Welcome to qgserverd " VERSION "\nUse: /help para ver comandos\n" );
             break;
         default:
             render_404( conn, ri );
