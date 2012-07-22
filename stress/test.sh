@@ -12,6 +12,7 @@ Options:
   -c      Iniciar la base (no iniciar por defecto)
   -g n    Cantidad de juegos en paralelo (default $GAMES)
   -h s    Hostname (default: localhost)
+  -H home Home para environment de DBBerkeley
   -k n    Workers (experimental)
   -m n    Cantidad de movidas maxima por partido (default $MOVIDAS)
   -n      Usar valgrind (no usar por defecto)
@@ -31,6 +32,7 @@ HOST=localhost
 PORT=8015
 GAMES=30
 MOVIDAS=200
+DBHOME=
 
 if [ x$1 == x ]; then
     usage; exit 0;
@@ -41,11 +43,12 @@ fi
 
 
 
-while getopts "vg:k:wh:p:scm:n" OPTION; do
+while getopts "vg:k:wh:p:scm:nH:" OPTION; do
     case $OPTION in
       c) INITDB=1;;
       g) GAMES=$OPTARG;;
       h) HOST=$OPTARG;;
+      H) DBHOME="-H $OPTARG"; DBFILE=qgserver.db;;
       k) WORKERS="-w $OPTARG";;
       m) MOVIDAS=$OPTARG;;
       n) VALGRIND=1;;
@@ -66,7 +69,7 @@ done
 if [ x$INITDB == x1 ]; then
     rm $DBFILE
     echo "Creando archivo"
-    $PATHQS/qgserver-tool -c $DBFILE
+    $PATHQS/qgserver-tool -c $DBFILE  $DBHOME
     ret=$?
     if [ $ret != 0 ]; then
         exit 1;
@@ -83,12 +86,13 @@ if [ x$STARTQG == x1 ]; then
     if [ x$VALGRIND == x1 ]; then
         echo "Iniciando servidor valgrind"
         valgrind  --leak-check=full --show-reachable=yes \
-               $PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE $WORKERS &> ./stress/tmp/salida.txt &
+               $PATHQS/qgserverd -d $DBFILE   $DBHOME  \
+               -p $PORT $VERBOSE $WORKERS &> ./stress/tmp/salida.txt &
         PID=$!
         sleep 5 # le doy un segundo como para que levante
     else
         echo "Iniciando servidor"
-        $PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE $WORKERS > ./stress/tmp/salida.txt &
+        $PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE $WORKERS $DBHOME > ./stress/tmp/salida.txt &
         PID=$!
         sleep 1 # le doy un segundo como para que levante
     fi
