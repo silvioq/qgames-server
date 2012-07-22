@@ -25,6 +25,7 @@
 #include  <stdlib.h>
 #include  <string.h>
 #include  <config.h>
+#include  <sys/stat.h>
 #include  <errno.h>
 #include  <db.h>
 #include  <pthread.h>
@@ -259,15 +260,17 @@ static  int  open_dbs(){
     LOGPRINT( 5, "Abriendo bases %s", db_file );
 
     if( db_home ){
+        LOGPRINT( 5, "Environment home %s", db_home );
         ret = db_env_create( &db_env, 0 );
         if( ret != 0 ){
             LOGPRINT( 2, "Error alocando env %s", db_home );
             pthread_mutex_unlock( &update_semaphore );
             return 0;
         }
-        ret = db_env->open( db_env, db_home, DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL, 666 );
+        ret = db_env->open( db_env, db_home, DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_CREATE, 
+                       S_IRUSR | S_IWUSR );
         if( ret != 0 ){
-            LOGPRINT( 2, "Error opening env %s", db_home );
+            LOGPRINT( 2, "Error opening env %s %d: %s", db_home, ret, db_strerror( ret ) );
             pthread_mutex_unlock( &update_semaphore );
             return 0;
         }
