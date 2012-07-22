@@ -28,6 +28,9 @@
 #include  "log.h"
 #include  "dbmanager.h"
 
+#define    DEFAULT_PORT   "8080"
+#define    DEFAULT_DB     "qgserver.db"
+
 int   init_webservice( char* port, int max_threads );
 static void  trap(int a){
     static int closing = 0;
@@ -50,16 +53,24 @@ static void  trap(int a){
 void usage(char* prg){
 
     puts( "Uso:" );
-    printf( "  %s [-vh] [-p port|bindaddr:port] [-w worker_threads (experimental)] [-d database_file] [-g gamepath] [-i imagepath]\n", prg );
+    printf( "  %s  [options]\n" 
+           "-v                                  Verbose\n"
+           "-p port|bindaddr:port               Puerto del servidor (" DEFAULT_PORT ")\n"
+           "-w worker_threads (experimental)    Cantidad de workers (1)\n"
+           "-d database_file                    Archivo de base (" DEFAULT_DB ")\n"
+           "-g gamepath                         Directorio de definiciones de juegos\n"
+           "-i imagepath                        Directorio de imágenes\n" 
+           "-h                                  Esta pantalla      \n"
+         , prg );
 }
 
 int main( int argc, char** argv ){
 
     loglevel = 4;
     int opt;
-    char* port = "8080";
+    char* port = DEFAULT_PORT;
     int maxt = 1;
-    char* db = "qgserver.db";
+    char* db = DEFAULT_DB;
     char* path_games = NULL;
     char* path_images = NULL;
 
