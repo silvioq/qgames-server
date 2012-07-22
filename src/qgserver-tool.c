@@ -54,7 +54,7 @@ int  main( int argc, char** argv ){
     loglevel = 2;
 
     int opt = 0;
-    while(( opt = getopt( argc, argv, "vhd:c:u:n:s:p" )) != -1 ){
+    while(( opt = getopt( argc, argv, "vhd:c:u:n:s:pH:" )) != -1 ){
         switch(opt){
             case 'c':
                 dbfilec = optarg;
