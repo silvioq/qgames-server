@@ -43,7 +43,7 @@ int  main( int argc, char** argv ){
     void* cursor = NULL;
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     dbact_close();
 

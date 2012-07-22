@@ -34,7 +34,7 @@
 
 
 int    init_db( char* filename );
-int    dbset_file( char* filename );
+int    dbset_file( char* filename, char* dbhome );
 int    dbput_data( int db, void* key, int key_size, void* data, int data_size );
 int    dbget_data( int db, void* key, int key_size, void** data, int* data_size );
 int    dbdel_data( int db, void* key, int key_size );

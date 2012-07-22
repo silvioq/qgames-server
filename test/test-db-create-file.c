@@ -39,7 +39,7 @@ int  main( int argc, char** argv ){
     loglevel = 5;
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
 
     assert( stat( FILEDB, &sb) != -1 );

@@ -34,6 +34,7 @@
 #include  "dbmanager.h"
 
 static char* db_file = NULL;
+static char* db_home = NULL;
 static char* db_error = NULL;
 static DB*   db_users = NULL;
 static DB*   db_users_code = NULL;
@@ -42,6 +43,7 @@ static DB*   db_game_types = NULL;
 static DB*   db_game_types_name = NULL;
 static DB*   db_stats = NULL;
 static DB*   db_sess  = NULL;
+static DB_ENV* db_env  = NULL;
 
 static  pthread_mutex_t   update_semaphore = PTHREAD_MUTEX_INITIALIZER;
 
@@ -256,50 +258,66 @@ static  int  open_dbs(){
 
     LOGPRINT( 5, "Abriendo bases %s", db_file );
 
+    if( db_home ){
+        ret = db_env_create( &db_env, 0 );
+        if( ret != 0 ){
+            LOGPRINT( 2, "Error alocando env %s", db_home );
+            pthread_mutex_unlock( &update_semaphore );
+            return 0;
+        }
+        ret = db_env->open( db_env, db_home, DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL, 666 );
+        if( ret != 0 ){
+            LOGPRINT( 2, "Error opening env %s", db_home );
+            pthread_mutex_unlock( &update_semaphore );
+            return 0;
+        }
+    }
+
+
     // creo los espacios de memoria necesarios
-    ret = db_create( &db_users, NULL, 0 );
+    ret = db_create( &db_users, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_users_code, NULL, 0 );
+    ret = db_create( &db_users_code, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_games, NULL, 0 );
+    ret = db_create( &db_games, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_game_types, NULL, 0 );
+    ret = db_create( &db_game_types, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_game_types_name, NULL, 0 );
+    ret = db_create( &db_game_types_name, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_stats, NULL, 0 );
+    ret = db_create( &db_stats, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
         pthread_mutex_unlock( &update_semaphore );
         return 0;
     }
-    ret = db_create( &db_sess, NULL, 0 );
+    ret = db_create( &db_sess, db_env, 0 );
     if( ret != 0 ){
         LOGPRINT( 2, "Error alocando %s", db_file );
         db_error = "Error alocando archivo";
@@ -390,12 +408,13 @@ static  int  open_dbs(){
 /*
  * Setea el archivo de datos
  * */
-int    dbset_file( char* filename ){
+int    dbset_file( char* filename, char* dbhome ){
     if( db_users ){
         LOGPRINT( 2, "La base de datos ya esta abierta (actual %s, setting %s)", db_file, filename );
         return 0;
     } else {
         db_file = filename;
+        db_home = dbhome;
     }
     return 1;
 }
@@ -409,7 +428,7 @@ int    init_db( char* filename ){
     DB* db;
 
     LOGPRINT( 5, "Inicializando %s", filename );
-    dbset_file( filename );
+    dbset_file( filename, NULL );
 
     pthread_mutex_lock( &update_semaphore );
     int ret = db_create( &db, NULL, 0 );
@@ -707,6 +726,7 @@ void   dbact_close(){
     if( db_game_types_name ) db_game_types_name->close( db_game_types_name, 0 );
     if( db_stats  )     db_stats->close( db_stats, 0 );
     if( db_sess   )     db_sess ->close( db_sess , 0 );
+    if( db_env )        db_env->close( db_env, 0 );
 
     db_users = NULL;
     db_users_code = NULL;
@@ -715,6 +735,8 @@ void   dbact_close(){
     db_game_types_name = NULL;
     db_stats = NULL;
     db_sess  = NULL;
+    db_env   = NULL;
+
     pthread_mutex_unlock( &update_semaphore );
 }
 

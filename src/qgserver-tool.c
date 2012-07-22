@@ -32,7 +32,7 @@
 
 void  usage(char* program){
     puts( "Uso:" );
-    printf( "  %s [-c \"db to create\"] [-u user] -p [-n username] [-d dbfile] -s secret_key\n", program );
+    printf( "  %s [-c \"db to create\"] [-u user] -p [-n username] [-d dbfile] [-H home] -s secret_key\n", program );
     exit( EXIT_FAILURE );
 }
 
@@ -41,6 +41,7 @@ int  main( int argc, char** argv ){
 
     char* dbfilec = NULL;
     char* dbfile  = NULL;
+    char* dbhome  = NULL;
     char* usercode = NULL;
     char* username = NULL;
     char* secret_key = NULL;
@@ -73,6 +74,9 @@ int  main( int argc, char** argv ){
             case 'd':
                 dbfile  = optarg;
                 break;
+            case 'H':
+                dbhome   = optarg;
+                break;
             case 's':
                 secret_key  = optarg;
                 printf( "Secret key aun no implementado ... \n" );
@@ -90,7 +94,7 @@ int  main( int argc, char** argv ){
     }
 
     if( dbfile ){
-          dbset_file( dbfile );
+          dbset_file( dbfile, dbhome );
     }
 
     if( usercode ){

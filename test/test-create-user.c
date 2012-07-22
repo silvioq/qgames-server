@@ -40,13 +40,13 @@ int  main( int argc, char** argv ){
     User* u;
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     assert( 2 == dbget_usernextid() ) ;
     dbact_close();
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     dbact_close(); 
 

@@ -58,6 +58,8 @@ void usage(char* prg){
            "-p port|bindaddr:port               Puerto del servidor (" DEFAULT_PORT ")\n"
            "-w worker_threads (experimental)    Cantidad de workers (1)\n"
            "-d database_file                    Archivo de base (" DEFAULT_DB ")\n"
+           "-H environment home                 Environment para la base de datos (por defecto, \n"
+           "                                    no se usa dbhome para DbBerkeley)\n" 
            "-g gamepath                         Directorio de definiciones de juegos\n"
            "-i imagepath                        Directorio de imágenes\n" 
            "-h                                  Esta pantalla      \n"
@@ -73,8 +75,9 @@ int main( int argc, char** argv ){
     char* db = DEFAULT_DB;
     char* path_games = NULL;
     char* path_images = NULL;
+    char* dbhome = NULL;
 
-    while(( opt = getopt( argc, argv, "hp:vd:w:g:i:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hp:vd:w:g:i:H:" )) != -1 ){
         switch(opt){
             case 'd':
                 db = optarg;
@@ -98,6 +101,9 @@ int main( int argc, char** argv ){
             case 'i':
                 path_images = optarg ;
                 break;
+            case 'H':
+                dbhome = optarg;
+                break;
             case 'h':
                 usage(argv[0]);
                 exit( EXIT_SUCCESS );
@@ -110,7 +116,7 @@ int main( int argc, char** argv ){
         }
     }
 
-    dbset_file( db );
+    dbset_file( db, dbhome );
     if( path_games ){
         LOGPRINT( 4, "Path games => %s", path_games );
         qg_path_set( path_games );

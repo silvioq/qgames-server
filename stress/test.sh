@@ -82,7 +82,8 @@ fi
 if [ x$STARTQG == x1 ]; then
     if [ x$VALGRIND == x1 ]; then
         echo "Iniciando servidor valgrind"
-        valgrind  --leak-check=full  $PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE $WORKERS &> ./stress/tmp/salida.txt &
+        valgrind  --leak-check=full --show-reachable=yes \
+               $PATHQS/qgserverd -d $DBFILE -p $PORT $VERBOSE $WORKERS &> ./stress/tmp/salida.txt &
         PID=$!
         sleep 5 # le doy un segundo como para que levante
     else

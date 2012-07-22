@@ -37,7 +37,7 @@
 
 void    chequear_lectura_del_archivo_de_definiciones(){
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     assert( game_type_discover() );
     assert( dbget_game_typenextid() > 3 ) ;
@@ -50,13 +50,13 @@ int  main( int argc, char** argv ){
     GameType* gt, *gt2;
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     assert( 1 == dbget_game_typenextid() ) ;
     dbact_close();
 
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
     dbact_close();
 
@@ -87,7 +87,7 @@ int  main( int argc, char** argv ){
     // por el metodo normal
     dbact_close();
     unlink( FILEDB );
-    assert( dbset_file( FILEDB ) ) ;
+    assert( dbset_file( FILEDB, NULL ) ) ;
     assert( init_db( FILEDB ) );
 
     assert( gt = game_type_share_by_name( "Ajedrez" ) );
