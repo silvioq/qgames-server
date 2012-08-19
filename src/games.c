@@ -44,8 +44,9 @@
 #define   RECFLAG_NEW   0x01
 
 static  GameType** game_types_lista = NULL;
-static  int       game_types_lista_count = 0;
-static  int       game_types_lista_alloc = 0;
+static  int        game_types_lista_count = 0;
+static  int        game_types_lista_alloc = 0;
+static  pthread_mutex_t lector_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 
@@ -319,7 +320,6 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
 }
 
 Tipojuego*  game_type_tipojuego( GameType* gt ){
-    static pthread_mutex_t lector_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock( &lector_mutex );
     if( !gt->tipojuego ){
         LOGPRINT( 5, "Intentando leer definiciones de juego %s", gt->nombre );
@@ -539,10 +539,12 @@ GameType*  game_game_type( Game* g ){
 
 Game*     game_type_create( GameType* gt, User* u ){
     Tipojuego* tj = game_type_tipojuego( gt );
+    pthread_mutex_lock( &lector_mutex );
     Partida* p = qg_tipojuego_create_partida( tj, NULL );
     Game* ret = game_new( qg_partida_id( p ), u, gt, 0 );
     game_set_partida( ret, p );
     qg_partida_free( p );
+    pthread_mutex_unlock( &lector_mutex );
     return ret;
     
 
