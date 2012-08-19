@@ -1,0 +1,12 @@
+test/test-check-user-game
+test/test-create-game
+test/test-create-game-type
+test/test-create-session
+test/test-create-user
+test/test-cursor-game-type
+test/test-db-create-file
+test/test-del-game
+test/test-dup-user
+test/test-main
+test/test-routes
+*Makefile
