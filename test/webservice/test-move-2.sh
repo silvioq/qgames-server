@@ -86,17 +86,19 @@ if [ $ret != 0 ]; then
 fi
 
 # Aca viene la joda. Cierro el servidor y lo vuelvo a abrir
+echo "stopping server"
 kill -2 $PID
 wait
 
-$PATHQS/qgserverd &
+echo "Initing NEW server"
+$PATHQS/qgserverd -p $PORT &
 PID=$!
 sleep 1 # le doy un segundo como para que levante
 
 output=`curl -f  "http://localhost:$PORT/$sess/mueve/$game" -d "m=f5"  --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-  echo "Error 3: $output"
+  echo "Error 3: $output $ret"
   kill -2 $PID
   wait
   exit 1;
