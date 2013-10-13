@@ -667,7 +667,7 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
     }
     game_type_end( &cursor );
     render_200f( conn, ri, f );
-    close( f );
+    fclose( f );
 }
 
 
