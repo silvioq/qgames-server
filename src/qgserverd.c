@@ -27,6 +27,8 @@
 #include  <qgames.h>
 #include  "log.h"
 #include  "dbmanager.h"
+#include <sys/prctl.h>
+
 
 #define    DEFAULT_PORT   "8080"
 #define    DEFAULT_DB     "qgserver.db"
@@ -55,6 +57,7 @@ void usage(char* prg){
     puts( "Uso:" );
     printf( "  %s  [options]\n" 
            "-v                                  Verbose\n"
+           "-vv                                 Muy Verbose\n"
            "-p port|bindaddr:port               Puerto del servidor (" DEFAULT_PORT ")\n"
            "-w worker_threads (experimental)    Cantidad de workers (1)\n"
            "-d database_file                    Archivo de base (" DEFAULT_DB ")\n"
@@ -62,6 +65,7 @@ void usage(char* prg){
            "                                    no se usa dbhome para DbBerkeley)\n" 
            "-g gamepath                         Directorio de definiciones de juegos\n"
            "-i imagepath                        Directorio de imágenes\n" 
+           "-D                                  Dump - no trapea Segmentation fault - no recomendado \n" 
            "-h                                  Esta pantalla      \n"
          , prg );
 }
@@ -70,6 +74,7 @@ int main( int argc, char** argv ){
 
     loglevel = 4;
     int opt;
+    int trapSF = 1;
     char* port = DEFAULT_PORT;
     int maxt = 1;
     char* db = DEFAULT_DB;
@@ -77,7 +82,7 @@ int main( int argc, char** argv ){
     char* path_images = NULL;
     char* dbhome = NULL;
 
-    while(( opt = getopt( argc, argv, "hp:vd:w:g:i:H:" )) != -1 ){
+    while(( opt = getopt( argc, argv, "hp:vd:w:g:i:H:D" )) != -1 ){
         switch(opt){
             case 'd':
                 db = optarg;
@@ -90,7 +95,7 @@ int main( int argc, char** argv ){
                 }
                 break;
             case 'v':
-                loglevel = 5;
+                loglevel = loglevel == 5 ? 6 : 5;
                 break;
             case 'p':
                 port = optarg;
@@ -103,6 +108,9 @@ int main( int argc, char** argv ){
                 break;
             case 'H':
                 dbhome = optarg;
+                break;
+            case 'D':
+                trapSF = 0;
                 break;
             case 'h':
                 usage(argv[0]);
@@ -130,7 +138,7 @@ int main( int argc, char** argv ){
 
         signal( SIGTERM, trap );
         signal( SIGINT, trap );
-        signal( SIGSEGV, trap );
+        if( trapSF ) signal( SIGSEGV, trap );
 
         while( 1 ){ sleep( 10 ); }
         exit( EXIT_SUCCESS );
