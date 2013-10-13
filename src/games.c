@@ -448,7 +448,9 @@ Game*   game_load( char* id ) {
     } else if( ret == -1 ){
         LOGPRINT( 1, "Error de base de datos %s", dbget_lasterror() );
         return NULL;
-    } 
+    } else {
+        LOGPRINT( 6, "Game loaded %s", id );
+    }
     Game* g = bin_to_game( data, size );
     g->rec_flags &= ~RECFLAG_NEW;
     return g;
