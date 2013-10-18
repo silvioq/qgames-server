@@ -424,6 +424,10 @@ static Game* bin_to_game( void* data, int size ){
     if( binary_unpack( "siibll", data, size, &id, &user_id, &game_type_id,
                 &game_data, &game_data_size, 
                 &created_at, &modified_at ) ){
+        if( game_data_size && !game_data ){
+            LOGPRINT( 1, "Error en lectura de juego. Tamaño incompatible con datos: Size %d", game_data_size );
+            return NULL;
+        }
         Game* g = game_new( id, NULL, NULL, created_at );
         g->game_type_id = game_type_id;
         g->user_id      = user_id;
@@ -439,7 +443,6 @@ static Game* bin_to_game( void* data, int size ){
  * Lectura de un juego de la base
  * */
 Game*   game_load( char* id ) {
-    
     void * data; int size;
     int ret = dbget_data( DBGAME, id, strlen( id ), &data, &size );
     if( !ret ){
@@ -452,6 +455,10 @@ Game*   game_load( char* id ) {
         LOGPRINT( 6, "Game loaded %s", id );
     }
     Game* g = bin_to_game( data, size );
+    if( !g ){
+        LOGPRINT( 2, "Error decodificando juego %s", id );
+        return NULL;
+    }
     g->rec_flags &= ~RECFLAG_NEW;
     return g;
 }

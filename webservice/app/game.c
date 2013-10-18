@@ -293,6 +293,13 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
         return;
     }
     Partida* p = game_partida( g );
+    if( !p ){
+        LOGPRINT( 2, "Error leyendo partida. Game: %s", id );
+        render_500( conn, ri, "Error leyendo partida" );
+        game_free( g );
+        free( move );
+        return;
+    }
     if( move[0] >= '0' && move[0] <= '9' ){
         int move_number = atoi( move );
         if( !qg_partida_mover( p, move_number ) ){
@@ -348,6 +355,12 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
         return;
     }
     Partida* p = game_partida( g );
+    if( !p ){
+        LOGPRINT( 2, "Error intentando leer partida %s", id );
+        render_500( conn, ri, "Error al intentar leer partida" );
+        game_free( g );
+        return;
+    }
     if( !save_game_if_not_calculed( g, p ) ){
         render_500( conn, ri, "Error al intentar recalcular partida" );
         game_free( g );
@@ -609,6 +622,29 @@ static void  game_controller_tjuegos( struct mg_connection* conn, const struct m
             }
             free( data );
             qgames_free_png( png );
+
+            if( size = qg_tipojuego_get_logo( tj, &png, &w, &h ) ){
+                fprintf( f, "    logo:\n      height: %d\n      width: %d\n", w, h  );
+                fprintf( f, "      imagen: !!binary |\n" );
+
+                char* data, *cursor, *final;
+                size_t  total = base64_encode_alloc( (char*) png, (size_t)size, &data );
+                if( total == 0 || data == NULL ){
+                    LOGPRINT( 1, "Error al intentar decodificar png %d", 0 );
+                    fclose( f );
+                    render_500( conn, ri, "Error al intentar decodificar png" );
+                    return ;
+                }
+                final = data + total;
+                cursor = data;
+                while( cursor < final ){
+                    fprintf( f, "        %.50s\n", cursor );
+                    cursor += 50;
+                }
+                free( data );
+                qgames_free_png( png );
+            }
+
             i = 1;
             fprintf( f, "    piezas:\n" );
             while( tpieza = qg_tipojuego_info_tpieza( tj, i ) ){
