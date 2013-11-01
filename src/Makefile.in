@@ -52,7 +52,8 @@ qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 am_qgserverd_OBJECTS = qgserverd.$(OBJEXT) session.$(OBJEXT) \
 	dbmanager.$(OBJEXT) users.$(OBJEXT) games.$(OBJEXT) \
-	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT) base64.$(OBJEXT)
+	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT) base64.$(OBJEXT) \
+	cJSON.$(OBJEXT)
 qgserverd_OBJECTS = $(am_qgserverd_OBJECTS)
 qgserverd_DEPENDENCIES = $(top_srcdir)/webservice/libwebserver.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -166,7 +167,7 @@ qgserver_tool_SOURCES = qgserver-tool.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
-		../common/md5.h  ../common/md5.c 
+		../common/md5.h  ../common/md5.c
 
 AM_CFLAGS = -I $(top_srcdir)/common -I$(top_srcdir)/webservice -DNO_SSL -DNO_CGI
 qgserverd_SOURCES = qgserverd.c \
@@ -177,7 +178,8 @@ qgserverd_SOURCES = qgserverd.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c \
-		../common/base64.h ../common/base64.c 
+		../common/base64.h ../common/base64.c \
+    ../common/cJSON/cJSON.c  ../common/cJSON/cJSON.h
 
 qgserverd_LDADD = $(top_srcdir)/webservice/libwebserver.a
 all: all-am
@@ -265,6 +267,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cJSON.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
@@ -344,6 +347,20 @@ base64.obj: ../common/base64.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/base64.c' object='base64.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o base64.obj `if test -f '../common/base64.c'; then $(CYGPATH_W) '../common/base64.c'; else $(CYGPATH_W) '$(srcdir)/../common/base64.c'; fi`
+
+cJSON.o: ../common/cJSON/cJSON.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cJSON.o -MD -MP -MF $(DEPDIR)/cJSON.Tpo -c -o cJSON.o `test -f '../common/cJSON/cJSON.c' || echo '$(srcdir)/'`../common/cJSON/cJSON.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/cJSON.Tpo $(DEPDIR)/cJSON.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/cJSON/cJSON.c' object='cJSON.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cJSON.o `test -f '../common/cJSON/cJSON.c' || echo '$(srcdir)/'`../common/cJSON/cJSON.c
+
+cJSON.obj: ../common/cJSON/cJSON.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cJSON.obj -MD -MP -MF $(DEPDIR)/cJSON.Tpo -c -o cJSON.obj `if test -f '../common/cJSON/cJSON.c'; then $(CYGPATH_W) '../common/cJSON/cJSON.c'; else $(CYGPATH_W) '$(srcdir)/../common/cJSON/cJSON.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/cJSON.Tpo $(DEPDIR)/cJSON.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../common/cJSON/cJSON.c' object='cJSON.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cJSON.obj `if test -f '../common/cJSON/cJSON.c'; then $(CYGPATH_W) '../common/cJSON/cJSON.c'; else $(CYGPATH_W) '$(srcdir)/../common/cJSON/cJSON.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

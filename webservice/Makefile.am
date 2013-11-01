@@ -9,5 +9,5 @@ libwebserver_a_SOURCES = \
 		routes.l   
 
 libwebserver_a_LIBADD = $(LIBOBJS)
-AM_CFLAGS=-I $(top_srcdir)/common -I$(top_srcdir)/src -DNO_SSL -DNO_CGI
+AM_CFLAGS=-I $(top_srcdir)/common -I $(top_srcdir)/common/cJSON -I$(top_srcdir)/src -DNO_SSL -DNO_CGI
 
