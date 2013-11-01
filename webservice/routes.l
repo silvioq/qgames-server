@@ -192,7 +192,7 @@ int    get_ruta( char* uri ){
     route_format     = 0;
 
     yy_scan_string( uri );
-    BEGIN( INITIAL );    
+    BEGIN( INITIAL );
     yylex();
     yy_delete_buffer( YY_CURRENT_BUFFER );
     return route_controller;
