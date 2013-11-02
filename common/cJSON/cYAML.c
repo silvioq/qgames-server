@@ -24,15 +24,22 @@ static char *print_object(cJSON *item,int depth);
 static char *print_string_ptr(const char *str)
 {
 	const char *ptr;char *ptr2,*out;int len=0;unsigned char token;
+  int quote = 0;
 	
 	if (!str) return cJSON_strdup("");
-	ptr=str;while ((token=*ptr) && ++len) {if (strchr("\"\\\b\f\n\r\t",token)) len++; else if (token<32) len+=5;ptr++;}
+	ptr=str;
+  while ((token=*ptr) && ++len) {
+    if (strchr("\"\\\b\f\n\r\t",token)){ 
+      len++; quote = 1;
+    } else if (token<32){ len+=5; quote = 1; }
+    ptr++;
+  }
 
 	out=(char*)cJSON_malloc(len+3);
 	if (!out) return 0;
 
 	ptr2=out;ptr=str;
-	*ptr2++='\"';
+	if( quote ) *ptr2++='\"';
 	while (*ptr)
 	{
 		if ((unsigned char)*ptr>31 && *ptr!='\"' && *ptr!='\\') *ptr2++=*ptr++;
@@ -52,7 +59,8 @@ static char *print_string_ptr(const char *str)
 			}
 		}
 	}
-	*ptr2++='\"';*ptr2++=0;
+	if( quote )*ptr2++='\"';
+  *ptr2++=0;
 	return out;
 }
 
@@ -168,7 +176,7 @@ static char *print_object(cJSON *item,int depth)
 	child=item->child;depth++; len+=depth;
 	while (child)
 	{
-		names[i]=str=print_string_ptr(child->string);
+		names[i]=str=strdup(child->string);
 		entries[i++]=ret=print_value(child,depth);
 		if (str && ret) len+=strlen(ret)+strlen(str)+2+(depth*3); else fail=1;
 		child=child->next;
@@ -187,7 +195,7 @@ static char *print_object(cJSON *item,int depth)
 	}
 	
 	/* Compose the output: */
-	ptr=out; *ptr++='\n';*ptr=0;
+	ptr=out; *ptr=0;
 	for (i=0;i<numentries;i++)
 	{
 	  for (j=0;j<depth-1;j++){ *ptr++=' '; *ptr++=' '; };
