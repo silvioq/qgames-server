@@ -20,6 +20,6 @@ qgserverd_SOURCES = qgserverd.c \
 		../common/packer.h  ../common/packer.c \
 		../common/md5.h  ../common/md5.c \
 		../common/base64.h ../common/base64.c \
-    ../common/cJSON/cJSON.c  ../common/cJSON/cJSON.h
+    ../common/cJSON/cJSON.c  ../common/cJSON/cYAML.c ../common/cJSON/cJSON.h
 
 qgserverd_LDADD = $(top_srcdir)/webservice/libwebserver.a
