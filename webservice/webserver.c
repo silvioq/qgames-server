@@ -134,16 +134,17 @@ void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, F
 
 void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, cJSON* root, int f){
 
-  char* buf;
+  char* buf = NULL;
+  cJSON* t;
   switch(f){
     case FORMAT_JSON:
       buf = cJSON_Print( root );
       break;
 
     case FORMAT_TXT:
-      buf = cJSON_GetObjectItem( root, "texto" );
-      if( !buf ) buf = "Sin mensaje";
-      buf = strdup( buf );
+      t = cJSON_GetObjectItem( root, "texto" );
+      if( t ) buf = cJSON_Print_YAML( t );
+      if( !buf ) buf = strdup( "Sin mensaje" );
       break;
 
     case FORMAT_XML:
