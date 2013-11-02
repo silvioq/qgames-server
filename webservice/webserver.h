@@ -59,7 +59,7 @@
 #define  ACTION_INDEX        1
 
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session* s, int action, int format );
-void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm );
+void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, int format, char* parm );
 void help_controller( struct mg_connection* conn, const struct mg_request_info* ri, int action, int format );
 
 void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);

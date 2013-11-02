@@ -56,6 +56,35 @@ static  int   save_game_if_not_calculed( Game* g, Partida* p ){
         
 }
 
+static  cJSON* game_to_cJSON( Game* g, Partida* p ){
+    char* res;
+    int  movidas;
+    cJSON* game = cJSON_CreateObject();
+    cJSON_AddStringToObject( game, "game_id", g->id );
+    cJSON_AddStringToObject( game, "tipo_juego", game_game_type( g )->nombre );
+    cJSON_AddStringToObject( game, "color", qg_partida_color( p ) );
+    movidas = qg_partida_movhist_count( p );
+    cJSON_AddNumberToObject( game, "cantidad_movidas", movidas );
+    qg_partida_final( p, &res );
+    cJSON_AddStringToObject( game, "descripcion_estado", res ? res : "Jugando" );
+    cJSON_AddBoolToObject( game, "es_continuacion", qg_partida_es_continuacion( p ) );
+
+    if( movidas > 0 ){
+        int i = 0, len = 0;
+        char destino[180] = "";
+        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+            if( strlen( res ) + len + 1 > 180 ) break;
+            if( i )
+                sprintf( destino, "%s,%s", destino, res );
+            else
+                strcpy( destino, res );
+            i ++;
+        }
+        cJSON_AddStringToObject( game, "ultimos_destino", destino );
+    }
+    return game;
+}
+
 static  void  print_game_data_prefix( Game* g, Partida* p, FILE* f, int spaces ){
     char  prefix[80];
     prefix[spaces] = 0;
@@ -105,7 +134,7 @@ static void  print_game_data( Game* g, Partida* p, FILE* f ){
 
 
 
-static void  game_controller_crea( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* game_type ){
+static void  game_controller_crea( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* game_type, int format ){
 
     // Obtengo el tipo de juego
     GameType* gt = game_type_share_by_name( game_type );
@@ -126,16 +155,15 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
     }
     dbact_sync();
 
-    FILE* f = tmpfile( );
     Game* g2 = game_load( g->id );   // FIXME: Es necesario volver a leer. Corregir la funcion game_save para
                                      //        que quede como corresponde
     game_free( g );
     g = g2;    
     Partida* p = game_partida( g );
-    print_game_data( g, p, f );
-    render_200f( conn, ri, f );
-    fclose( f );
+    cJSON* gson = game_to_cJSON( g, p );
     game_free( g );
+    render_200j( conn, ri, gson, format );
+    cJSON_Delete( gson );
     
 }
 
@@ -761,11 +789,11 @@ static void  game_controller_imagen( struct mg_connection* conn, const struct mg
  * Este es el controlador de game.
  * Lo que voy a hacer es sencillo. 
  * */
-void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, char* parm ){
+void game_controller( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int action, int format, char* parm ){
     session_save( s ); // toco la sesion
     switch(action){
         case  ACTION_CREA:
-            game_controller_crea( conn, ri, s, parm );
+            game_controller_crea( conn, ri, s, parm, format );
             break;
         case  ACTION_TABLERO:
             game_controller_tablero( conn, ri, s, parm );

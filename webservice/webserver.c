@@ -301,7 +301,7 @@ static void routes_filter(struct mg_connection *conn, const struct mg_request_in
                 login_controller( conn, ri, s, my_action, my_format );
                 break;
             case  CONTROLLER_GAME:
-                game_controller( conn, ri, s, my_action, my_param );
+                game_controller( conn, ri, s, my_action, my_format, my_param );
                 break;
             case  CONTROLLER_HELP:
                 help_controller( conn, ri, my_action, my_format );

@@ -45,7 +45,7 @@ if [ "blank$sess" == blank ]; then
 fi
 
 # Intento crear un juego de Ajedrez
-output=`curl -f "http://localhost:8080/$sess/crea/Ajedrez" --stderr /dev/null`
+output=`curl -f "http://localhost:8080/$sess/crea/Ajedrez.json" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret - crea"
@@ -54,7 +54,7 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-game=`echo "$output" | grep game_id | cut -d " " -f 2`
+game=`echo "$output" | grep game_id | cut -f 3 | sed s/^\"// | sed s/\"\,*$//`
 if [ "blank$game" == blank ]; then
     echo  "No encontre sesion $output"
     kill -2 $PID
