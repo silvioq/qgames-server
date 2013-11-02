@@ -98,6 +98,16 @@ static void ping( struct mg_connection *conn, const struct mg_request_info *ri, 
     cJSON_Delete( j );
 }
 
+static void welcome( struct mg_connection *conn, const struct mg_request_info *ri, int format ){
+    cJSON* j = cJSON_CreateObject( );
+    cJSON_AddStringToObject( j, "respuesta", "OK" );
+    cJSON_AddStringToObject( j, "texto", "Welcome to qgserverd " VERSION 
+        "\nUse: /help para ver comandos" );
+    render_200j( conn, ri, j, format );
+    cJSON_Delete( j );
+}
+
+
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session *s, int action, int format){
     switch( action ){
         case ACTION_LOGIN:
@@ -110,7 +120,7 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
             ping( conn, ri, format ? format : FORMAT_TXT );
             break;
         case ACTION_WELCOME:
-            render_200( conn, ri, "Welcome to qgserverd " VERSION "\nUse: /help para ver comandos\n" );
+            welcome( conn, ri, format ? format : FORMAT_TXT );
             break;
         default:
             render_404( conn, ri );
