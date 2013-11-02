@@ -139,6 +139,17 @@ void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, c
     case FORMAT_JSON:
       buf = cJSON_Print( root );
       break;
+
+    case FORMAT_TXT:
+      buf = cJSON_GetObjectItem( root, "texto" );
+      if( !buf ) buf = "Sin mensaje";
+      buf = strdup( buf );
+      break;
+
+    case FORMAT_XML:
+      render_500( conn, ri, "Formato XML no soportado" );
+      return;
+
     case FORMAT_YAML:
     default:
       buf = cJSON_Print_YAML( root );

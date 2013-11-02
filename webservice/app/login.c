@@ -81,9 +81,13 @@ static void login(struct mg_connection *conn, const struct mg_request_info *ri, 
     return;
 }
 
-static void logout(struct mg_connection *conn, const struct mg_request_info *ri, Session* s){
+static void logout(struct mg_connection *conn, const struct mg_request_info *ri, Session* s, int format ){
     session_close( s );
-    render_200( conn, ri, "sesion cerrada" );
+    cJSON* j = cJSON_CreateObject( );
+    cJSON_AddStringToObject( j, "respuesta", "OK" );
+    cJSON_AddStringToObject( j, "texto", "Session cerrada" );
+    render_200j( conn, ri, j, format );
+    cJSON_Delete( j );
 }
 
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session *s, int action, int format){
@@ -92,7 +96,7 @@ void login_controller(struct mg_connection *conn, const struct mg_request_info *
             login( conn, ri, format );
             break;
         case ACTION_LOGOUT:
-            logout( conn, ri, s );
+            logout( conn, ri, s, format ? format : FORMAT_TXT );
             break;
         case ACTION_PING:
             render_200( conn, ri, "pong" );

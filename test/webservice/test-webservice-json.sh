@@ -114,6 +114,24 @@ if [ $ret == 0 ]; then
   exit 1;
 fi
 
+# Saliendo
+output=`curl -f "http://localhost:8080/$sess/logout.json" --stderr /dev/null`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret - crea"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
+echo "$output" | grep "respuesta" | grep "OK" > /dev/null
+ret=$?
+if [ $ret == 0 ]; then
+  echo "Se encuentra respuesta"
+  kill -2 $PID
+    wait
+  exit 1;
+fi
 
 kill -2 $PID
 wait
