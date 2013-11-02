@@ -34,6 +34,7 @@
 #include  "users.h"
 #include  "log.h"
 #include  "session.h"
+#include  "cJSON.h"
 #include  "webserver.h"
 
 
@@ -129,6 +130,22 @@ void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, F
         if( fgets( buff, 1024, f ) )
           mg_write( conn, buff, strlen( buff ) );
     }
+}
+
+void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, cJSON* root, int f){
+
+  char* buf;
+  switch(f){
+    case FORMAT_JSON:
+      buf = cJSON_Print( root );
+      break;
+    case FORMAT_YAML:
+    default:
+      buf = cJSON_Print_YAML( root );
+      break;
+  }
+  render_200( conn, ri, buf );
+  free( buf );
 }
 
 void render_500(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
