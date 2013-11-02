@@ -143,7 +143,7 @@ void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, c
 
     case FORMAT_TXT:
       t = cJSON_GetObjectItem( root, "texto" );
-      if( t ) buf = cJSON_Print_YAML( t );
+      if( t && t->type == cJSON_String ) buf = strdup( t->valuestring );
       if( !buf ) buf = strdup( "Sin mensaje" );
       break;
 
