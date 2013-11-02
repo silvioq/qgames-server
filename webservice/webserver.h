@@ -32,7 +32,8 @@
 #define  FORMAT_PNG          4
 #define  FORMAT_PGN          5
 #define  FORMAT_XML          6
-#define  FORMAT_QGAME        7
+#define  FORMAT_TXT          7
+#define  FORMAT_QGAME        8
 
 #define  CONTROLLER_LOGIN    1
 #define  CONTROLLER_GAME     2

@@ -63,6 +63,7 @@ TYPE_QGAME  qgame
 TYPE_PNG    png
 TYPE_PGN    pgn
 TYPE_XML    xml
+TYPE_TXT    te?xt
 
 FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({TYPE_PGN})|({TYPE_XML})
 
@@ -82,9 +83,11 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            yyterminate( );
                          }
 <with_session>\/logout  {  route_controller = CONTROLLER_LOGIN;
-                          route_action  = ACTION_LOGOUT;
+                           route_format     = FORMAT_TXT;
+                           route_action     = ACTION_LOGOUT;
                         }
 <INITIAL>\/ping          { route_controller = CONTROLLER_LOGIN;
+                           route_format     = FORMAT_TXT;
                            route_action     = ACTION_PING;
                            BEGIN(format);
                          }
@@ -179,6 +182,7 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 <format>\.{TYPE_QGAME}  { route_format = FORMAT_QGAME; } 
 <format>\.{TYPE_PNG}    { route_format = FORMAT_PNG; } 
 <format>\.{TYPE_PGN}    { route_format = FORMAT_PGN; } 
+<format>\.{TYPE_TXT}    { route_format = FORMAT_TXT; } 
 <format>\.{TYPE_XML}    { route_format = FORMAT_XML; } 
 
 
