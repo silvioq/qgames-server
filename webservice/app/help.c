@@ -52,16 +52,7 @@ void help_controller( struct mg_connection* conn, const struct mg_request_info* 
     cJSON_AddStringToObject( comm, "/{sesion}/partida/{idjuego}", "Descarga de la partida en formato binario" );
     cJSON_AddStringToObject( comm, "/{sesion}/registra/{idjuego}", "Registra un nuevo juego en el servidor" );
     cJSON_AddStringToObject( comm, "/{sesion}/desregistra/{idjuego}", "Quita un juego en el servidor" );
-    char* p;
-    switch(format){
-      case  FORMAT_JSON:
-        p = cJSON_Print( j );
-        break;
-      default:
-        p = cJSON_Print_YAML( j );
-    }
-    render_200( conn, ri, p );
-    free( p );
+    render_200j( conn, ri, j, format );
     cJSON_Delete( j );
     return;
 }

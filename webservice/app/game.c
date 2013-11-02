@@ -31,6 +31,7 @@
 #include  "log.h"
 #include  "session.h"
 #include  "base64.h"
+#include  "cJSON.h"
 #include  "webserver.h"
 
 #include  <pthread.h>

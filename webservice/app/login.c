@@ -30,6 +30,7 @@
 #include  "users.h"
 #include  "log.h"
 #include  "session.h"
+#include  "cJSON.h"
 #include  "webserver.h"
 
 /*
@@ -39,7 +40,7 @@
  * Segundo, devuelvo una nueva sesion
  * */
 
-static void login(struct mg_connection *conn, const struct mg_request_info *ri){
+static void login(struct mg_connection *conn, const struct mg_request_info *ri, int format){
     if( strcmp( ri->request_method, "POST" ) != 0 ){
         render_400( conn, ri, "Debe enviar login por POST" );
         return;
@@ -55,9 +56,13 @@ static void login(struct mg_connection *conn, const struct mg_request_info *ri){
             if( user_check_password( u, pass ) ){
                 Session* s = session_new( u );
                 if( session_save( s ) ){
-                    char buf[100];
-                    sprintf( buf, "respuesta: OK\nsesion: %.32s\nversion: " PACKAGE_VERSION "\n", s->id );
-                    render_200( conn, ri, buf);
+                    cJSON* r = cJSON_CreateObject();
+                    char sid[33]; memcpy( sid, s->id, 32 ); sid[32] = 0;
+                    cJSON_AddStringToObject( r, "respuesta", "OK" );
+                    cJSON_AddStringToObject( r, "sesion", sid );
+                    cJSON_AddStringToObject( r, "version", PACKAGE_VERSION);
+                    render_200j( conn, ri, r, format );
+                    cJSON_Delete( r );
                 } else {
                     render_500( conn, ri, "Error al grabar sesion en " __FILE__ ":" QUOTEME(__LINE__) );
                 }
@@ -84,7 +89,7 @@ static void logout(struct mg_connection *conn, const struct mg_request_info *ri,
 void login_controller(struct mg_connection *conn, const struct mg_request_info *ri, Session *s, int action, int format){
     switch( action ){
         case ACTION_LOGIN:
-            login( conn, ri );
+            login( conn, ri, format );
             break;
         case ACTION_LOGOUT:
             logout( conn, ri, s );
