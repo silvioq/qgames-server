@@ -437,7 +437,7 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
 /*
  * Esta accion permite registrar un juego a partir de su binario
  * */
-static void  game_controller_registra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+static void  game_controller_registra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     if( strcmp( ri->request_method, "POST" ) != 0 ){
         render_400( conn, ri, "Debe enviar registracion por POST" );
         return;
@@ -485,11 +485,11 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
         return;
     }
 
-    FILE* f = tmpfile( );
-    print_game_data( g, p, f );
-    render_200f( conn, ri, f );
-    fclose( f );
-    
+
+    cJSON* gson = game_to_cJSON( g, p );
+    render_200j( conn, ri, gson, format );
+    cJSON_Delete( gson );
+    game_free( g );
 
 }
 
@@ -650,7 +650,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_mueve( conn, ri, s, parm, format );
             break;
         case  ACTION_REGISTRA:
-            game_controller_registra( conn, ri, s, parm );
+            game_controller_registra( conn, ri, s, parm, format );
             break;
         case  ACTION_REGISTRACIONES:
             game_controller_registraciones( conn, ri, s, format);
