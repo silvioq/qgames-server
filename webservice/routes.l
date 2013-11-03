@@ -85,6 +85,7 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
 <with_session>\/logout  {  route_controller = CONTROLLER_LOGIN;
                            route_format     = FORMAT_TXT;
                            route_action     = ACTION_LOGOUT;
+                           BEGIN(format);
                         }
 <INITIAL>\/ping          { route_controller = CONTROLLER_LOGIN;
                            route_format     = FORMAT_TXT;
