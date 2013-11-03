@@ -496,6 +496,10 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
  * */
 static void  game_controller_desregistra( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
     
+    if( strcmp( ri->request_method, "POST" ) != 0 ){
+        render_400( conn, ri, "Debe enviar deregistracion por POST" );
+        return;
+    }
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
@@ -542,29 +546,31 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
  * En esta accion se devuelven los juegos activos del usuario
  * que esta en la sesion
  * */
-static void  game_controller_registraciones( struct mg_connection* conn, const struct mg_request_info* ri, Session* s ){
+static void  game_controller_registraciones( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, int format ){
     void* games = NULL;
-    int  primera_vez = 1, cantidad = 0;
+    int  cantidad = 0;
     Game* g ;
     User* u = session_user( s );
-    FILE* f = tmpfile( );
+    cJSON* data = cJSON_CreateObject();
+    cJSON* lista = cJSON_CreateArray();
     while( game_next( &games, &g ) ){
         if( game_check_user( g, u ) ){
-            if( primera_vez ){
-                fprintf( f, "games:\n" );
-                primera_vez = 0;
-            }
-            fprintf( f, "  -\n" );
-            print_game_data_prefix( g, game_partida( g ), f, 4 );
+            cJSON_AddItemToArray( lista, game_to_cJSON( g, game_partida( g ) ) );
             cantidad ++;
         }
         game_free( g );
     }
-    fprintf( f, "respuesta: OK\ncantidad: %d\n", cantidad );
     game_type_end( &games );
-    render_200f( conn, ri, f );
-    close( f );
+
+    cJSON_AddNumberToObject( data, "cantidad", cantidad );
+    cJSON_AddStringToObject( data, "respuesta", "OK" );
+    char total[50];
+    sprintf( total, "Cantidad de juegos: %d", cantidad );
+    cJSON_AddStringToObject( data, "texto", total );
+    cJSON_AddItemToObject( data, "games", lista );
     
+    render_200j( conn, ri, data, format );
+    cJSON_Delete( data );
 }
 
 
@@ -645,7 +651,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_registra( conn, ri, s, parm );
             break;
         case  ACTION_REGISTRACIONES:
-            game_controller_registraciones( conn, ri, s);
+            game_controller_registraciones( conn, ri, s, format);
             break;
         case  ACTION_DESREGISTRA:
             game_controller_desregistra( conn, ri, s, parm );

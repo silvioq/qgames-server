@@ -75,7 +75,7 @@ done
 output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret - posibles"
     kill -2 $PID
     wait
     exit 1;
@@ -85,7 +85,16 @@ info_mov_save="$output"
 info_tab_save=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret - tablero"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
+# contamos registraciones
+cantidad=`curl -f "http://localhost:8080/$sess/registraciones"  --stderr /dev/null | grep cantidad | cut -d " " -f 2`
+if [ x$cantidad != x1 ]; then
+    echo "controlando registraciones cantidad $cantidad != 1"
     kill -2 $PID
     wait
     exit 1;
@@ -104,11 +113,13 @@ if [ $ret != 0 ]; then
 fi
 
 
+
+
 # Ahora desregistraremos el juego
-output=`curl -f "http://localhost:8080/$sess/desregistra/$game" --stderr /dev/null`
+output=`curl -f "http://localhost:8080/$sess/desregistra/$game" -d "" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret"
+    echo "Esperado 0. Encontrado $ret - deregistra $game"
     rm $tmpfile
     kill -2 $PID
     wait
@@ -133,6 +144,16 @@ if [ $ret != 22 ]; then
     wait
     exit 1;
 fi
+
+# contamos registraciones
+cantidad=`curl -f "http://localhost:8080/$sess/registraciones"  --stderr /dev/null | grep cantidad | cut -d " " -f 2`
+if [ x$cantidad != x0 ]; then
+    echo "controlando registraciones cantidad $cantidad != 0"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
 
 # Volvemos a registrar el juego, con otro nombre, porque no.
 output=`curl -f "http://localhost:8080/$sess/registra/r$game" --stderr /dev/null --data-binary @$tmpfile`
@@ -183,6 +204,14 @@ if [ "$info_tab_new" != "$info_tab_save" ]; then
     exit 1;
 fi
 
+# contamos registraciones
+cantidad=`curl -f "http://localhost:8080/$sess/registraciones"  --stderr /dev/null | grep cantidad | cut -d " " -f 2`
+if [ x$cantidad != x1 ]; then
+    echo "controlando registraciones cantidad $cantidad != 1"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
 
 kill -2 $PID
 wait
