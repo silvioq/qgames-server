@@ -422,7 +422,7 @@ static void  game_controller_registra( struct mg_connection* conn, const struct 
     }
     free( game_type );
 
-    Partida* p = qg_partida_load( gt->tipojuego, post_data, post_len );
+    Partida* p = qg_partida_load( game_type_tipojuego( gt ), post_data, post_len );
     if( !p ){
         render_500( conn, ri, "Error al intentar leer la partida" );
         return;
