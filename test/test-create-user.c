@@ -37,7 +37,7 @@
 int  main( int argc, char** argv ){
 
     loglevel = 2;
-    User* u;
+    User* u, *u2;
 
     unlink( FILEDB );
     assert( dbset_file( FILEDB, NULL ) ) ;
@@ -55,6 +55,14 @@ int  main( int argc, char** argv ){
     assert( u = user_find_by_code( "user" ) );
     assert( strcmp( u->nombre, "user" ) == 0 );
     assert( u->id == 2 );
+
+    assert( u2 = user_dup( u ) );
+    assert( strcmp( u2->code, u->code ) == 0 );
+
+    user_free( u );
+    user_free( u2 );
+    dbact_close(); 
+
 
     exit( EXIT_SUCCESS );
 }

@@ -82,6 +82,7 @@ int  main( int argc, char** argv ){
         assert( ((char*)g->data)[i] == (char)( i * 97 % 256 ) );
     }
     game_free( g );
+    dbact_close();
     
 
     exit( EXIT_SUCCESS );
