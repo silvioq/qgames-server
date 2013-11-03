@@ -128,6 +128,12 @@ User*   user_new( int tipo, char* code, char* nombre, char* password ){
     return u ;
 }
 
+User*   user_dup( User* u ){
+    User* ret = user_new( u->tipo, u->code, u->nombre, NULL );
+    memcpy( ret->password, u->password, 16 );
+    return ret;
+}
+
 
 void    user_free( User* user ){
     if( user->code ) free( user->code );
@@ -156,7 +162,7 @@ int     user_save( User* user ){
         LOGPRINT( 5, "Error salvando usuario %d (%s)", user->id, dbget_lasterror() );
         return 0;
     }
-
+    free( data );
     return 1;
 }
 

@@ -533,6 +533,7 @@ int    init_db( char* filename ){
         db_error = "Error grabando usuario " USERROOT;
         return 0;
     }
+    user_free( u );
 
     // Muy importante es hacer flush sobre todo!
     dbact_sync( );
