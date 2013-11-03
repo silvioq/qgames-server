@@ -159,7 +159,7 @@ fi
 output=`curl -f "http://localhost:8080/$sess/registra/r$game" --stderr /dev/null --data-binary @$tmpfile`
 ret=$?
 if [ $ret != 0 ]; then
-    echo "Esperado 0. Encontrado $ret al volver a registrar partida"
+    echo "Esperado 0. Encontrado $ret al volver a registrar partida $tmpfile"
     kill -2 $PID
     rm $tmpfile
     wait
@@ -215,4 +215,36 @@ fi
 
 kill -2 $PID
 wait
+sleep 1
+
+# Voy a intentar ejecutar el servicio web
+$PATHQS/qgserverd &
+PID=$!
+sleep 1 # le doy un segundo como para que levante
+
+# Volvemos a registrar el juego, con otro nombre, porque no.
+output=`curl -f "http://localhost:8080/$sess/registra/x$game" --stderr /dev/null  --data-binary @test.qgame`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret al volver a registrar partida test.qgame"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
+# Leemos la info de nuestro nuevo juego
+info_mov_new=`curl -f "http://localhost:8080/$sess/posibles/x$game" --stderr /dev/null | sed "s/game_id: r/game_id: /"`
+ret=$?
+if [ $ret != 0 ]; then
+    echo "Esperado 0. Encontrado $ret"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
+# Saldo nuevamente
+kill -2 $PID
+wait
+sleep 1
+
 exit 0
