@@ -5,6 +5,7 @@ libwebserver_a_SOURCES = \
     app/login.c  \
     app/game.c  \
     app/help.c  \
+    app/tjuego_controller.c  \
 		mongoose.c    mongoose.h \
 		routes.l   
 

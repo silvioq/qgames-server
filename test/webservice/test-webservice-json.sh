@@ -111,9 +111,25 @@ ret=$?
 if [ $ret == 0 ]; then
   echo "Se encuentra Nf4"
   kill -2 $PID
-    wait
+  wait
   exit 1;
 fi
+
+# Controlo json de juegos
+output=`curl -f "http://localhost:8080/$sess/lista/Ajedrez.json" --stderr /dev/null | grep \"imagen\" | wc -l`
+ret=$?
+if [ $ret != 0 ]; then
+  kill -2 $PID
+  wait
+  exit 1;
+fi
+if [ x$output != x26 ]; then
+    echo  "Estoy esperando 26 lineas y tengo $output"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
+
 
 # Saliendo
 output=`curl -f "http://localhost:8080/$sess/logout.json" --stderr /dev/null`

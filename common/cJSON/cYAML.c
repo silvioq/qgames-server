@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include "cJSON.h"
+#include "base64.h"
 
 #define  cJSON_strdup  strdup
 #define  cJSON_malloc  malloc
@@ -117,7 +118,7 @@ static char *print_array(cJSON *item,int depth)
 	for (i=0;i<numentries;i++)
 	{
     *ptr++= '\n';
-	  for (j=0;j<depth-1;j++){ *ptr++=' '; *ptr++=' '; };
+	  for (j=0;j<depth;j++){ *ptr++=' '; *ptr++=' '; };
     *ptr++= '-'; *ptr++ = ' ';
 		strcpy(ptr,entries[i]);ptr+=strlen(entries[i]);
 		cJSON_free(entries[i]);
@@ -125,6 +126,35 @@ static char *print_array(cJSON *item,int depth)
 	cJSON_free(entries);
 	*ptr++=0;
 	return out;	
+}
+
+static char *print_binary(cJSON *item, int depth){
+  char* b64;
+  char* out, *prt, *prt2, *prt3;
+  int size=base64_encode_alloc( item->valuedata, item->valuesize, &b64 );
+  int lines = size / 50 + 1;
+  int len = lines  * ( depth * 2 + 6 + 51 ) + 11;
+  out = cJSON_malloc( len );
+  prt = out;
+  *prt = 0;
+  strcpy( prt, "!!binary |\n" );
+  prt += 11;
+  prt3 = b64 + size;
+  prt2 = b64;
+  while( prt2 < prt3 ){
+    int i;
+    for( i = 0; i < depth * 2 + 2; i ++ ){ *prt++ = ' '; };
+    int resto = prt3 - prt2 > 50 ? 50 : prt3 - prt2;
+    memcpy( prt, prt2, resto );
+    prt2 += 50;
+    prt += resto;
+    *prt ++ = '\n';
+  }
+  *prt++ = 0;
+
+  free( b64 );
+  return out;
+
 }
 
 
@@ -142,6 +172,7 @@ static char *print_value(cJSON *item,int depth)
 		case cJSON_String:	out=print_string(item);break;
 		case cJSON_Array:	out=print_array(item,depth);break;
 		case cJSON_Object:	out=print_object(item,depth);break;
+    case cJSON_Binary:  out=print_binary(item,depth); break;
 	}
 	return out;
 }
@@ -196,6 +227,7 @@ static char *print_object(cJSON *item,int depth)
 	
 	/* Compose the output: */
 	ptr=out; *ptr=0;
+  if( depth > 1 ) *ptr++='\n';
 	for (i=0;i<numentries;i++)
 	{
 	  for (j=0;j<depth-1;j++){ *ptr++=' '; *ptr++=' '; };
@@ -220,6 +252,7 @@ static char *print_number(cJSON *item)
 	if (fabs(((double)item->valueint)-d)<=DBL_EPSILON && d<=INT_MAX && d>=INT_MIN)
 	{
 		str=(char*)cJSON_malloc(21);	/* 2^64+1 can be represented in 21 chars. */
+		if (str) sprintf(str,"%d",item->valueint);
 	}
 	else
 	{

@@ -48,8 +48,8 @@ ARFLAGS = cru
 libwebserver_a_AR = $(AR) $(ARFLAGS)
 libwebserver_a_DEPENDENCIES = $(LIBOBJS)
 am_libwebserver_a_OBJECTS = webserver.$(OBJEXT) login.$(OBJEXT) \
-	game.$(OBJEXT) help.$(OBJEXT) mongoose.$(OBJEXT) \
-	routes.$(OBJEXT)
+	game.$(OBJEXT) help.$(OBJEXT) tjuego_controller.$(OBJEXT) \
+	mongoose.$(OBJEXT) routes.$(OBJEXT)
 libwebserver_a_OBJECTS = $(am_libwebserver_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -164,6 +164,7 @@ libwebserver_a_SOURCES = \
     app/login.c  \
     app/game.c  \
     app/help.c  \
+    app/tjuego_controller.c  \
 		mongoose.c    mongoose.h \
 		routes.l   
 
@@ -222,6 +223,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/login.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mongoose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/routes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tjuego_controller.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webserver.Po@am__quote@
 
 .c.o:
@@ -279,6 +281,20 @@ help.obj: app/help.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/help.c' object='help.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o help.obj `if test -f 'app/help.c'; then $(CYGPATH_W) 'app/help.c'; else $(CYGPATH_W) '$(srcdir)/app/help.c'; fi`
+
+tjuego_controller.o: app/tjuego_controller.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tjuego_controller.o -MD -MP -MF $(DEPDIR)/tjuego_controller.Tpo -c -o tjuego_controller.o `test -f 'app/tjuego_controller.c' || echo '$(srcdir)/'`app/tjuego_controller.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tjuego_controller.Tpo $(DEPDIR)/tjuego_controller.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/tjuego_controller.c' object='tjuego_controller.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tjuego_controller.o `test -f 'app/tjuego_controller.c' || echo '$(srcdir)/'`app/tjuego_controller.c
+
+tjuego_controller.obj: app/tjuego_controller.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tjuego_controller.obj -MD -MP -MF $(DEPDIR)/tjuego_controller.Tpo -c -o tjuego_controller.obj `if test -f 'app/tjuego_controller.c'; then $(CYGPATH_W) 'app/tjuego_controller.c'; else $(CYGPATH_W) '$(srcdir)/app/tjuego_controller.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tjuego_controller.Tpo $(DEPDIR)/tjuego_controller.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='app/tjuego_controller.c' object='tjuego_controller.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tjuego_controller.obj `if test -f 'app/tjuego_controller.c'; then $(CYGPATH_W) 'app/tjuego_controller.c'; else $(CYGPATH_W) '$(srcdir)/app/tjuego_controller.c'; fi`
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)

@@ -45,7 +45,7 @@ int main(int argc, char** argv){
     assert( route_session[0] == 0 );
 
     assert( get_ruta( "/" unasesion  "/lista" ) );
-    assert( route_controller == CONTROLLER_GAME );
+    assert( route_controller == CONTROLLER_TJUEGO );
     assert( route_action     == ACTION_TIPOJUEGOS ) ;
     assert( strncmp( unasesion, route_session, 32 ) == 0 );
 

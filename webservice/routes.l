@@ -107,12 +107,13 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                            route_action     = ACTION_HISTORIAL;
                            BEGIN( check_gameid );
                         }
-<with_session>\/lista\/    { route_controller = CONTROLLER_GAME;
+<with_session>\/lista\/    { route_controller = CONTROLLER_TJUEGO;
                            route_action     = ACTION_TIPOJUEGOS;
                            BEGIN( check_param );
                         }
-<with_session>\/lista    { route_controller = CONTROLLER_GAME;
+<with_session>\/lista    { route_controller = CONTROLLER_TJUEGO;
                            route_action     = ACTION_TIPOJUEGOS;
+                           BEGIN(format);
                         }
 <with_session>\/move\/   { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_MUEVE;

@@ -38,6 +38,7 @@
 #define  CONTROLLER_LOGIN    1
 #define  CONTROLLER_GAME     2
 #define  CONTROLLER_HELP     3
+#define  CONTROLLER_TJUEGO   4
 
 #define  ACTION_LOGIN        1
 #define  ACTION_LOGOUT       2

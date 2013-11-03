@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include "cJSON.h"
+#include "base64.h"
 
 static const char *ep;
 
@@ -86,6 +87,7 @@ void cJSON_Delete(cJSON *c)
 		next=c->next;
 		if (!(c->type&cJSON_IsReference) && c->child) cJSON_Delete(c->child);
 		if (!(c->type&cJSON_IsReference) && c->valuestring) cJSON_free(c->valuestring);
+		if (!(c->type&cJSON_IsReference) && c->valuedata) cJSON_free(c->valuedata);
 		if (c->string) cJSON_free(c->string);
 		cJSON_free(c);
 		c=next;
@@ -248,6 +250,13 @@ static char *print_string_ptr(const char *str)
 }
 /* Invote print_string_ptr (which is useful) on an item. */
 static char *print_string(cJSON *item)	{return print_string_ptr(item->valuestring);}
+static char *print_binary(cJSON *item)  {
+  char* b64;
+  int  size=base64_encode_alloc( item->valuedata, item->valuesize, &b64 );
+  char* out = print_string_ptr( b64 );
+  free( b64 );
+  return out;
+}
 
 /* Predeclare these prototypes. */
 static const char *parse_value(cJSON *item,const char *value);
@@ -302,6 +311,7 @@ static const char *parse_value(cJSON *item,const char *value)
 static char *print_value(cJSON *item,int depth,int fmt)
 {
 	char *out=0;
+  size_t size;
 	if (!item) return 0;
 	switch ((item->type)&255)
 	{
@@ -312,6 +322,7 @@ static char *print_value(cJSON *item,int depth,int fmt)
 		case cJSON_String:	out=print_string(item);break;
 		case cJSON_Array:	out=print_array(item,depth,fmt);break;
 		case cJSON_Object:	out=print_object(item,depth,fmt);break;
+    case cJSON_Binary:  out=print_binary(item);break;
 	}
 	return out;
 }
@@ -517,7 +528,16 @@ static void suffix_object(cJSON *prev,cJSON *item) {prev->next=item;item->prev=p
 static cJSON *create_reference(cJSON *item) {cJSON *ref=cJSON_New_Item();if (!ref) return 0;memcpy(ref,item,sizeof(cJSON));ref->string=0;ref->type|=cJSON_IsReference;ref->next=ref->prev=0;return ref;}
 
 /* Add item to array/object. */
-void   cJSON_AddItemToArray(cJSON *array, cJSON *item)						{cJSON *c=array->child;if (!item) return; if (!c) {array->child=item;} else {while (c && c->next) c=c->next; suffix_object(c,item);}}
+void   cJSON_AddItemToArray(cJSON *array, cJSON *item){
+  cJSON *c=array->child;
+  if (!item) return;
+  if (!c) {array->child=item;}
+  else {
+    while (c && c->next)
+      c=c->next;
+    suffix_object(c,item);
+  }
+}
 void   cJSON_AddItemToObject(cJSON *object,const char *string,cJSON *item)	{if (!item) return; if (item->string) cJSON_free(item->string);item->string=cJSON_strdup(string);cJSON_AddItemToArray(object,item);}
 void	cJSON_AddItemReferenceToArray(cJSON *array, cJSON *item)						{cJSON_AddItemToArray(array,create_reference(item));}
 void	cJSON_AddItemReferenceToObject(cJSON *object,const char *string,cJSON *item)	{cJSON_AddItemToObject(object,string,create_reference(item));}
@@ -541,6 +561,16 @@ cJSON *cJSON_CreateFalse(void)					{cJSON *item=cJSON_New_Item();if(item)item->t
 cJSON *cJSON_CreateBool(int b)					{cJSON *item=cJSON_New_Item();if(item)item->type=b?cJSON_True:cJSON_False;return item;}
 cJSON *cJSON_CreateNumber(double num)			{cJSON *item=cJSON_New_Item();if(item){item->type=cJSON_Number;item->valuedouble=num;item->valueint=(int)num;}return item;}
 cJSON *cJSON_CreateString(const char *string)	{cJSON *item=cJSON_New_Item();if(item){item->type=cJSON_String;item->valuestring=cJSON_strdup(string);}return item;}
+cJSON *cJSON_CreateBinary(const void *data, int size)	{
+  cJSON *item=cJSON_New_Item();
+  if(item){
+    item->type=cJSON_Binary;
+    item->valuedata=cJSON_malloc( size );
+    memcpy( item->valuedata, data, size );
+    item->valuesize = size;
+  }
+  return item;
+}
 cJSON *cJSON_CreateArray(void)					{cJSON *item=cJSON_New_Item();if(item)item->type=cJSON_Array;return item;}
 cJSON *cJSON_CreateObject(void)					{cJSON *item=cJSON_New_Item();if(item)item->type=cJSON_Object;return item;}
 
@@ -562,6 +592,12 @@ cJSON *cJSON_Duplicate(cJSON *item,int recurse)
 	/* Copy over all vars */
 	newitem->type=item->type&(~cJSON_IsReference),newitem->valueint=item->valueint,newitem->valuedouble=item->valuedouble;
 	if (item->valuestring)	{newitem->valuestring=cJSON_strdup(item->valuestring);	if (!newitem->valuestring)	{cJSON_Delete(newitem);return 0;}}
+  if (item->valuedata)    {
+    newitem->valuedata=cJSON_malloc(item->valuesize);
+    if( !newitem->valuedata ) { cJSON_Delete(newitem); return 0;}
+    memcpy(newitem->valuedata, item->valuedata,item->valuesize);
+    newitem->valuesize = item->valuesize ;
+  }
 	if (item->string)		{newitem->string=cJSON_strdup(item->string);			if (!newitem->string)		{cJSON_Delete(newitem);return 0;}}
 	/* If non-recursive, then we're done! */
 	if (!recurse) return newitem;

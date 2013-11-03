@@ -36,6 +36,7 @@ extern "C"
 #define cJSON_String 4
 #define cJSON_Array 5
 #define cJSON_Object 6
+#define cJSON_Binary 7
 	
 #define cJSON_IsReference 256
 
@@ -47,6 +48,8 @@ typedef struct cJSON {
 	int type;					/* The type of the item, as above. */
 
 	char *valuestring;			/* The item's string, if type==cJSON_String */
+  void *valuedata;        /* The item's binary, if type==cJSON_Binary */
+  int  valuesize;         /* The item's binary size */
 	int valueint;				/* The item's number, if type==cJSON_Number */
 	double valuedouble;			/* The item's number, if type==cJSON_Number */
 
@@ -92,6 +95,7 @@ extern cJSON *cJSON_CreateNumber(double num);
 extern cJSON *cJSON_CreateString(const char *string);
 extern cJSON *cJSON_CreateArray(void);
 extern cJSON *cJSON_CreateObject(void);
+extern cJSON *cJSON_CreateBinary(const void* data, int size );
 
 /* These utilities create an Array of count items. */
 extern cJSON *cJSON_CreateIntArray(const int *numbers,int count);
@@ -134,6 +138,7 @@ extern void cJSON_Minify(char *json);
 #define cJSON_AddBoolToObject(object,name,b)	cJSON_AddItemToObject(object, name, cJSON_CreateBool(b))
 #define cJSON_AddNumberToObject(object,name,n)	cJSON_AddItemToObject(object, name, cJSON_CreateNumber(n))
 #define cJSON_AddStringToObject(object,name,s)	cJSON_AddItemToObject(object, name, cJSON_CreateString(s))
+#define cJSON_AddBinaryToObject(object,name,d,s) cJSON_AddItemToObject(object, name, cJSON_CreateBinary(d,s))
 
 /* When assigning an integer value, it needs to be propagated to valuedouble too. */
 #define cJSON_SetIntValue(object,val)			((object)?(object)->valueint=(object)->valuedouble=(val):(val))
