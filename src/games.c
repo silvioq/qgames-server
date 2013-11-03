@@ -319,6 +319,23 @@ GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded ){
     return NULL;
 }
 
+/*
+ * Limpieza de cache
+ *
+ */
+void   game_type_share_clean(){
+    int i;
+    for( i = 0; i < game_types_lista_count; i ++ ){
+        game_type_free( game_types_lista[i] );
+    }
+    if( game_types_lista )
+        free( game_types_lista );
+    game_types_lista_alloc = 0;
+    game_types_lista_count = 0;
+}
+
+
+
 Tipojuego*  game_type_tipojuego( GameType* gt ){
     pthread_mutex_lock( &lector_mutex );
     if( !gt->tipojuego ){

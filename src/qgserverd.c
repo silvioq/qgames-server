@@ -49,6 +49,7 @@ static void  trap(int a){
     stop_webservice( );
     LOGPRINT( 4, "Cerrando bases %d", a );
     dbact_close( );
+    game_type_share_clean();
     exit( EXIT_SUCCESS );
 }
 
