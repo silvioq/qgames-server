@@ -316,7 +316,7 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
 /*
  * Realiza la movida pasada como parametro
  * */
-static void  game_controller_mueve( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+static void  game_controller_mueve( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     if( strcmp( ri->request_method, "POST" ) != 0 ){
         render_400( conn, ri, "Debe enviar movida (m=xxxx) por POST" );
         return;
@@ -368,17 +368,19 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
             return;
         }
     }
-    FILE* f = tmpfile( );
+
     game_set_partida( g, p );
-    print_game_data( g, p, f );
     if(!game_save( g ) ){
         LOGPRINT( 5, "Error de partida!", 0 );
         render_400( conn, ri, "Error al guardar partida" );
+        return;
     } else {
         dbact_sync();
-        render_200f( conn, ri, f );
     }
-    fclose( f );
+
+    cJSON* gson = game_to_cJSON( g, p );
+    render_200j( conn, ri, gson, format );
+    cJSON_Delete( gson );
     free( move );
     game_free( g );
 }
@@ -645,7 +647,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_posibles( conn, ri, s, parm, format );
             break;
         case  ACTION_MUEVE:
-            game_controller_mueve( conn, ri, s, parm );
+            game_controller_mueve( conn, ri, s, parm, format );
             break;
         case  ACTION_REGISTRA:
             game_controller_registra( conn, ri, s, parm );
