@@ -217,6 +217,51 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
     cJSON_Delete( gson );
 }
 
+
+static cJSON*  movida_to_cJSON( Partida* p, Movdata movd ){
+    cJSON* mov = cJSON_CreateObject( );
+    cJSON_AddNumberToObject( mov, "numero", movd.numero );
+    cJSON_AddStringToObject( mov, "descripcion", movd.descripcion );
+    cJSON_AddStringToObject( mov, "pieza", movd.pieza );
+    cJSON_AddStringToObject( mov, "color", movd.color );
+    if( movd.captura ){
+        cJSON_AddBoolToObject( mov, "es_captura", 1 );
+        cJSON_AddStringToObject( mov, "captura", movd.captura_pieza );
+        cJSON_AddStringToObject( mov, "captura_cas", movd.captura_casillero );
+    }
+    cJSON_AddStringToObject( mov, "origen", ( movd.origen == CASILLERO_POZO ? "" : movd.origen ) );
+    cJSON_AddStringToObject( mov, "destino" , movd.destino );
+    cJSON_AddStringToObject( mov, "notacion" , movd.notacion );
+    if( movd.transforma ){
+        cJSON_AddStringToObject( mov, "transforma_tipo", movd.transforma_pieza );
+        cJSON_AddStringToObject( mov, "transforma_color", movd.transforma_color );
+    }
+    if( movd.movida ){
+        cJSON* detalles = cJSON_CreateArray( );
+        do{
+            cJSON* det = cJSON_CreateObject( );
+            cJSON_AddStringToObject( det, "origen", ( movd.movida_origen == CASILLERO_POZO ? "" : movd.movida_origen ) );
+            cJSON_AddStringToObject( det, "destino", ( movd.movida_destino == CASILLERO_POZO ? "" : movd.movida_destino ) );
+            cJSON_AddItemToArray( detalles, det );
+        } while( qg_partida_movdata_nextmov( p, &movd ) );
+        cJSON_AddItemToObject( mov, "detalle", detalles );
+    }
+
+    if( movd.crea ){
+        cJSON* crea = cJSON_CreateArray( );
+        do {
+            cJSON* c = cJSON_CreateObject( );
+            cJSON_AddStringToObject( c, "pieza", movd.crea_pieza );
+            cJSON_AddStringToObject( c, "casillero", movd.crea_casillero );
+            cJSON_AddStringToObject( c, "color", movd.crea_color );
+            cJSON_AddItemToArray( crea, c );
+        } while( qg_partida_movdata_nextcrea( p, &movd ) );
+        cJSON_AddItemToObject( mov, "crea", crea );
+    }
+    return mov;
+}
+
+
 static void  game_controller_historial( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     Game*  g = game_load( id );
     Movdata movd;
@@ -251,51 +296,16 @@ static void  game_controller_historial( struct mg_connection* conn, const struct
         cJSON_AddItemToArray( tabinicial, itemp );
         i ++;
     }
-    cJSON_AddItemToObject( gson, "tablero_inicial", tabinicial );
 
+    i = 0;
     while( qg_partida_movhist_data( p, i, &movd ) ){
-        cJSON* mov = cJSON_CreateObject( );
-        cJSON_AddNumberToObject( mov, "numero", movd.numero );
-        cJSON_AddStringToObject( mov, "descripcion", movd.descripcion );
-        cJSON_AddStringToObject( mov, "pieza", movd.pieza );
-        cJSON_AddStringToObject( mov, "color", movd.color );
-        if( movd.captura ){
-            cJSON_AddBoolToObject( mov, "es_captura", 1 );
-            cJSON_AddStringToObject( mov, "captura", movd.captura_pieza );
-            cJSON_AddStringToObject( mov, "captura_cas", movd.captura_casillero );
-        }
-        cJSON_AddStringToObject( mov, "origen", ( movd.origen == CASILLERO_POZO ? "" : movd.origen ) );
-        cJSON_AddStringToObject( mov, "destino" , movd.destino );
-        cJSON_AddStringToObject( mov, "notacion" , movd.notacion );
-        if( movd.transforma ){
-            cJSON_AddStringToObject( mov, "transforma_tipo", movd.transforma_pieza );
-            cJSON_AddStringToObject( mov, "transforma_color", movd.transforma_color );
-        }
-        if( movd.movida ){
-            cJSON* detalles = cJSON_CreateArray( );
-            do{
-                cJSON* det = cJSON_CreateObject( );
-                cJSON_AddStringToObject( det, "origen", ( movd.movida_origen == CASILLERO_POZO ? "" : movd.movida_origen ) );
-                cJSON_AddStringToObject( det, "destino", ( movd.movida_destino == CASILLERO_POZO ? "" : movd.movida_destino ) );
-                cJSON_AddItemToArray( detalles, det );
-            } while( qg_partida_movdata_nextmov( p, &movd ) );
-            cJSON_AddItemToObject( mov, "detalle", detalles );
-        }
-
-        if( movd.crea ){
-            cJSON* crea = cJSON_CreateArray( );
-            do {
-                cJSON* c = cJSON_CreateObject( );
-                cJSON_AddStringToObject( c, "pieza", movd.crea_pieza );
-                cJSON_AddStringToObject( c, "casillero", movd.crea_casillero );
-                cJSON_AddStringToObject( c, "color", movd.crea_color );
-                cJSON_AddItemToArray( crea, c );
-            } while( qg_partida_movdata_nextcrea( p, &movd ) );
-            cJSON_AddItemToObject( mov, "crea", crea );
-        }
+        cJSON_AddItemToArray( movidas,
+               movida_to_cJSON( p, movd ) );
         i ++;
-
     }
+
+    cJSON_AddItemToObject( gson, "tablero_inicial", tabinicial );
+    cJSON_AddItemToObject( gson, "movidas", movidas );
 
     game_free( g );
     render_200j( conn, ri, gson, format );
@@ -378,7 +388,7 @@ static void  game_controller_mueve( struct mg_connection* conn, const struct mg_
  * esta es la accion que devuelve aquellos movimientos posibles
  * a realizar
  * */
-static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+static void  game_controller_posibles( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
@@ -404,45 +414,22 @@ static void  game_controller_posibles( struct mg_connection* conn, const struct 
     }
 
     int i;
-    FILE* f = tmpfile( );
-    print_game_data( g, p, f );
+    cJSON* gson = game_to_cJSON( g, p );
+    cJSON* movidas    = cJSON_CreateArray();
     
     int pie = qg_partida_movidas_count( p );
-    fprintf( f, "total: %d\nmovidas:\n", pie );
+    cJSON_AddNumberToObject( gson, "total", pie );
     for( i = 0; i < pie; i ++ ){
         Movdata movd;
         if( qg_partida_movidas_data( p, i, &movd ) ){
-            fprintf( f, "- numero: %d\n  notacion: %s\n  descripcion: %s\n", i, movd.notacion, movd.descripcion );
-            fprintf( f, "  pieza: %s\n  color: %s\n  origen: %s\n  destino: %s\n",
-                      movd.pieza, movd.color, 
-                      movd.origen == CASILLERO_POZO ? "" : movd.origen,
-                      movd.destino );
-            if( movd.transforma ){
-                fprintf( f, "  transforma_tipo: %s\n  transforma_color: %s\n", 
-                        movd.transforma_pieza, movd.transforma_color );
-            }
-        }
-
-        if( movd.captura ){
-            fprintf(f, "  es_captura: 1\n  captura:\n" );
-            do {
-                fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", 
-                        movd.captura_pieza, movd.captura_casillero, movd.captura_color );
-            } while( qg_partida_movdata_nextcap( p, &movd ) );
-        }
-
-        if( movd.crea ){
-            fprintf( f, "  crea_piezas: \n" );
-            do {
-                fprintf( f, "  - pieza: %s\n    casillero: %s\n    color: %s\n", 
-                        movd.crea_pieza, movd.crea_casillero, movd.crea_color );
-            } while( qg_partida_movdata_nextcrea( p, &movd ) );
+            cJSON_AddItemToArray( movidas, movida_to_cJSON( p, movd ) );
         }
     }
-    render_200f( conn, ri, f );
-    fclose( f );
-    game_free( g );
+    cJSON_AddItemToObject( gson, "movidas", movidas );
 
+    render_200j( conn, ri, gson, format );
+    cJSON_Delete( gson );
+    game_free( g );
 }
 
 /*
@@ -809,7 +796,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_historial( conn, ri, s, parm, format );
             break;
         case  ACTION_POSIBLES:
-            game_controller_posibles( conn, ri, s, parm );
+            game_controller_posibles( conn, ri, s, parm, format );
             break;
         case  ACTION_MUEVE:
             game_controller_mueve( conn, ri, s, parm );

@@ -65,7 +65,7 @@ fi
 # echo "Juego creado $game"
 
 # Vamos a intentar leer la informacion de ese partido que creamos
-output=`curl -f "http://localhost:8080/$sess/tablero/$game" --stderr /dev/null`
+output=`curl -f "http://localhost:8080/$sess/tablero/$game.json" --stderr /dev/null`
 ret=$?
 if [ $ret != 0 ]; then
     echo "Esperado 0. Encontrado $ret - tablero"
@@ -74,7 +74,7 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
-ret=`echo "$output" | grep "total:" | cut -f 2 -d " "`
+ret=`echo "$output" | grep "total" | cut -f 3 | sed s/,*$//`
 if [ x$ret != x32 ]; then
     echo  "Estoy esperando 32 piezas y tengo $ret"
     kill -2 $PID
@@ -85,18 +85,19 @@ fi
 
 
 for i in a1 b1 c1 d1 e1 f1 g1 h1; do
-  ret=`echo "$output" | grep "casillero: $i"`
+  echo "$output" | grep  "casillero\":" | grep "\"$i\"" > /dev/null
   ret=$?
   if [ $ret != 0 ]; then
     echo "No se encuentra casillero $i"
+    echo  "$output"
     kill -2 $PID
     wait
     exit 1;
   fi
 done
 
-output=`curl -f "http://localhost:8080/$sess/posibles/$game" --stderr /dev/null`
-echo "$output" | grep "notacion: Nf3" > /dev/null
+output=`curl -f "http://localhost:8080/$sess/posibles/$game.json" --stderr /dev/null`
+echo "$output" | grep "notacion\":" | grep "\"Nf3" > /dev/null
 ret=$?
 if [ $ret != 0 ]; then
   echo "No se encuentra Nf3"
@@ -105,7 +106,7 @@ if [ $ret != 0 ]; then
   exit 1;
 fi
 
-echo "$output" | grep "notacion: Nf4" 
+echo "$output" | grep "notacion\":" | grep "\"Nf4" > /dev/null
 ret=$?
 if [ $ret == 0 ]; then
   echo "Se encuentra Nf4"
@@ -124,10 +125,11 @@ if [ $ret != 0 ]; then
     exit 1;
 fi
 
+
 echo "$output" | grep "respuesta" | grep "OK" > /dev/null
 ret=$?
-if [ $ret == 0 ]; then
-  echo "Se encuentra respuesta"
+if [ $ret != 0 ]; then
+  echo "No se encuentra respuesta"
   kill -2 $PID
     wait
   exit 1;
