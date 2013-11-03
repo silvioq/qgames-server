@@ -83,7 +83,6 @@ if [ x$ret != x32 ]; then
 fi
     
 
-
 for i in a1 b1 c1 d1 e1 f1 g1 h1; do
   echo "$output" | grep  "casillero\":" | grep "\"$i\"" > /dev/null
   ret=$?
@@ -130,6 +129,23 @@ if [ x$output != x26 ]; then
     exit 1;
 fi
 
+# Muevo!
+output=`curl -f "http://localhost:8080/$sess/mueve/$game.json" --stderr /dev/null -d "m=d4" `
+ret=$?
+if [ $ret != 0 ]; then
+  echo "Error moviendo : $ret   $output"
+  kill -2 $PID
+  wait
+  exit 1;
+fi
+
+movs=`echo "$output" | grep cantidad_movidas\"\: | cut -f 3 | sed s/,*$//`
+if [ x$movs != x1 ]; then
+    echo  "Estoy esperando 1 movida y tengo $movs"
+    kill -2 $PID
+    wait
+    exit 1;
+fi
 
 # Saliendo
 output=`curl -f "http://localhost:8080/$sess/logout.json" --stderr /dev/null`
