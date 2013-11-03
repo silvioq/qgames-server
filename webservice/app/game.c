@@ -167,7 +167,7 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
     
 }
 
-static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+static void  game_controller_tablero( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     Game*  g = game_load( id );
     if( !g ){
         render_404( conn, ri );
@@ -185,34 +185,36 @@ static void  game_controller_tablero( struct mg_connection* conn, const struct m
         return;
     }
     int i;
-    FILE* f = tmpfile( );
-    print_game_data( g, p, f );
+    cJSON* gson = game_to_cJSON( g, p );
     
     int pie = qg_partida_tablero_count( p, LAST_MOVE );
     int cap = qg_partida_tablero_countcap( p, LAST_MOVE );
-    if( pie + cap == 0 ){
-        fprintf( f, "total: 0\npiezas: []\n" );
-    } else {
-        fprintf( f, "total: %d\npiezas:\n", pie );
-        for( i = 0; i < pie; i ++ ){
-            char* casillero; char* tipo; char* color;
-            qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
-            fprintf( f, "- casillero: %s\n", casillero );
-            fprintf( f, "  tipo: %s\n", tipo );
-            fprintf( f, "  color: %s\n", color );
-        }
-        for( i = 0; i < cap; i ++ ){
-            char* tipo; char* color;
-            qg_partida_tablero_datacap( p, LAST_MOVE, i, &tipo, &color );
-            fprintf( f, "- casillero: :captured\n" );
-            fprintf( f, "  tipo: %s\n", tipo );
-            fprintf( f, "  color: %s\n", color );
-        }
-    }
-    render_200f( conn, ri, f );
-    game_free( g );
-    fclose( f );
+    cJSON_AddNumberToObject( gson, "total", pie );
+    cJSON* piezas = cJSON_CreateArray( );
+    for( i = 0; i < pie; i ++ ){
+        char* casillero; char* tipo; char* color;
+        qg_partida_tablero_data( p, LAST_MOVE, i, &casillero, &tipo, &color );
 
+        cJSON* itemp = cJSON_CreateObject( );
+        cJSON_AddStringToObject( itemp, "casillero", casillero );
+        cJSON_AddStringToObject( itemp, "tipo", tipo );
+        cJSON_AddStringToObject( itemp, "color", color );
+        cJSON_AddItemToArray( piezas, itemp );
+    }
+    for( i = 0; i < cap; i ++ ){
+        char* tipo; char* color;
+        qg_partida_tablero_datacap( p, LAST_MOVE, i, &tipo, &color );
+        cJSON* itemp = cJSON_CreateObject( );
+        cJSON_AddStringToObject( itemp, "casillero", ":captured" );
+        cJSON_AddStringToObject( itemp, "tipo", tipo );
+        cJSON_AddStringToObject( itemp, "color", color );
+        cJSON_AddItemToArray( piezas, itemp );
+    }
+    cJSON_AddItemToObject( gson, "piezas", piezas );
+
+    game_free( g );
+    render_200j( conn, ri, gson, format );
+    cJSON_Delete( gson );
 }
 
 static void  game_controller_historial( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
@@ -796,7 +798,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_crea( conn, ri, s, parm, format );
             break;
         case  ACTION_TABLERO:
-            game_controller_tablero( conn, ri, s, parm );
+            game_controller_tablero( conn, ri, s, parm, format );
             break;
         case  ACTION_HISTORIAL:
             game_controller_historial( conn, ri, s, parm );
