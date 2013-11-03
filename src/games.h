@@ -44,10 +44,18 @@ typedef  struct  StrGame {
   GameType*         game_type;
   unsigned int      data_size;
   void*             data;
+
+
+  char*             color;        // Color que le toca jugar
+  char*             estado;       // estado de la partida
+  char*             notacion;     // notacion ultima movida
+  char*             destino;      // destino de la ultima movida
+  char              es_continuacion;
+  Partida*          partida;
+
   time_t            created_at;
   time_t            modified_at;
 
-  Partida*          partida;
   int               rec_flags;
 } Game;
 

@@ -364,7 +364,42 @@ Tipojuego*  game_type_tipojuego( GameType* gt ){
  * */
 void  game_set_partida( Game* g, Partida* p ){
     if( g->data ) free( g->data );
+    if( g->color ) free( g->color );
+    if( g->estado ) free( g->estado );
+    if( g->destino ) free( g->destino );
+    if( g->notacion ) free( g->notacion );
     qg_partida_dump( p, &g->data, &g->data_size );
+    g->color = strdup( qg_partida_color( p ) );
+    char* res;
+    qg_partida_final( p, &res );
+    g->estado = strdup( res ? res : "Jugando" );
+    g->es_continuacion = qg_partida_es_continuacion( p );
+
+    int movidas = qg_partida_movhist_count( p );
+    Movdata  movd;
+    if( movidas > 0 ){
+        int i = 0, len = 0;
+        char destino[180] = "";
+        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+            if( strlen( res ) + len + 1 > 180 ) break;
+            if( i )
+                sprintf( destino, "%s,%s", destino, res );
+            else
+                strcpy( destino, res );
+            i ++;
+        }
+        g->destino = strdup( destino );
+        if( qg_partida_movhist_data( p, -1, &movd ) )
+            g->notacion = strdup( movd.notacion );
+        else {
+            LOGPRINT( 1, "Error accediendo a notacion de partida %s", g->id );
+            g->notacion = NULL;
+        }
+
+    } else {
+        g->destino = NULL;
+        g->notacion = NULL;
+    }
 }
 
 
@@ -378,8 +413,10 @@ Game*   game_new( char* id, User* user, GameType* type, time_t created_at ){
     Game* g = malloc( sizeof( Game ) );
     memset( g, 0, sizeof( Game ) );
     g->id = strdup( id );
-    g->user = user;
-    if( user ) g->user_id = user->id;
+    if( user ){
+        g->user_id = user->id;
+        g->user = user_dup( user );
+    }
     g->game_type = type;
     if( type ) g->game_type_id = type->id;
 
@@ -412,6 +449,11 @@ void    game_free( Game* game ){
     if( game->id )  free( game->id );
     if( game->data ) free( game->data );
     if( game->partida ) qg_partida_free( game->partida );
+    if( game->color ) free( game->color );
+    if( game->estado ) free( game->estado );
+    if( game->destino ) free( game->destino );
+    if( game->notacion ) free( game->notacion );
+    if( game->user ) user_free( game->user );
     free( game );
 }
 
@@ -422,7 +464,10 @@ void    game_free( Game* game ){
 
 static  int  game_to_bin( Game* g, void** data ){
     int  size;
-    if( binary_pack( "siibll", data, &size, g->id, g->user_id, g->game_type_id, g->data, g->data_size, 
+    volatile char* null = "";
+    if( binary_pack( "siibsssscll", data, &size, 
+                g->id, g->user_id, g->game_type_id, g->data, g->data_size, 
+                g->color ? g->color : null, g->estado ? g->estado : null, g->destino ? g->destino : null, g->notacion ? g->notacion : null, g->es_continuacion,
                 g->created_at, g->modified_at ) ){
         return size;
     } else return 0;
@@ -436,10 +481,14 @@ static Game* bin_to_game( void* data, int size ){
     unsigned long user_id, game_type_id;
     void*  game_data;
     int    game_data_size;
+    char*  color, *estado, *notacion, *destino;
+    char   es_cont;
     time_t  created_at, modified_at;
 
-    if( binary_unpack( "siibll", data, size, &id, &user_id, &game_type_id,
-                &game_data, &game_data_size, 
+    if( binary_unpack( "siibsssscll", data, size,
+                &id, &user_id, &game_type_id,
+                &game_data, &game_data_size,
+                &color, &estado, &destino, &notacion, &es_cont,
                 &created_at, &modified_at ) ){
         if( game_data_size && !game_data ){
             LOGPRINT( 1, "Error en lectura de juego. Tamaño incompatible con datos: Size %d", game_data_size );
@@ -448,6 +497,11 @@ static Game* bin_to_game( void* data, int size ){
         Game* g = game_new( id, NULL, NULL, created_at );
         g->game_type_id = game_type_id;
         g->user_id      = user_id;
+        g->color        = color[0] ? strdup( color ) : NULL;
+        g->estado       = estado[0] ? strdup( estado ) : NULL;
+        g->destino      = destino[0] ? strdup( destino ) : NULL;
+        g->notacion     = notacion[0] ? strdup( notacion ) : NULL;
+        g->es_continuacion = es_cont;
         g->modified_at  = modified_at;
         if( game_data_size ) game_set_data( g, game_data, game_data_size );
         return g;
@@ -572,8 +626,6 @@ Game*     game_type_create( GameType* gt, User* u ){
     qg_partida_free( p );
     pthread_mutex_unlock( &lector_mutex );
     return ret;
-    
-
 }
 
 
