@@ -65,7 +65,7 @@ TYPE_PGN    pgn
 TYPE_XML    xml
 TYPE_TXT    te?xt
 
-FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({TYPE_PGN})|({TYPE_XML})
+FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({TYPE_PGN})|({TYPE_XML})|({TYPE_TXT})
 
 %%
 
@@ -148,6 +148,7 @@ FORMAT  ({TYPE_YAML})|({TYPE_HTML})|({TYPE_JSON})|({TYPE_QGAME})|({TYPE_PNG})|({
                          }
 <with_session>\/partida\/ { route_controller = CONTROLLER_GAME;
                            route_action     = ACTION_PARTIDA;
+                           route_format     = FORMAT_QGAME;
                            BEGIN( check_gameid );
                          }
 

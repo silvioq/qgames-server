@@ -62,6 +62,28 @@ int main(int argc, char** argv){
     assert( strcmp( route_param, "hola@com.ar" ) == 0 );
     assert( route_format    == FORMAT_PNG );
 
+    assert( get_ruta( "/" unasesion  "/partida/hola@com.ar.png" ) );
+    assert( route_controller == CONTROLLER_GAME );
+    assert( route_action     == ACTION_PARTIDA ) ;
+    assert( strncmp( unasesion, route_session, 32 ) == 0 );
+    assert( strcmp( route_param, "hola@com.ar" ) == 0 );
+    assert( route_format    == FORMAT_PNG );
+
+    assert( get_ruta( "/" unasesion  "/partida/hola@com.ar.text" ) );
+    assert( route_controller == CONTROLLER_GAME );
+    assert( route_action     == ACTION_PARTIDA ) ;
+    assert( strncmp( unasesion, route_session, 32 ) == 0 );
+    assert( strcmp( route_param, "hola@com.ar" ) == 0 );
+    assert( route_format    == FORMAT_TXT );
+
+    assert( get_ruta( "/" unasesion  "/partida/hola@com.ar" ) );
+    assert( route_controller == CONTROLLER_GAME );
+    assert( route_action     == ACTION_PARTIDA ) ;
+    assert( strncmp( unasesion, route_session, 32 ) == 0 );
+    assert( strcmp( route_param, "hola@com.ar" ) == 0 );
+    assert( route_format    == FORMAT_QGAME );
+
+
     exit( EXIT_SUCCESS );
 }
 

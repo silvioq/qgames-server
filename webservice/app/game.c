@@ -514,7 +514,7 @@ static void  game_controller_desregistra( struct mg_connection* conn, const stru
 /*
  * Dado un juego existente en la base, devuelve el binario asociado
  * */
-static void  game_controller_partida( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id ){
+static void  game_controller_partida( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* id, int format ){
     
     Game*  g = game_load( id );
     if( !g ){
@@ -526,16 +526,14 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
         game_free( g );
         return;
     }
-    int   status = 200;
-    char* reason = "OK";
-		mg_printf(conn,
-		    "HTTP/1.1 %d %s\r\n"
-		    "Content-Type: application/qgame\r\n"
-		    "Content-Length: %d\r\n"
-		    "Connection: close\r\n"
-		    "\r\n", status, reason, g->data_size);
 
-    mg_write( conn, g->data, g->data_size );
+    cJSON* gson = cJSON_CreateObject();
+    cJSON_AddStringToObject( gson, "game_id", id );
+    cJSON_AddBinaryToObject( gson, "data", g->data, g->data_size );
+   
+    render_200j( conn, ri, gson, format );
+
+    cJSON_Delete( gson ); 
     game_free( g );
 
 }
@@ -653,7 +651,7 @@ void game_controller( struct mg_connection* conn, const struct mg_request_info* 
             game_controller_desregistra( conn, ri, s, parm );
             break;
         case  ACTION_PARTIDA:
-            game_controller_partida( conn, ri, s, parm );
+            game_controller_partida( conn, ri, s, parm, format );
             break;
         case  ACTION_IMAGEN:
             game_controller_imagen( conn, ri, s, parm );

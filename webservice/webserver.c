@@ -153,6 +153,22 @@ void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, c
       render_500( conn, ri, "Formato XML no soportado" );
       return;
 
+    case FORMAT_QGAME:
+      t = cJSON_GetObjectItem( root, "data" );
+      if( !t || t->type != cJSON_Binary ){
+        render_500( conn, ri, "Sin datos - formato incorrecto" );
+        return;
+      }
+
+		  mg_printf(conn,
+		      "HTTP/1.1 %d %s\r\n"
+		      "Content-Type: application/qgame\r\n"
+		      "Content-Length: %d\r\n"
+		      "Connection: close\r\n"
+		      "\r\n", 200, "OK",  t->valuesize );
+      mg_write( conn, t->valuedata, t->valuesize );
+      return;
+
     case FORMAT_YAML:
     default:
       buf = cJSON_Print_YAML( root );
