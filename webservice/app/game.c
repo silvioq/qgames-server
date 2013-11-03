@@ -85,53 +85,6 @@ static  cJSON* game_to_cJSON( Game* g, Partida* p ){
     return game;
 }
 
-static  void  print_game_data_prefix( Game* g, Partida* p, FILE* f, int spaces ){
-    char  prefix[80];
-    prefix[spaces] = 0;
-    if( spaces ){
-        while( spaces ){
-           prefix[spaces - 1] = ' ';
-           spaces --;
-        }
-    }
-    int i, movidas ;
-    char* res;
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-    pthread_mutex_lock( &mutex );
-    fprintf( f, "%sgame_id: %s\n", prefix, g->id );
-    fprintf( f, "%stipo_juego: %s\n", prefix, game_game_type( g )->nombre );
-    fprintf( f, "%scolor: %s\n", prefix, qg_partida_color( p ) );
-    movidas = qg_partida_movhist_count( p );
-    fprintf( f, "%scantidad_movidas: %d\n", prefix, movidas );
-    qg_partida_final( p, &res );
-    fprintf( f, "%sdescripcion_estado: %s\n", prefix, res ? res : "Jugando" );
-    fprintf( f, "%ses_continuacion: %s\n", prefix, qg_partida_es_continuacion( p ) ? "true" : "false" );
-    i = 0;
-    if( movidas > 0 ){
-        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
-            if( i )
-                fprintf( f, ",%s", res );
-            else
-                fprintf( f, "%sultimos_destino: %s", prefix, res );
-            i ++;
-        }
-        if( i ) fprintf( f, "\n" );
-    }
-    pthread_mutex_unlock( &mutex );
-}
-
-
-/*
- * Dado un juego, escribe en el archivo pasado como parametro toda la informacion
- * relevante 
- * */
-static void  print_game_data( Game* g, Partida* p, FILE* f ){
-    print_game_data_prefix( g, p, f, 0 );
-}
-
-
-
 
 
 static void  game_controller_crea( struct mg_connection* conn, const struct mg_request_info* ri, Session* s, char* game_type, int format ){
