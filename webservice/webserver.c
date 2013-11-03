@@ -106,7 +106,9 @@ void render_200(struct mg_connection *conn, const struct mg_request_info *ri, ch
 		    "Content-Type: text/plain\r\n"
 		    "Content-Length: %d\r\n"
 		    "Connection: close\r\n"
-		    "\r\n%s", status, reason, len, buf);
+		    "\r\n", status, reason, len);
+
+    mg_write( conn, buf, len );
 }
 
 void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, FILE* f){
