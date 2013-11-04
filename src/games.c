@@ -371,11 +371,12 @@ void  game_set_partida( Game* g, Partida* p ){
     qg_partida_dump( p, &g->data, &g->data_size );
     g->color = strdup( qg_partida_color( p ) );
     char* res;
-    qg_partida_final( p, &res );
+    g->final  = qg_partida_final( p, &res );
     g->estado = strdup( res ? res : "Jugando" );
     g->es_continuacion = qg_partida_es_continuacion( p );
 
     int movidas = qg_partida_movhist_count( p );
+    g->cantidad_movidas = movidas;
     Movdata  movd;
     if( movidas > 0 ){
         int i = 0, len = 0;
@@ -465,9 +466,10 @@ void    game_free( Game* game ){
 static  int  game_to_bin( Game* g, void** data ){
     int  size;
     volatile char* null = "";
-    if( binary_pack( "siibsssscll", data, &size, 
+    if( binary_pack( "siibssssccill", data, &size, 
                 g->id, g->user_id, g->game_type_id, g->data, g->data_size, 
-                g->color ? g->color : null, g->estado ? g->estado : null, g->destino ? g->destino : null, g->notacion ? g->notacion : null, g->es_continuacion,
+                g->color ? g->color : null, g->estado ? g->estado : null, g->destino ? g->destino : null, g->notacion ? g->notacion : null, 
+                g->es_continuacion, g->final, g->cantidad_movidas,
                 g->created_at, g->modified_at ) ){
         return size;
     } else return 0;
@@ -482,13 +484,15 @@ static Game* bin_to_game( void* data, int size ){
     void*  game_data;
     int    game_data_size;
     char*  color, *estado, *notacion, *destino;
-    char   es_cont;
+    char   es_cont, final;
+    int    cantidad;
     time_t  created_at, modified_at;
 
-    if( binary_unpack( "siibsssscll", data, size,
+    if( binary_unpack( "siibssssccill", data, size,
                 &id, &user_id, &game_type_id,
                 &game_data, &game_data_size,
-                &color, &estado, &destino, &notacion, &es_cont,
+                &color, &estado, &destino, &notacion,
+                &es_cont, &final, &cantidad,
                 &created_at, &modified_at ) ){
         if( game_data_size && !game_data ){
             LOGPRINT( 1, "Error en lectura de juego. Tamaño incompatible con datos: Size %d", game_data_size );
@@ -502,6 +506,8 @@ static Game* bin_to_game( void* data, int size ){
         g->destino      = destino[0] ? strdup( destino ) : NULL;
         g->notacion     = notacion[0] ? strdup( notacion ) : NULL;
         g->es_continuacion = es_cont;
+        g->final        = final;
+        g->cantidad_movidas = cantidad;
         g->modified_at  = modified_at;
         if( game_data_size ) game_set_data( g, game_data, game_data_size );
         return g;

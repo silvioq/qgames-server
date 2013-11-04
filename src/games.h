@@ -50,6 +50,8 @@ typedef  struct  StrGame {
   char*             estado;       // estado de la partida
   char*             notacion;     // notacion ultima movida
   char*             destino;      // destino de la ultima movida
+  int               cantidad_movidas;
+  char              final;        //
   char              es_continuacion;
   Partida*          partida;
 
