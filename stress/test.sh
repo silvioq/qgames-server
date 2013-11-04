@@ -113,7 +113,10 @@ function   juega_hasta_200(){
         ret=$?
         if [ $ret != 0 ]; then
           curl -f "http://localhost:$PORT/$sess/tablero/$game" --stderr /dev/null
+          echo
+          curl -f "http://localhost:$PORT/$sess/posibles/$game" --stderr /dev/null
           echo "Error: $ret movida $move"
+          echo "curl -f  "http://$HOST:$PORT/$sess/mueve/$game" --data-urlencode "m=$move"  --stderr /dev/null"
           exit 1;
         fi
 

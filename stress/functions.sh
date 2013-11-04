@@ -62,7 +62,7 @@ function   listaposibles(){
         exit 1;
     fi
 
-    echo "$output" | grep notacion | cut -d " " -f 4
+    echo "$output" | grep notacion | cut -d " " -f 6
 }
 
 function   statusgame(){
