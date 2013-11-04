@@ -88,10 +88,10 @@ static  cJSON* game_to_cJSON( Game* g, Partida* p ){
         cJSON_AddNumberToObject( game, "cantidad_movidas", g->cantidad_movidas );
         cJSON_AddNumberToObject( game, "final_estado", g->final );
         cJSON_AddStringToObject( game, "descripcion_estado", g->estado ? g->estado : "-" );
-        cJSON_AddStringToObject( game, "ultimos_destino", g->destino ? g->destino : "-" );
-        if( g->notacion ){
+        if( g->notacion )
             cJSON_AddStringToObject( game, "ultima_jugada", g->notacion );
-        }
+        if( g->destino )
+            cJSON_AddStringToObject( game, "ultimos_destino", g->destino );
     }
     return game;
 }
@@ -525,7 +525,7 @@ static void  game_controller_registraciones( struct mg_connection* conn, const s
     cJSON* lista = cJSON_CreateArray();
     while( game_next( &games, &g ) ){
         if( game_check_user( g, u ) ){
-            cJSON_AddItemToArray( lista, game_to_cJSON( g, game_partida( g ) ) );
+            cJSON_AddItemToArray( lista, game_to_cJSON( g, NULL ) );
             cantidad ++;
         }
         game_free( g );
