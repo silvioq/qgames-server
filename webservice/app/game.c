@@ -467,7 +467,7 @@ static void  game_controller_desregistra( struct mg_connection* conn, const stru
     }
     game_del( g );
     game_free( g );
-    render_200( conn, ri, "Partida desregistrada" );
+    render_200( conn, ri, NULL, "Partida desregistrada" );
 }
 
 /*

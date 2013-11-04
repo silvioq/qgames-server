@@ -67,7 +67,7 @@ void render_500(struct mg_connection *conn, const struct mg_request_info *ri, ch
 void render_400(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
 void render_403(struct mg_connection *conn, const struct mg_request_info *ri);
 void render_404(struct mg_connection *conn, const struct mg_request_info *ri);
-void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf);
+void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* ctype, char* buf);
 void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, FILE* f);
 #ifdef cJSON__h
 void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, cJSON* root, int format);

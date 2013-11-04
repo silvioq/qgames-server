@@ -97,16 +97,16 @@ void render_400(struct mg_connection *conn, const struct mg_request_info *ri, ch
 		    "\r\n%s", status, reason, len, buf);
 }
 
-void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* buf){
+void render_200(struct mg_connection *conn, const struct mg_request_info *ri, char* ctype, char* buf){
     int   status = 200;
     char* reason = "OK";
     int   len    = strlen( buf );
 		mg_printf(conn,
 		    "HTTP/1.1 %d %s\r\n"
-		    "Content-Type: text/plain\r\n"
+		    "Content-Type: %s\r\n"
 		    "Content-Length: %d\r\n"
 		    "Connection: close\r\n"
-		    "\r\n", status, reason, len);
+		    "\r\n", status, reason, ctype ? ctype : "text/plain", len);
 
     mg_write( conn, buf, len );
 }
@@ -137,10 +137,12 @@ void render_200f(struct mg_connection *conn, const struct mg_request_info *ri, F
 void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, cJSON* root, int f){
 
   char* buf = NULL;
+  char* ct  = NULL;
   cJSON* t;
   switch(f){
     case FORMAT_JSON:
       buf = cJSON_Print( root );
+      ct  = "application/json";
       break;
 
     case FORMAT_TXT:
@@ -170,11 +172,12 @@ void render_200j(struct mg_connection *conn, const struct mg_request_info *ri, c
       return;
 
     case FORMAT_YAML:
+      ct = "text/yaml";
     default:
       buf = cJSON_Print_YAML( root );
       break;
   }
-  render_200( conn, ri, buf );
+  render_200( conn, ri, ct, buf );
   free( buf );
 }
 
