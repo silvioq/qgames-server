@@ -88,6 +88,7 @@ static  cJSON* game_to_cJSON( Game* g, Partida* p ){
         cJSON_AddNumberToObject( game, "cantidad_movidas", g->cantidad_movidas );
         cJSON_AddNumberToObject( game, "final_estado", g->final );
         cJSON_AddStringToObject( game, "descripcion_estado", g->estado ? g->estado : "-" );
+        cJSON_AddBoolToObject( game, "es_continuacion", g->es_continuacion );
         if( g->notacion )
             cJSON_AddStringToObject( game, "ultima_jugada", g->notacion );
         if( g->destino )
