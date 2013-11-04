@@ -62,25 +62,36 @@ static  cJSON* game_to_cJSON( Game* g, Partida* p ){
     cJSON* game = cJSON_CreateObject();
     cJSON_AddStringToObject( game, "game_id", g->id );
     cJSON_AddStringToObject( game, "tipo_juego", game_game_type( g )->nombre );
-    cJSON_AddStringToObject( game, "color", qg_partida_color( p ) );
-    movidas = qg_partida_movhist_count( p );
-    cJSON_AddNumberToObject( game, "cantidad_movidas", movidas );
-    qg_partida_final( p, &res );
-    cJSON_AddStringToObject( game, "descripcion_estado", res ? res : "Jugando" );
-    cJSON_AddBoolToObject( game, "es_continuacion", qg_partida_es_continuacion( p ) );
+    if( p ){
+        cJSON_AddStringToObject( game, "color", qg_partida_color( p ) );
+        movidas = qg_partida_movhist_count( p );
+        cJSON_AddNumberToObject( game, "cantidad_movidas", movidas );
+        qg_partida_final( p, &res );
+        cJSON_AddStringToObject( game, "descripcion_estado", res ? res : "Jugando" );
+        cJSON_AddBoolToObject( game, "es_continuacion", qg_partida_es_continuacion( p ) );
 
-    if( movidas > 0 ){
-        int i = 0, len = 0;
-        char destino[180] = "";
-        while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
-            if( strlen( res ) + len + 1 > 180 ) break;
-            if( i )
-                sprintf( destino, "%s,%s", destino, res );
-            else
-                strcpy( destino, res );
-            i ++;
+        if( movidas > 0 ){
+            int i = 0, len = 0;
+            char destino[180] = "";
+            while( res = (char*) qg_partida_movhist_destino( p, movidas - 1, i ) ){
+                if( strlen( res ) + len + 1 > 180 ) break;
+                if( i )
+                    sprintf( destino, "%s,%s", destino, res );
+                else
+                    strcpy( destino, res );
+                i ++;
+            }
+            cJSON_AddStringToObject( game, "ultimos_destino", destino );
         }
-        cJSON_AddStringToObject( game, "ultimos_destino", destino );
+    } else {
+        cJSON_AddStringToObject( game, "color", g->color ? g->color : "-" );
+        cJSON_AddNumberToObject( game, "cantidad_movidas", g->cantidad_movidas );
+        cJSON_AddNumberToObject( game, "final_estado", g->final );
+        cJSON_AddStringToObject( game, "descripcion_estado", g->estado ? g->estado : "-" );
+        cJSON_AddStringToObject( game, "ultimos_destino", g->destino ? g->destino : "-" );
+        if( g->notacion ){
+            cJSON_AddStringToObject( game, "ultima_jugada", g->notacion );
+        }
     }
     return game;
 }
@@ -112,8 +123,7 @@ static void  game_controller_crea( struct mg_connection* conn, const struct mg_r
                                      //        que quede como corresponde
     game_free( g );
     g = g2;    
-    Partida* p = game_partida( g );
-    cJSON* gson = game_to_cJSON( g, p );
+    cJSON* gson = game_to_cJSON( g, NULL );
     game_free( g );
     render_200j( conn, ri, gson, format );
     cJSON_Delete( gson );
@@ -486,9 +496,14 @@ static void  game_controller_partida( struct mg_connection* conn, const struct m
         return;
     }
 
-    cJSON* gson = cJSON_CreateObject();
-    cJSON_AddStringToObject( gson, "game_id", id );
-    cJSON_AddBinaryToObject( gson, "data", g->data, g->data_size );
+    cJSON* gson;
+    if( format == FORMAT_QGAME ){
+        gson = cJSON_CreateObject();
+        cJSON_AddStringToObject( gson, "game_id", id );
+        cJSON_AddBinaryToObject( gson, "data", g->data, g->data_size );
+    } else {
+        gson = game_to_cJSON( g, NULL );
+    }
    
     render_200j( conn, ri, gson, format );
 
