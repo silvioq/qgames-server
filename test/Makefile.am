@@ -36,4 +36,4 @@ test_routes_LDADD =  $(top_srcdir)/webservice/libwebserver.a
 AM_CFLAGS = -I ../src -I ../common -I ../webservice
 
 TESTS = $(check_PROGRAMS) webservice/test-*.sh
-
+EXTRA_DIST = $(top_srcdir)/test/test.qgame
