@@ -215,7 +215,7 @@ fi
 
 kill -2 $PID
 wait
-sleep 1
+sleep 2
 
 # Voy a intentar ejecutar el servicio web
 $PATHQS/qgserverd &
