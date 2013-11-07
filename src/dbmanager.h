@@ -24,6 +24,47 @@
 #ifndef  DBMANAGER_H
 #define  DBMANAGER_H
 
+/**********************************************************************
+
+    base users
+    ---------------------------------
+    id*           int
+    tipo          char
+    code          string
+    nombre        string
+    password      string
+
+    base games
+    ---------------------------------
+    id*           string
+    user_id       int
+    game_type_id  int
+    data          binary
+    color         string
+    estado        string
+    destino       string
+    notacion      string
+    es_continuacion   char
+    final         char
+    cantidad_movidas    int
+    created_at    long  -- datetime
+    modified_at   long  -- datetime
+
+    base gametype
+    ---------------------------------
+    id*           int
+    nombre        string
+    created_at    long  -- datetime
+
+    base  sesiones
+    ---------------------------------
+    id*           binary  -- char[32]
+    user_id       int
+    created_at    long  -- datetime
+    last_seen_at  long  -- datetime
+    
+*/
+
 #define  DBUSER      1
 #define  DBGAME      2
 #define  DBGAMETYPE  3
