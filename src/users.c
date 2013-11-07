@@ -78,7 +78,7 @@ static   int  user_to_bin( User* u, void** data ){
  * Toma un binario y lo convierte en una estructura valida 
  * de usuario
  * */
-User*  bin_to_user( void* data, int size ){
+static   User*  bin_to_user( void* data, int size ){
 
     int  id;
     char  tipo;
