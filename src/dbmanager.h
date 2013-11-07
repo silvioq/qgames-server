@@ -81,7 +81,6 @@ int    dbget_data( int db, void* key, int key_size, void** data, int* data_size 
 int    dbdel_data( int db, void* key, int key_size );
 unsigned int  dbget_usernextid( );
 unsigned int  dbget_game_typenextid( );
-// int    dbget_game( unsigned int id, void** data, int* size );
 int    dbget_user_code( char* code, void** data, int* size );
 void   dbget_stat( );
 void   dbact_close();
