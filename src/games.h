@@ -63,10 +63,13 @@ typedef  struct  StrGame {
 
 
 
+Game*   game_load( char* id );    // Lee un juego a partir de la base de datos
+void    game_free( Game* game );  // Libera juego
 
-Game*   game_load( char* id ); 
-void    game_free( Game* game );
+// Setea los datos binarios de QGames
 void    game_set_data( Game*, void* data, unsigned int data_size );
+
+// Devuelve usuario "Owner" del juego
 User*   game_user( Game* g );
 
 /*
