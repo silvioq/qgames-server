@@ -27,6 +27,7 @@
 #include  <stdlib.h>
 #include  "mongoose.h"
 #include  "users.h"
+#include  "game_types.h"
 #include  "games.h"
 #include  "log.h"
 #include  "session.h"

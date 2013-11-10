@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2009-2010 Silvio Quadri                                    *
+ * Copyright (c) 2009-2013 Silvio Quadri                                    *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -21,70 +21,50 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
  ****************************************************************************/
 
-#include  <sys/types.h>
-#include  <sys/stat.h>
-#include  <stdio.h>
-#include  <stdlib.h>
-#include  <unistd.h>
-#include  <assert.h>
+#ifndef  GAMETYPES_H
+#define  GAMETYPES_H
 
-#include  "users.h"
-#include  "game_types.h"
-#include  "games.h"
-#include  "dbmanager.h"
-#include  "log.h"
+#include <qgames.h>
 
-#define   FILEDB  "test.db"
+typedef  struct  StrGameType {
+  unsigned  int     id;
+  char*             nombre;
+  time_t            created_at;
 
-int  main( int argc, char** argv ){
+  Tipojuego*        tipojuego;
+  int               rec_flags;
+} GameType;
 
-    loglevel = 2;
-    GameType* gt;
-    Game*     g;
-    User*     u;
-    char buff[100];
-    int i;
-
-    unlink( FILEDB );
-    assert( dbset_file( FILEDB, NULL ) ) ;
-    assert( init_db( FILEDB ) );
-    dbact_close();
-
-    assert( gt = game_type_share_by_name( "Ajedrez" ) );
-    assert( gt->id == 1 );
-
-    assert( u = user_find_by_code( "root" ) );
-    assert( u->id ==  1 );
-
-    g = game_new( "x", u, gt, 0 );
-
-    assert( game_save( g ) );
-    game_free( g );
-
-    assert( g = game_load( "x" ) );
-    assert( g->created_at > 0 );
-    assert( game_game_type( g )->id == gt->id );
-    assert( game_user( g )->id == u->id );
+GameType*  game_type_by_name( char* name );
+GameType*  game_type_new( char* name, time_t created_at );
+void       game_type_free( GameType* gt );
+GameType*  game_type_share_by_name( char* name );
+GameType*  game_type_share_by_id( unsigned int id, GameType* game_type_loaded );
+void       game_type_share_clean( );
+Tipojuego*  game_type_tipojuego( GameType* gt );
 
 
-    for( i = 0; i < 100; i ++ ){
-        buff[i] = i * 97 % 256;
-    }
-    game_set_data( g, buff, 100 );
-    assert( game_save( g ) );
-    game_free( g );
+/*
+ * Uso del cursor:
+ *
+ *    void * cursor = NULL; // inicializar en nulo
+ *    GameType* gt; 
+ *    while( game_type_next( &cursor, &gt ) ){
+ *      // do something ...
+ *    }
+ *    game_type_end( &cursor );
+ * */
+int        game_type_next( void** cursor, GameType** gt );
+int        game_type_end( void** cursor );
 
-    assert( g = game_load( "x" ) );
-    assert( g->created_at > 0 );
-    assert( game_game_type( g )->id == gt->id );
-    assert( game_user( g )->id == u->id );
-    assert( g->data_size == 100 );
-    for( i = 0; i < 100; i ++ ){
-        assert( ((char*)g->data)[i] == (char)( i * 97 % 256 ) );
-    }
-    game_free( g );
-    dbact_close();
-    
+/*
+ * Esta funcion recorre el directorio de definicion de tipos
+ * de juego y carga en la base todos los juegos que hay disponibles
+ * */
+int        game_type_discover( );
 
-    exit( EXIT_SUCCESS );
-}
+int        game_type_save( GameType* gt );
+GameType*  game_type_load( unsigned int id );
+
+#endif
+// vim: set cin sw=4:

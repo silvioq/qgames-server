@@ -9,6 +9,7 @@ QGAMESLIBS=@QGAMESLIBS@
 LIB=$(QGAMESLIBS)
 DEPENDENCES= ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
+		../src/game_types.h  ../src/game_types.c \
 		../src/games.h  ../src/games.c \
 		../src/session.h  ../src/session.c \
 		../common/log.h  ../common/log.c \

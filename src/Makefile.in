@@ -46,14 +46,14 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_qgserver_tool_OBJECTS = qgserver-tool.$(OBJEXT) dbmanager.$(OBJEXT) \
-	users.$(OBJEXT) games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) \
-	md5.$(OBJEXT)
+	users.$(OBJEXT) game_types.$(OBJEXT) games.$(OBJEXT) \
+	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
 qgserver_tool_OBJECTS = $(am_qgserver_tool_OBJECTS)
 qgserver_tool_LDADD = $(LDADD)
 am_qgserverd_OBJECTS = qgserverd.$(OBJEXT) session.$(OBJEXT) \
-	dbmanager.$(OBJEXT) users.$(OBJEXT) games.$(OBJEXT) \
-	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT) base64.$(OBJEXT) \
-	cJSON.$(OBJEXT) cYAML.$(OBJEXT)
+	dbmanager.$(OBJEXT) users.$(OBJEXT) game_types.$(OBJEXT) \
+	games.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT) \
+	base64.$(OBJEXT) cJSON.$(OBJEXT) cYAML.$(OBJEXT)
 qgserverd_OBJECTS = $(am_qgserverd_OBJECTS)
 qgserverd_DEPENDENCIES = $(top_srcdir)/webservice/libwebserver.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -164,6 +164,7 @@ top_srcdir = @top_srcdir@
 qgserver_tool_SOURCES = qgserver-tool.c \
 		dbmanager.c  dbmanager.h \
 		users.h  users.c \
+		game_types.h	 game_types.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
@@ -174,6 +175,7 @@ qgserverd_SOURCES = qgserverd.c \
 		session.c     session.h \
 		dbmanager.c   dbmanager.h \
 		users.h  			users.c \
+		game_types.h	 game_types.c \
 		games.h	      games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
@@ -270,6 +272,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cJSON.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cYAML.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/game_types.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@

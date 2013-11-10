@@ -47,8 +47,9 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__objects_1 = dbmanager.$(OBJEXT) users.$(OBJEXT) games.$(OBJEXT) \
-	session.$(OBJEXT) log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
+am__objects_1 = dbmanager.$(OBJEXT) users.$(OBJEXT) \
+	game_types.$(OBJEXT) games.$(OBJEXT) session.$(OBJEXT) \
+	log.$(OBJEXT) packer.$(OBJEXT) md5.$(OBJEXT)
 am_test_check_user_game_OBJECTS = $(am__objects_1) \
 	test-check-user-game.$(OBJEXT)
 test_check_user_game_OBJECTS = $(am_test_check_user_game_OBJECTS)
@@ -212,6 +213,7 @@ QGAMESLIBS = @QGAMESLIBS@
 LIB = $(QGAMESLIBS)
 DEPENDENCES = ../src/dbmanager.c  ../src/dbmanager.h \
 		../src/users.h  ../src/users.c \
+		../src/game_types.h  ../src/game_types.c \
 		../src/games.h  ../src/games.c \
 		../src/session.h  ../src/session.c \
 		../common/log.h  ../common/log.c \
@@ -313,6 +315,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbmanager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/game_types.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/games.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Po@am__quote@
@@ -372,6 +375,20 @@ users.obj: ../src/users.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/users.c' object='users.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o users.obj `if test -f '../src/users.c'; then $(CYGPATH_W) '../src/users.c'; else $(CYGPATH_W) '$(srcdir)/../src/users.c'; fi`
+
+game_types.o: ../src/game_types.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT game_types.o -MD -MP -MF $(DEPDIR)/game_types.Tpo -c -o game_types.o `test -f '../src/game_types.c' || echo '$(srcdir)/'`../src/game_types.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/game_types.Tpo $(DEPDIR)/game_types.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/game_types.c' object='game_types.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o game_types.o `test -f '../src/game_types.c' || echo '$(srcdir)/'`../src/game_types.c
+
+game_types.obj: ../src/game_types.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT game_types.obj -MD -MP -MF $(DEPDIR)/game_types.Tpo -c -o game_types.obj `if test -f '../src/game_types.c'; then $(CYGPATH_W) '../src/game_types.c'; else $(CYGPATH_W) '$(srcdir)/../src/game_types.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/game_types.Tpo $(DEPDIR)/game_types.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/game_types.c' object='game_types.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o game_types.obj `if test -f '../src/game_types.c'; then $(CYGPATH_W) '../src/game_types.c'; else $(CYGPATH_W) '$(srcdir)/../src/game_types.c'; fi`
 
 games.o: ../src/games.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT games.o -MD -MP -MF $(DEPDIR)/games.Tpo -c -o games.o `test -f '../src/games.c' || echo '$(srcdir)/'`../src/games.c

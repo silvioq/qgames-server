@@ -4,6 +4,7 @@ bin_PROGRAMS = qgserver-tool qgserverd
 qgserver_tool_SOURCES = qgserver-tool.c \
 		dbmanager.c  dbmanager.h \
 		users.h  users.c \
+		game_types.h	 game_types.c \
 		games.h	 games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \
@@ -15,6 +16,7 @@ qgserverd_SOURCES = qgserverd.c \
 		session.c     session.h \
 		dbmanager.c   dbmanager.h \
 		users.h  			users.c \
+		game_types.h	 game_types.c \
 		games.h	      games.c \
 		../common/log.h  ../common/log.c \
 		../common/packer.h  ../common/packer.c \

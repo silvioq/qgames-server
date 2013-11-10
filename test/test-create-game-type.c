@@ -29,7 +29,7 @@
 #include  <assert.h>
 
 #include  "users.h"
-#include  "games.h"
+#include  "game_types.h"
 #include  "dbmanager.h"
 #include  "log.h"
 
