@@ -30,7 +30,7 @@ extern   int    loglevel;
 #define  LOGPRINT( level, fmt, ... )  \
     if( level <= loglevel ){ \
         if( !logfile ) logfile = stdout; \
-        fprintf( logfile, "Lev %02d: %-20s " fmt "\n", level, __FILE__ ":" QUOTEME(__LINE__), __VA_ARGS__ ); \
+        fprintf( logfile, "Lev %02d: %-20s " fmt "\n", level, __FILE__ ":" QUOTEME(__LINE__), ##__VA_ARGS__ ); \
     }
 
 #endif
